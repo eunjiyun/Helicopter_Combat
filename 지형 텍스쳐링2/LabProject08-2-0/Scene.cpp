@@ -4,6 +4,8 @@
 
 #include "stdafx.h"
 #include "Scene.h"
+//class CGameModelObj;
+//#include "Object.cpp"
 
 CScene::CScene()
 {
@@ -35,6 +37,18 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain);
 	m_ppShaders[0] = pObjectShader;
 
+	//22.10.12
+	//Çï¸®ÄßÅÍ ¸ðµ¨
+
+	CGameModelObj* pModel = CGameModelObj::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, Models[0]);
+	CGunshipObject* pGunshipObject = NULL;
+	pGunshipObject = new CGunshipObject(m_pTerrain);
+	pGunshipObject->SetChild(pModel, true);
+	pGunshipObject->OnInitialize();
+	//pGunshipObject->isEnable = false;
+	v_GameObjects.push_back(pGunshipObject);
+	//
+
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
@@ -60,7 +74,11 @@ void CScene::ReleaseObjects()
 
 void CScene::ReleaseUploadBuffers()
 {
-	for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
+	//for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
+	//22.10.12
+	for (int i = 0; i < v_GameObjects.size(); ++i)
+		v_GameObjects[i]->ReleaseUploadBuffers();
+	//
 	if (m_pTerrain) m_pTerrain->ReleaseUploadBuffers();
 }
 
@@ -151,14 +169,28 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 
 void CScene::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
+	//22.10.12
+	UINT ncbElementBytes = ((sizeof(LIGHTS) + 255) & ~255); //256ÀÇ ¹è¼ö
+	m_pd3dcbLights = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	m_pd3dcbLights->Map(0, NULL, (void**)&m_pcbMappedLights);
+	//
 }
 
 void CScene::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 {
+	::memcpy(m_pcbMappedLights->m_pLights, m_pLights, sizeof(LIGHT) * m_nLights);
+	::memcpy(&m_pcbMappedLights->m_xmf4GlobalAmbient, &m_xmf4GlobalAmbient, sizeof(XMFLOAT4));
+	::memcpy(&m_pcbMappedLights->m_nLights, &m_nLights, sizeof(int));
 }
 
 void CScene::ReleaseShaderVariables()
 {
+	if (m_pd3dcbLights)
+	{
+		m_pd3dcbLights->Unmap(0, NULL);
+		m_pd3dcbLights->Release();
+	}
 }
 
 bool CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -193,6 +225,11 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 
 	UpdateShaderVariables(pd3dCommandList);
 
+	//22.10.12
+	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
+	pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
+	//
+
 	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
 
 	for (int i = 0; i < m_nShaders; i++)
@@ -202,5 +239,17 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 //		m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 		//
 	}
+
+	//22.10.12
+	/*for (int i = 0; i < v_GameObjects.size(); ++i)
+	{*/
+		//if (v_GameObjects[0]->isEnable)
+		//{
+			v_GameObjects[0]->Animate(m_fElapsedTime, NULL);
+			v_GameObjects[0]->UpdateTransform(NULL);
+			//v_GameObjects[0]->Render(pd3dCommandList, pCamera);
+		//}
+	//}
+	//
 }
 
