@@ -7,6 +7,10 @@
 //class CGameModelObj;
 //#include "Object.cpp"
 
+//22.10.13
+#include "Player.h"
+//
+
 CScene::CScene()
 {
 }
@@ -55,13 +59,31 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	
 	pGunshipObject->buildObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature
 	, pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain));
+	//
 
 	m_ppShaders[0] = pObjectShader;
+
+	//22.10.13
+	//CAirplanePlayer* boxPlayer = new CAirplanePlayer(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+
+	/*CCubeMeshDiffused *pCubeMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList, 4.0f, 12.0f, 4.0f);
+	SetMesh(pCubeMesh);
+
+
+	CPlayerShader* pShader = new CPlayerShader();
+	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	pShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 0);
+	pShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbPlayer, ncbElementBytes);
+	SetCbvGPUDescriptorHandle(pShader->GetGPUCbvDescriptorStartHandle());
+	SetShader(pShader);
+	m_ppShaders[1] = boxPlayer->shader;*/
 	//
+	
 
 	pGunshipObject->SetChild(pModel, true);
 	pGunshipObject->OnInitialize();
-	//pGunshipObject->isEnable = false;
+	//pGunshipObject->canDo = false;
 	objBox.push_back(pGunshipObject);
 	//
 

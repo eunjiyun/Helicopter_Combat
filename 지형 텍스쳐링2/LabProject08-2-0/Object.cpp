@@ -547,7 +547,8 @@ void CRevolvingObject::Animate(float fTimeElapsed)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 CHeightMapTerrain::CHeightMapTerrain(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, 
-	ID3D12RootSignature *pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength, int nBlockWidth, int nBlockLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color) : CGameObject(0)
+	ID3D12RootSignature *pd3dGraphicsRootSignature, LPCTSTR pFileName, 
+	int nWidth, int nLength, int nBlockWidth, int nBlockLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color) : CGameObject(0)
 {
 	m_nWidth = nWidth;
 	m_nLength = nLength;
@@ -573,7 +574,8 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 		{
 			xStart = x * (nBlockWidth - 1);
 			zStart = z * (nBlockLength - 1);
-			pHeightMapGridMesh = new CHeightMapGridMesh(pd3dDevice, pd3dCommandList, xStart, zStart, nBlockWidth, nBlockLength, xmf3Scale, xmf4Color, m_pHeightMapImage);
+			pHeightMapGridMesh = new CHeightMapGridMesh(pd3dDevice, pd3dCommandList, 
+				xStart, zStart, nBlockWidth, nBlockLength, xmf3Scale, xmf4Color, m_pHeightMapImage);
 			SetMesh(x + (z*cxBlocks), pHeightMapGridMesh);
 		}
 	}
@@ -642,7 +644,13 @@ BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
 #define _WITH_DEBUG_FRAME_HIERARCHY
 
 CMeshLoadInfo* CGameModelObj::LoadMeshInfoFromFile(FILE* pInFile)
+//CMeshLoadInfo* CGameModelObj::LoadMeshInfoFromFile(char* pstrFileName)
 {
+	//22.10.14
+	/*FILE* pInFile = NULL;
+	::fopen_s(&pInFile, pstrFileName, "rb");*/
+	//
+
 	char pstrToken[64] = { '\0' };
 	UINT nReads = 0;
 
@@ -793,7 +801,8 @@ MATERIALSLOADINFO* CGameModelObj::LoadMaterialsInfoFromFile(ID3D12Device* pd3dDe
 	return(pMaterialsInfo);
 }
 
-CGameModelObj* CGameModelObj::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, FILE* pInFile)
+CGameModelObj* CGameModelObj::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, 
+	ID3D12RootSignature* pd3dGraphicsRootSignature, FILE* pInFile)
 {
 	char pstrToken[64] = { '\0' };
 	UINT nReads = 0;
@@ -827,7 +836,11 @@ CGameModelObj* CGameModelObj::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevic
 		}
 		else if (!strcmp(pstrToken, "<Mesh>:"))
 		{
+			//22.10.14
+			//"Model/Gunship.bin"
 			CMeshLoadInfo* pMeshInfo = pGameObject->LoadMeshInfoFromFile(pInFile);
+			//CMeshLoadInfo* pMeshInfo = pGameObject->LoadMeshInfoFromFile("Model/Gunship.bin");
+			//
 			if (pMeshInfo)
 			{
 				CMesh* pMesh = NULL;
@@ -896,8 +909,10 @@ void CGameModelObj::PrintFrameInfo(CGameModelObj* pGameObject, CGameModelObj* pP
 	if (pGameObject->m_pSibling) CGameModelObj::PrintFrameInfo(pGameObject->m_pSibling, pParent);
 	if (pGameObject->m_pChild)CGameModelObj::PrintFrameInfo(pGameObject->m_pChild, pGameObject);
 }
+
 //loadgeo함수 추가
-CGameModelObj* CGameModelObj::LoadGeometryFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName)
+CGameModelObj* CGameModelObj::LoadGeometryFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
+	ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName)
 {
 	FILE* pInFile = NULL;
 	::fopen_s(&pInFile, pstrFileName, "rb");
@@ -1054,6 +1069,19 @@ void CGunshipObject::OnInitialize()
 void CGunshipObject::buildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, 
 	ID3D12RootSignature* pd3dGraphicsRootSignature, ID3D12Resource* what)//, void* pContext = NULL);
 {
+
+	//22.10.13
+	//CMeshLoadInfo* pMeshInfo = pGameObject->LoadMeshInfoFromFile(pInFile);
+
+	/*CMeshLoadInfo* pMeshInfo =LoadMeshInfoFromFile("Model/Gunship.bin");
+	m_pMesh = new CMeshIlluminatedFromFile(pd3dDevice, pd3dCommandList, pMeshInfo);
+	SetMesh(m_pMesh);*/
+
+	CCubeMeshDiffused *pCubeMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList, 4.0f, 12.0f, 4.0f);
+	SetMesh(pCubeMesh);
+	//
+
+
 	m_pIlluminatedShader = new CIlluminatedShader();
 	m_pIlluminatedShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pIlluminatedShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
