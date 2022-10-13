@@ -15,7 +15,10 @@ struct CB_PLAYER_INFO
 	XMFLOAT4X4					m_xmf4x4World;
 };
 
-class CPlayer : public CGameObject
+//22.10.13
+//class CPlayer : public CGameObject
+class CPlayer : public CGameModelObj
+//
 {
 protected:
 	XMFLOAT3					m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -38,6 +41,8 @@ protected:
 	LPVOID						m_pCameraUpdatedContext = NULL;
 
 	CCamera						*m_pCamera = NULL;
+
+	
 
 public:
 	CPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext=NULL, int nMeshes = 1);

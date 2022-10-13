@@ -24,6 +24,10 @@
 #define ADDITIONAL_SIZE		3
 //
 
+//22.10.13
+#define PADDING				10.0f
+//
+
 class CShader;
 
 struct CB_GAMEOBJECT_INFO
@@ -170,8 +174,73 @@ public:
 
 	void ReleaseUploadBuffers();
 };
+class CMaterial;
 
-class CMaterial
+class CGameObject
+{
+public:
+	CGameObject(int nMeshes = 1);
+	virtual ~CGameObject();
+
+public:
+	XMFLOAT4X4						m_xmf4x4World;
+
+	CMesh** m_ppMeshes;
+	int								m_nMeshes;
+
+	CMaterial* m_pMaterial = NULL;
+
+	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
+
+	//22.10.12
+	char							m_pstrFrameName[64];
+	XMFLOAT4X4						m_xmf4x4Transform;
+	//
+
+//protected:
+public:
+	ID3D12Resource* m_pd3dcbGameObject = NULL;
+	CB_GAMEOBJECT_INFO* m_pcbMappedGameObject = NULL;
+
+public:
+	void SetMesh(int nIndex, CMesh* pMesh);
+	void SetShader(CShader* pShader);
+	void SetMaterial(CMaterial* pMaterial);
+
+	void SetCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
+	void SetCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetCbvGPUDescriptorHandle() { return(m_d3dCbvGPUDescriptorHandle); }
+
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void ReleaseShaderVariables();
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+
+	virtual void Animate(float fTimeElapsed);
+	virtual void OnPrepareRender() { }
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
+
+	virtual void BuildMaterials(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) { }
+	virtual void ReleaseUploadBuffers();
+
+	XMFLOAT3 GetPosition();
+	XMFLOAT3 GetLook();
+	XMFLOAT3 GetUp();
+	XMFLOAT3 GetRight();
+
+	void SetPosition(float x, float y, float z);
+	void SetPosition(XMFLOAT3 xmf3Position);
+
+	void MoveStrafe(float fDistance = 1.0f);
+	void MoveUp(float fDistance = 1.0f);
+	void MoveForward(float fDistance = 1.0f);
+
+	void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
+	void Rotate(XMFLOAT3* pxmf3Axis, float fAngle);
+
+
+};
+
+class CMaterial//:public CGameObject
 {
 public:
 	CMaterial();
@@ -207,8 +276,17 @@ public:
 	void SetMaterialColors(CMaterialColors* pMaterialColors);
 	void SetIlluminatedShader() { SetShader(m_pIlluminatedShader); }
 	void UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList);
+public:
+	 void CMaterial::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	//
+
+	//22.10.13
+	//static ID3D12Resource* m_pd3dcbGameObject;// = NULL;
+	//ID3D12Resource* m_pd3dcbGameObject= NULL;
 	//
 };
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -272,7 +350,10 @@ public:
 	virtual void Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent = NULL);
 
 	virtual void OnPrepareRender() { }
+
+	//22.10.13
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
+	//
 
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
@@ -322,70 +403,19 @@ public:
 	static CGameModelObj* LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, FILE* pInFile);
 	//static CMeshLoadInfo* LoadMeshInfoFromFile(FILE* pInFile);
 	//
-};
-//
-class CGameObject
-{
-public:
-	CGameObject(int nMeshes=1);
-	virtual ~CGameObject();
 
-public:
-	XMFLOAT4X4						m_xmf4x4World;
-
-	CMesh							**m_ppMeshes;
-	int								m_nMeshes;
-
-	CMaterial						*m_pMaterial = NULL;
-
+	//22.10.13
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
-
-	//22.10.12
-	char							m_pstrFrameName[64];
-	XMFLOAT4X4						m_xmf4x4Transform;
-	//
-
-protected:
-	ID3D12Resource					*m_pd3dcbGameObject = NULL;
-	CB_GAMEOBJECT_INFO				*m_pcbMappedGameObject = NULL;
-
-public:
-	void SetMesh(int nIndex, CMesh *pMesh);
-	void SetShader(CShader *pShader);
-	void SetMaterial(CMaterial *pMaterial);
-
 	void SetCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
-	void SetCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }
-	D3D12_GPU_DESCRIPTOR_HANDLE GetCbvGPUDescriptorHandle() { return(m_d3dCbvGPUDescriptorHandle); }
+	//ID3D12Resource* m_pd3dcbGameObject = NULL;
 
-	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual void ReleaseShaderVariables();
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
-
-	virtual void Animate(float fTimeElapsed);
-	virtual void OnPrepareRender() { }
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
-
-	virtual void BuildMaterials(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) { }
-	virtual void ReleaseUploadBuffers();
-
-	XMFLOAT3 GetPosition();
-	XMFLOAT3 GetLook();
-	XMFLOAT3 GetUp();
-	XMFLOAT3 GetRight();
-
-	void SetPosition(float x, float y, float z);
-	void SetPosition(XMFLOAT3 xmf3Position);
-
-	void MoveStrafe(float fDistance = 1.0f);
-	void MoveUp(float fDistance = 1.0f);
-	void MoveForward(float fDistance = 1.0f);
-
-	void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
-	void Rotate(XMFLOAT3 *pxmf3Axis, float fAngle);
+	//CGameModelObj** hellObj = NULL;
+	//
 
 	
 };
+//
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -478,6 +508,14 @@ public:
 	LPVOID						m_pUpdatedContext;
 	virtual void SetUpdatedContext(LPVOID pContext) { m_pUpdatedContext = pContext; }
 	//
+
+	//22.10.13
+	XMFLOAT3					m_xmf3Velocity;
+	virtual void CommandF4(CGameModelObj* m_pPlayer);
+	virtual void OnUpdateCallback();
+	const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }
+	void SetVelocity(const XMFLOAT3& xmf3Velocity) { m_xmf3Velocity = xmf3Velocity; }
+	//
 };
 class CGunshipObject : public CHellicopterObject
 {
@@ -487,5 +525,15 @@ public:
 
 public:
 	virtual void OnInitialize();
+
+	//22.10.13
+	ID3D12Resource* m_pd3dcbGameObjects = NULL;
+	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
+	void buildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
+		ID3D12RootSignature* pd3dGraphicsRootSignature, ID3D12Resource* what);//, void* pContext = NULL);
+	static CShader* m_pIlluminatedShader;
+	void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	
+	//
 };
 //

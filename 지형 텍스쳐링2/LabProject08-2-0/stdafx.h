@@ -35,6 +35,10 @@
 
 #include <vector>
 
+//22.10.13
+#include<random>
+//
+
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 

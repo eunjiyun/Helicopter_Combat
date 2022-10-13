@@ -20,6 +20,10 @@ CScene::~CScene()
 void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
+	
+	//22.10.12
+	//CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);//추가1 ?
+	//
 
 	XMFLOAT3 xmf3Scale(8.0f, 2.0f, 8.0f);
 	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
@@ -33,9 +37,10 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppShaders = new CShader*[m_nShaders];
 
 	CObjectsShader *pObjectShader = new CObjectsShader();
-	pObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
-	pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain);
-	m_ppShaders[0] = pObjectShader;
+	pObjectShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+
+	//pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain);//디스크립터 힙 보려면 여기로
+	//m_ppShaders[0] = pObjectShader;
 
 	//22.10.12
 	//헬리콥터 모델
@@ -43,6 +48,17 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	CGameModelObj* pModel = CGameModelObj::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, Models[0]);
 	CGunshipObject* pGunshipObject = NULL;
 	pGunshipObject = new CGunshipObject(m_pTerrain);
+
+	//22.10.13
+	//추가1
+	//m_pd3dcbGameObject
+	
+	pGunshipObject->buildObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature
+	, pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain));
+
+	m_ppShaders[0] = pObjectShader;
+	//
+
 	pGunshipObject->SetChild(pModel, true);
 	pGunshipObject->OnInitialize();
 	//pGunshipObject->isEnable = false;
@@ -236,7 +252,7 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	{
 		//22.10.08
 		// 상자 안 그리려고
-//		m_ppShaders[i]->Render(pd3dCommandList, pCamera);
+		m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 		//
 	}
 
@@ -252,4 +268,17 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	//}
 	//
 }
+
+//22.10.13
+void  CScene::CommandF(CGameModelObj* m_pPlayer)
+{
+	for (int i = 0; i < v_GameObjects.size(); ++i)
+	{
+		if (v_GameObjects[i]->isEnable)
+		{
+			((CHellicopterObject*)v_GameObjects[i])->CommandF4(m_pPlayer);
+		}
+	}
+}
+//
 

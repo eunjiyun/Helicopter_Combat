@@ -87,4 +87,8 @@ public:
 
 	XMFLOAT4					m_xmf4GlobalAmbient;
 	//
+
+	//22.10.13
+	void CommandF(CGameModelObj* m_pPlayer);
+	//
 };

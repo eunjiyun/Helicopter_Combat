@@ -6,6 +6,11 @@
 #include "Object.h"
 #include "Shader.h"
 
+//22.10.13
+std::random_device rdHellicopter{};
+std::default_random_engine dreHellicopter{ rdHellicopter() };
+//
+
 CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootParameters)
 {
 	m_nTextureType = nTextureType;
@@ -170,6 +175,7 @@ D3D12_SHADER_RESOURCE_VIEW_DESC CTexture::GetShaderResourceViewDesc(int nIndex)
 
 //22.10.12
 CShader* CMaterial::m_pIlluminatedShader = NULL;
+CShader* CGunshipObject::m_pIlluminatedShader = NULL; //여기!
 
 CMaterialColors::CMaterialColors(MATERIALLOADINFO* pMaterialInfo)
 {
@@ -200,25 +206,77 @@ void CMaterial::SetMaterialColors(CMaterialColors* pMaterialColors)
 	if (m_pMaterialColors) m_pMaterialColors->AddRef();
 }
 
+void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
+}
 void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	//XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &(m_pMaterialColors->m_xmf4Ambient), 16);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &(m_pMaterialColors->m_xmf4Diffuse), 20);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &(m_pMaterialColors->m_xmf4Specular), 24);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &(m_pMaterialColors->m_xmf4Emissive), 28);
+	////XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &(m_pMaterialColors->m_xmf4Ambient), 16);
+	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &(m_pMaterialColors->m_xmf4Diffuse), 20);
+	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &(m_pMaterialColors->m_xmf4Specular), 24);
+	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &(m_pMaterialColors->m_xmf4Emissive), 28);
 
-	/*pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, NULL, 16);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, NULL, 20);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, NULL, 24);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, NULL, 28);*/
+	///*pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, NULL, 16);
+	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, NULL, 20);
+	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, NULL, 24);
+	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, NULL, 28);*/
+
+	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
 }
 
-void CMaterial::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+void CMaterial::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) //: CGameObject(0)
 {
 	m_pIlluminatedShader = new CIlluminatedShader();
 	m_pIlluminatedShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pIlluminatedShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	//22.10.13
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+	CTexture* pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Stones.dds", RESOURCE_TEXTURE2D, 0);
+
+	m_pIlluminatedShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 1);
+	//CGameObject* obj = new CGameObject();
+	//ID3D12Resource* m_pd3dcbGameObject = NULL;
+	//m_pIlluminatedShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObject, ncbElementBytes);
+	m_pIlluminatedShader->CreateShaderResourceViews(pd3dDevice, pTexture, 0, 4);
+	//
+
+
+	//22.10.13
+	//상자 예시
+	/*CTexture* pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Stones.dds", RESOURCE_TEXTURE2D, 0);
+
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);
+
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, m_nObjects, 1);
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateConstantBufferViews(pd3dDevice, m_nObjects, m_pd3dcbGameObjects, ncbElementBytes);
+	CreateShaderResourceViews(pd3dDevice, pTexture, 0, 3);*/
+
+
+	//터레인 예시
+	//UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+	
+	////CTerrainShader* pTerrainShader = new CTerrainShader();
+	////pTerrainShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	////pTerrainShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	////pTerrainShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 5);
+	////pTerrainShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObject, ncbElementBytes);
+	////pTerrainShader->CreateShaderResourceViews(pd3dDevice, pTerrainTexture, 0, 4);
+
+	//CMaterial* pTerrainMaterial = new CMaterial();
+	//pTerrainMaterial->SetTexture(pTerrainTexture);
+
+	//SetMaterial(pTerrainMaterial);
+
+	//SetCbvGPUDescriptorHandle(pTerrainShader->GetGPUCbvDescriptorStartHandle());
+
+	//SetShader(pTerrainShader);
+	//
 }
 //
 
@@ -236,10 +294,7 @@ void CMaterial::SetShader(CShader *pShader)
 	if (m_pShader) m_pShader->AddRef();
 }
 
-void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
-{
-	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
-}
+
 
 void CMaterial::ReleaseShaderVariables()
 {
@@ -339,6 +394,7 @@ void CGameObject::Animate(float fTimeElapsed)
 
 void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
+	
 	OnPrepareRender();
 
 	if (m_pMaterial)
@@ -490,7 +546,8 @@ void CRevolvingObject::Animate(float fTimeElapsed)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-CHeightMapTerrain::CHeightMapTerrain(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength, int nBlockWidth, int nBlockLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color) : CGameObject(0)
+CHeightMapTerrain::CHeightMapTerrain(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, 
+	ID3D12RootSignature *pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength, int nBlockWidth, int nBlockLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color) : CGameObject(0)
 {
 	m_nWidth = nWidth;
 	m_nLength = nLength;
@@ -535,7 +592,7 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
 
 	CTerrainShader *pTerrainShader = new CTerrainShader();
-	pTerrainShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
+	pTerrainShader->CreateShader(pd3dDevice,  pd3dCommandList, pd3dGraphicsRootSignature);
 	pTerrainShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	pTerrainShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 5);
 	pTerrainShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObject, ncbElementBytes);
@@ -913,6 +970,45 @@ CHellicopterObject::~CHellicopterObject()
 {
 }
 
+//22.10.13
+void CHellicopterObject::CommandF4(CGameModelObj* m_pPlayer)
+{
+	std::uniform_int_distribution<int> uidX(-500, 500);
+	std::uniform_int_distribution<int> uidZ(-500, 500);
+	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)m_pUpdatedContext;
+	XMFLOAT3 playerPosition = m_pPlayer->GetPosition();
+	XMFLOAT3 randomPosition;
+	randomPosition.x = playerPosition.x + uidX(dreHellicopter);
+	randomPosition.z = playerPosition.z + uidZ(dreHellicopter);
+	randomPosition.y = pTerrain->GetHeight(randomPosition.x, randomPosition.z) + 6.0f;
+	SetPosition(randomPosition);
+	OnUpdateCallback();
+}
+void CHellicopterObject::OnUpdateCallback()
+{
+	XMFLOAT3 xmf3Position = GetPosition();
+	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)m_pUpdatedContext;
+	float fHeight = pTerrain->GetHeight(xmf3Position.x, xmf3Position.z) + 6.0f;
+	if (xmf3Position.y < fHeight)
+	{
+		XMFLOAT3 xmf3Velocity = GetVelocity();
+		xmf3Velocity.y = 0.0f;
+		SetVelocity(xmf3Velocity);
+		xmf3Position.y = fHeight;
+	}
+
+	if (xmf3Position.x < PADDING)
+		xmf3Position.x = PADDING;
+	if (xmf3Position.z < PADDING)
+		xmf3Position.z = PADDING;
+	if (xmf3Position.x > pTerrain->GetWidth() - PADDING)
+		xmf3Position.x = pTerrain->GetWidth() - PADDING;
+	if (xmf3Position.z > pTerrain->GetLength() - PADDING)
+		xmf3Position.z = pTerrain->GetLength() - PADDING;
+
+	SetPosition(xmf3Position);
+}
+//
 void CHellicopterObject::OnInitialize()
 {
 }
@@ -954,6 +1050,74 @@ void CGunshipObject::OnInitialize()
 }
 //
 
+//22.10.13
+void CGunshipObject::buildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, 
+	ID3D12RootSignature* pd3dGraphicsRootSignature, ID3D12Resource* what)//, void* pContext = NULL);
+{
+	m_pIlluminatedShader = new CIlluminatedShader();
+	m_pIlluminatedShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pIlluminatedShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	//22.10.13
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+	CTexture* pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Stones.dds", RESOURCE_TEXTURE2D, 0);
+
+	m_pIlluminatedShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 1);
+	//CGameObject* obj = new CGameObject();
+	//ID3D12Resource* m_pd3dcbGameObject = NULL;
+	
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	m_pIlluminatedShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
+	//m_pIlluminatedShader->CreateConstantBufferViews(pd3dDevice, 1,what, ncbElementBytes);
+
+	m_pIlluminatedShader->CreateShaderResourceViews(pd3dDevice, pTexture, 0, 4);
+	//
+
+
+	//22.10.13
+	//상자 예시
+	/*CTexture* pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Stones.dds", RESOURCE_TEXTURE2D, 0);
+
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);
+
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, m_nObjects, 1);
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateConstantBufferViews(pd3dDevice, m_nObjects, m_pd3dcbGameObjects, ncbElementBytes);
+	CreateShaderResourceViews(pd3dDevice, pTexture, 0, 3);*/
+
+
+	//터레인 예시
+	//UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+
+	////CTerrainShader* pTerrainShader = new CTerrainShader();
+	////pTerrainShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	////pTerrainShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	////pTerrainShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 5);
+	////pTerrainShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObject, ncbElementBytes);
+	////pTerrainShader->CreateShaderResourceViews(pd3dDevice, pTerrainTexture, 0, 4);
+
+	//CMaterial* pTerrainMaterial = new CMaterial();
+	//pTerrainMaterial->SetTexture(pTerrainTexture);
+
+	//SetMaterial(pTerrainMaterial);
+
+	//SetCbvGPUDescriptorHandle(pTerrainShader->GetGPUCbvDescriptorStartHandle());
+
+	//SetShader(pTerrainShader);
+	//
+}
+
+void CGunshipObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes * 1, 
+		D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
+}
+//
 
 //22.10.12
 CGameModelObj::CGameModelObj()
@@ -1045,6 +1209,7 @@ void CGameModelObj::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* 
 			if (m_ppMaterials[i])
 			{
 				if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+				//if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList);// , pCamera);
 				m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
 			}
 
