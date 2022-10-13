@@ -344,8 +344,8 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);	
 
 	//22.10.13
-	CGameModelObj* pGameObject = CGameModelObj::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Models/Gunship.bin");
-	SetChild(pGameObject, true);
+	CGameModelObj* pGameObject = CGameModelObj::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Gunship.bin");
+	//SetChild(pGameObject, true);
 	//
 
 	/*CCubeMeshDiffused *pCubeMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList, 4.0f, 12.0f, 4.0f);

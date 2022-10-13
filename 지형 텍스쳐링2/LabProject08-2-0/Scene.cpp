@@ -263,7 +263,7 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		//{
 			objBox[0]->Animate(m_fElapsedTime, NULL);
 			objBox[0]->UpdateTransform(NULL);
-			objBox[0]->Render(pd3dCommandList, pCamera);
+			//objBox[0]->Render(pd3dCommandList, pCamera);
 		//}
 	//}
 	//
