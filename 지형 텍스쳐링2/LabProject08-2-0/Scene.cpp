@@ -45,7 +45,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	//22.10.12
 	//Çï¸®ÄßÅÍ ¸ðµ¨
 
-	CGameModelObj* pModel = CGameModelObj::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, Models[0]);
+	CGameModelObj* pModel = CGameModelObj::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, heli[0]);
 	CGunshipObject* pGunshipObject = NULL;
 	pGunshipObject = new CGunshipObject(m_pTerrain);
 
@@ -62,7 +62,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	pGunshipObject->SetChild(pModel, true);
 	pGunshipObject->OnInitialize();
 	//pGunshipObject->isEnable = false;
-	v_GameObjects.push_back(pGunshipObject);
+	objBox.push_back(pGunshipObject);
 	//
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -92,8 +92,8 @@ void CScene::ReleaseUploadBuffers()
 {
 	//for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
 	//22.10.12
-	for (int i = 0; i < v_GameObjects.size(); ++i)
-		v_GameObjects[i]->ReleaseUploadBuffers();
+	for (int i = 0; i < objBox.size(); ++i)
+		objBox[i]->ReleaseUploadBuffers();
 	//
 	if (m_pTerrain) m_pTerrain->ReleaseUploadBuffers();
 }
@@ -261,8 +261,8 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	{*/
 		//if (v_GameObjects[0]->isEnable)
 		//{
-			v_GameObjects[0]->Animate(m_fElapsedTime, NULL);
-			v_GameObjects[0]->UpdateTransform(NULL);
+			objBox[0]->Animate(m_fElapsedTime, NULL);
+			objBox[0]->UpdateTransform(NULL);
 			//v_GameObjects[0]->Render(pd3dCommandList, pCamera);
 		//}
 	//}
@@ -272,11 +272,11 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 //22.10.13
 void  CScene::CommandF(CGameModelObj* m_pPlayer)
 {
-	for (int i = 0; i < v_GameObjects.size(); ++i)
+	for (int i = 0; i < objBox.size(); ++i)
 	{
-		if (v_GameObjects[i]->isEnable)
+		if (objBox[i]->canDo)
 		{
-			((CHellicopterObject*)v_GameObjects[i])->CommandF4(m_pPlayer);
+			((CHellicopterObject*)objBox[i])->CommandF4(m_pPlayer);
 		}
 	}
 }

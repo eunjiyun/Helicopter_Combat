@@ -344,11 +344,12 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);	
 
 	//22.10.13
-	CGameModelObj* pGameObject = CGameModelObj::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/GunShip.bin");
+	CGameModelObj* pGameObject = CGameModelObj::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Models/GunShip.bin");
+	//SetChild(pGameObject, true);
 	//
 
-	CCubeMeshDiffused *pCubeMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList, 4.0f, 12.0f, 4.0f);
-	SetMesh(pCubeMesh);
+	/*CCubeMeshDiffused *pCubeMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList, 4.0f, 12.0f, 4.0f);
+	SetMesh(pCubeMesh);*/
 
 	UINT ncbElementBytes = ((sizeof(CB_PLAYER_INFO) + 255) & ~255); //256ÀÇ ¹è¼ö
 
@@ -360,14 +361,12 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	SetCbvGPUDescriptorHandle(pShader->GetGPUCbvDescriptorStartHandle());
 
-	SetShader(pShader);
+	//SetShader(pShader);
 
 	CHeightMapTerrain *pTerrain = (CHeightMapTerrain *)pContext;
 	SetPosition(XMFLOAT3(pTerrain->GetWidth()*0.5f, 2000.0f, pTerrain->GetLength()*0.5f));
 	SetPlayerUpdatedContext(pTerrain);
 	SetCameraUpdatedContext(pTerrain);
-
-	//CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 CTerrainPlayer::~CTerrainPlayer()

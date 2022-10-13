@@ -76,8 +76,8 @@ protected:
 	//22.10.12
 public:
 	float						m_fElapsedTime = 0.0f;
-	std::vector<CGameModelObj*> v_GameObjects;
-	std::vector<char*> Models{ "Model/Gunship.bin", "Model/SuperCobra.bin", "Model/Mi24.bin", "Model/Apache.bin" };
+	std::vector<CGameModelObj*> objBox;
+	std::vector<char*> heli{ "Models/Gunship.bin", "Models/SuperCobra.bin", "Models/Mi24.bin", "Models/Apache.bin" };
 
 	ID3D12Resource* m_pd3dcbLights = NULL;
 	LIGHTS* m_pcbMappedLights = NULL;
