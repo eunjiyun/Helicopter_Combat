@@ -39,6 +39,9 @@ protected:
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;
 	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 	CGameObject** m_ppObjects = 0;
+
+	//22.10.20
+public:
 	int								m_nObjects = 0;
 	//
 

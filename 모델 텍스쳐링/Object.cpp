@@ -996,6 +996,10 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
 
 	CTerrainShader* pTerrainShader = new CTerrainShader();
+	//22.10.20
+	pTerrainShader->m_nObjects = 1;
+	//
+	
 	pTerrainShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pTerrainShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);//그리고 이거
 	pTerrainShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 5);//여기네
