@@ -68,16 +68,37 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	BuildDefaultLightsAndMaterials();
 
-	m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	//22.10.16
+	//m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	//
 
-	m_nShaders = 1;
+	m_nShaders = 2;
 	m_ppShaders = new CShader*[m_nShaders];
 
 	CObjectsShader *pObjectsShader = new CObjectsShader();
 	pObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, NULL);
+
+	//22.10.14
+	//pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, NULL);
+	pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	//
 
 	m_ppShaders[0] = pObjectsShader;
+
+	//22.10.16
+	XMFLOAT3 xmf3Scale(8.0f, 2.0f, 8.0f);
+	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
+#ifdef _WITH_TERRAIN_PARTITION
+	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Image/HeightMap.raw"), 257, 257, 17, 17, xmf3Scale, xmf4Color);
+#else
+	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Image/HeightMap.raw"), 257, 257, 257, 257, xmf3Scale, xmf4Color);
+#endif
+
+	CObjectsShader* terrainShader = new CObjectsShader();
+	terrainShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	terrainShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain);
+	m_ppShaders[1] = terrainShader;
+	//
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -115,9 +136,11 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	ID3D12RootSignature *pd3dGraphicsRootSignature = NULL;
 
 #ifdef _WITH_STANDARD_TEXTURE_MULTIPLE_DESCRIPTORS
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[8];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[9];//디스크립터레인지 8개
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	//1.srv 2.uav 3.cbv 4.sampler
+
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
 	pd3dDescriptorRanges[0].BaseShaderRegister = 6; //t6: gtxtAlbedoTexture
 	pd3dDescriptorRanges[0].RegisterSpace = 0;
@@ -165,16 +188,24 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dDescriptorRanges[7].RegisterSpace = 0;
 	pd3dDescriptorRanges[7].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[11];
+	//22.10.16
+	pd3dDescriptorRanges[8].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pd3dDescriptorRanges[8].NumDescriptors = 5;
+	pd3dDescriptorRanges[8].BaseShaderRegister = 1; //t1~t5: gtxtTerrainBaseTexture, gtxtTerrainDetailTextures[3], gtxtTerrainAlphaTexture
+	pd3dDescriptorRanges[8].RegisterSpace = 0;
+	pd3dDescriptorRanges[8].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	//
+
+	D3D12_ROOT_PARAMETER pd3dRootParameters[11];//파라미터 11개
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[0].Descriptor.ShaderRegister = 1; //Camera
+	pd3dRootParameters[0].Descriptor.ShaderRegister = 1; //Camera  //b1
 	pd3dRootParameters[0].Descriptor.RegisterSpace = 0;
-	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;//모든 셰이더에서 볼 수 있어요
 
 	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	pd3dRootParameters[1].Constants.Num32BitValues = 33;
-	pd3dRootParameters[1].Constants.ShaderRegister = 2; //GameObject
+	pd3dRootParameters[1].Constants.Num32BitValues = 33; //32-비트 상수 33개?
+	pd3dRootParameters[1].Constants.ShaderRegister = 2; //GameObject //디스크립터 레인지?
 	pd3dRootParameters[1].Constants.RegisterSpace = 0;
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
@@ -266,7 +297,7 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 #endif
 
-	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
+	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];//디스크립터힙 2개
 
 	pd3dSamplerDescs[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 	pd3dSamplerDescs[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -316,7 +347,8 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 void CScene::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	UINT ncbElementBytes = ((sizeof(LIGHTS) + 255) & ~255); //256의 배수
-	m_pd3dcbLights = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pd3dcbLights = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, 
+		D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbLights->Map(0, NULL, (void **)&m_pcbMappedLights);
 }

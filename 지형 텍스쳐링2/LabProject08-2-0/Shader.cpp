@@ -139,7 +139,7 @@ void CShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* 
 	d3dPipelineStateDesc.RasterizerState = CreateRasterizerState();
 	d3dPipelineStateDesc.BlendState = CreateBlendState();
 	d3dPipelineStateDesc.DepthStencilState = CreateDepthStencilState();
-	d3dPipelineStateDesc.InputLayout = CreateInputLayout();
+	d3dPipelineStateDesc.InputLayout = CreateInputLayout();//교수님이 말씀하신 1번 오류
 	d3dPipelineStateDesc.SampleMask = UINT_MAX;
 	d3dPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	d3dPipelineStateDesc.NumRenderTargets = 1;
@@ -381,8 +381,86 @@ void CObjectsShader::ReleaseShaderVariables()
 	CTexturedShader::ReleaseShaderVariables();
 }
 
+//22.10.14
+float Random(float fMin, float fMax)
+{
+	float fRandomValue = (float)rand();
+	if (fRandomValue < fMin) fRandomValue = fMin;
+	if (fRandomValue > fMax) fRandomValue = fMax;
+	return(fRandomValue);
+}
+
+float Random()
+{
+	return(rand() / float(RAND_MAX));
+}
+//
+
 ID3D12Resource* CObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pContext)
 {
+	//m_nObjects = 120;
+	//m_ppObjects = new CGameModelObj * [m_nObjects];
+
+	//CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 17 + 50); //SuperCobra(17), Gunship(2)
+
+	//CGameModelObj* pSuperCobraModel = CGameModelObj::LoadGeometryFromFile(pd3dDevice,
+	//	pd3dCommandList, pd3dGraphicsRootSignature, "Model/SuperCobra.bin", this);//마지막은 shader
+	//CGameModelObj* pGunshipModel = CGameModelObj::LoadGeometryFromFile(pd3dDevice,
+	//	pd3dCommandList, pd3dGraphicsRootSignature, "Model/Gunship.bin", this);//마지막은 shader
+
+	////	CGameObject *pGunshipModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Player.bin", this);
+
+	//int nColumnSpace = 5, nColumnSize = 30;
+	//int nFirstPassColumnSize = (m_nObjects % nColumnSize) > 0 ? (nColumnSize - 1) : nColumnSize;
+
+	//int nObjects = 0;
+	//for (int h = 0; h < nFirstPassColumnSize; h++)
+	//{
+	//	for (int i = 0; i < floor(float(m_nObjects) / float(nColumnSize)); i++)
+	//	{
+	//		if (nObjects % 2)
+	//		{
+	//			m_ppObjects[nObjects] = new CSuperCobraObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//			m_ppObjects[nObjects]->SetChild(pSuperCobraModel);
+	//			pSuperCobraModel->AddRef();
+	//		}
+	//		else
+	//		{
+	//			m_ppObjects[nObjects] = new CGunshipObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//			m_ppObjects[nObjects]->SetChild(pGunshipModel);
+	//			pGunshipModel->AddRef();
+	//		}
+	//		m_ppObjects[nObjects]->SetPosition(RandomPositionInSphere(XMFLOAT3(0.0f, 0.0f, 0.0f),
+	//			Random(20.0f, 100.0f), h - int(floor(nColumnSize / 2.0f)), nColumnSpace));
+	//		m_ppObjects[nObjects]->Rotate(0.0f, 90.0f, 0.0f);
+	//		m_ppObjects[nObjects++]->PrepareAnimate();
+	//	}
+	//}
+
+	//if (nFirstPassColumnSize != nColumnSize)
+	//{
+	//	for (int i = 0; i < m_nObjects - int(floor(float(m_nObjects) / float(nColumnSize)) * nFirstPassColumnSize); i++)
+	//	{
+	//		if (nObjects % 2)
+	//		{
+	//			m_ppObjects[nObjects] = new CSuperCobraObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//			m_ppObjects[nObjects]->SetChild(pSuperCobraModel);
+	//			pSuperCobraModel->AddRef();
+	//		}
+	//		else
+	//		{
+	//			m_ppObjects[nObjects] = new CGunshipObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//			m_ppObjects[nObjects]->SetChild(pGunshipModel);
+	//			pGunshipModel->AddRef();
+	//		}
+	//		m_ppObjects[nObjects]->SetPosition(RandomPositionInSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), Random(20.0f, 100.0f), nColumnSize - int(floor(nColumnSize / 2.0f)), nColumnSpace));
+	//		m_ppObjects[nObjects]->Rotate(0.0f, 90.0f, 0.0f);
+	//		m_ppObjects[nObjects++]->PrepareAnimate();
+	//	}
+	//}
+
+	//CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	//=========================================================================================================================================================================
 	CHeightMapTerrain *pTerrain = (CHeightMapTerrain *)pContext;
 
 	float fxPitch = 12.0f * 3.5f;

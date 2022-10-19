@@ -23,6 +23,21 @@
 #include <fstream>
 #include <vector>
 
+//22.10.13
+#include<iostream>
+#include<random>
+using namespace std;
+//
+
+//22.10.08
+//콘솔창 띄우기
+#ifdef UNICODE
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
+#else
+#pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
+#endif
+//
+
 using namespace std;
 
 #include <d3d12.h>
@@ -201,6 +216,15 @@ namespace Vector4
 		XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) + XMLoadFloat4(&xmf4Vector2));
 		return(xmf4Result);
 	}
+
+	//22.10.16
+	inline XMFLOAT4 Multiply(float fScalar, XMFLOAT4& xmf4Vector)
+	{
+		XMFLOAT4 xmf4Result;
+		XMStoreFloat4(&xmf4Result, fScalar * XMLoadFloat4(&xmf4Vector));
+		return(xmf4Result);
+	}
+	//
 }
 
 namespace Matrix4x4

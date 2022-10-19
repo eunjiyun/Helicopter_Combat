@@ -83,4 +83,8 @@ public:
 
 	ID3D12Resource						*m_pd3dcbLights = NULL;
 	LIGHTS								*m_pcbMappedLights = NULL;
+
+	//22.10.16
+	CHeightMapTerrain* m_pTerrain = NULL;
+	//
 };

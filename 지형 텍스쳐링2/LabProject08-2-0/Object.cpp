@@ -1070,6 +1070,8 @@ void CGunshipObject::buildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	ID3D12RootSignature* pd3dGraphicsRootSignature, ID3D12Resource* what)//, void* pContext = NULL);
 {
 
+
+
 	//22.10.13
 	//CMeshLoadInfo* pMeshInfo = pGameObject->LoadMeshInfoFromFile(pInFile);
 

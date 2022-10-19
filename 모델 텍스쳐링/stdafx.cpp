@@ -34,7 +34,8 @@ void SynchronizeResourceTransition(ID3D12GraphicsCommandList* pd3dCommandList, I
 	pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
 }
 
-ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType, D3D12_RESOURCE_STATES d3dResourceStates, ID3D12Resource** ppd3dUploadBuffer)
+ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pData,
+	UINT nBytes, D3D12_HEAP_TYPE d3dHeapType, D3D12_RESOURCE_STATES d3dResourceStates, ID3D12Resource** ppd3dUploadBuffer)
 {
 	ID3D12Resource* pd3dBuffer = NULL;
 
@@ -50,7 +51,9 @@ ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	::ZeroMemory(&d3dResourceDesc, sizeof(D3D12_RESOURCE_DESC));
 	d3dResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 	d3dResourceDesc.Alignment = 0;
-	d3dResourceDesc.Width = nBytes;
+	//22.10.16
+	d3dResourceDesc.Width =nBytes;
+	//
 	d3dResourceDesc.Height = 1;
 	d3dResourceDesc.DepthOrArraySize = 1;
 	d3dResourceDesc.MipLevels = 1;
@@ -64,7 +67,8 @@ ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	if (d3dHeapType == D3D12_HEAP_TYPE_UPLOAD) d3dResourceInitialStates = D3D12_RESOURCE_STATE_GENERIC_READ;
 	else if (d3dHeapType == D3D12_HEAP_TYPE_READBACK) d3dResourceInitialStates = D3D12_RESOURCE_STATE_COPY_DEST;
 
-	HRESULT hResult = pd3dDevice->CreateCommittedResource(&d3dHeapPropertiesDesc, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, d3dResourceInitialStates, NULL, __uuidof(ID3D12Resource), (void**)&pd3dBuffer);
+	HRESULT hResult = pd3dDevice->CreateCommittedResource(&d3dHeapPropertiesDesc, D3D12_HEAP_FLAG_NONE, 
+		&d3dResourceDesc, d3dResourceInitialStates, NULL, __uuidof(ID3D12Resource), (void**)&pd3dBuffer);
 
 	if (pData)
 	{
@@ -75,7 +79,8 @@ ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 			if (ppd3dUploadBuffer)
 			{
 				d3dHeapPropertiesDesc.Type = D3D12_HEAP_TYPE_UPLOAD;
-				pd3dDevice->CreateCommittedResource(&d3dHeapPropertiesDesc, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, __uuidof(ID3D12Resource), (void**)ppd3dUploadBuffer);
+				pd3dDevice->CreateCommittedResource(&d3dHeapPropertiesDesc, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc,
+					D3D12_RESOURCE_STATE_GENERIC_READ, NULL, __uuidof(ID3D12Resource), (void**)ppd3dUploadBuffer);
 #ifdef _WITH_MAPPING
 				D3D12_RANGE d3dReadRange = { 0, 0 };
 				UINT8* pBufferDataBegin = NULL;
@@ -250,7 +255,8 @@ ID3D12Resource* CreateTexture2DResource(ID3D12Device* pd3dDevice, ID3D12Graphics
 	d3dTextureResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	d3dTextureResourceDesc.Flags = d3dResourceFlags;
 
-	HRESULT hResult = pd3dDevice->CreateCommittedResource(&d3dHeapPropertiesDesc, D3D12_HEAP_FLAG_NONE, &d3dTextureResourceDesc, d3dResourceStates, pd3dClearValue, __uuidof(ID3D12Resource), (void**)&pd3dTexture);
+	HRESULT hResult = pd3dDevice->CreateCommittedResource(&d3dHeapPropertiesDesc, D3D12_HEAP_FLAG_NONE, &d3dTextureResourceDesc, 
+		d3dResourceStates, pd3dClearValue, __uuidof(ID3D12Resource), (void**)&pd3dTexture);
 
 	return(pd3dTexture);
 }

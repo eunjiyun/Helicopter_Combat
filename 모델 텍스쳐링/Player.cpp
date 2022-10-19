@@ -9,7 +9,11 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CPlayer
 
-CPlayer::CPlayer()
+//22.10.16
+//인수 개수 변경
+CPlayer::CPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
+	ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext, int nMeshes )
+//
 {
 	m_pCamera = NULL;
 
@@ -249,7 +253,14 @@ CAirplanePlayer::CAirplanePlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	m_pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 1); //Mi24(1)
 
-	CGameObject *pGameObject = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mi24.bin", m_pShader);
+	
+
+	//22.10.14
+	CGameObject* pGameObject = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mi24.bin", m_pShader);
+	//CShader* temp = new CPlayerShader();
+	//CGameObject *pGameObject = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mi24.bin", temp);
+	//
+
 	SetChild(pGameObject);
 
 	PrepareAnimate();
@@ -339,3 +350,121 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 	return(m_pCamera);
 }
 
+//22.10.16
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// CTerrainPlayer
+//
+CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext, int nMeshes) : CPlayer(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pContext, nMeshes)
+{
+	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	CCubeMeshDiffused* pCubeMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList, 4.0f, 12.0f, 4.0f);
+	SetMesh(0,pCubeMesh);
+
+	UINT ncbElementBytes = ((sizeof(CB_PLAYER_INFO) + 255) & ~255); //256의 배수
+
+	CPlayerShader* pShader = new CPlayerShader();
+	pShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	pShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 0);
+	pShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbPlayer, ncbElementBytes);
+
+	SetCbvGPUDescriptorHandle(pShader->GetGPUCbvDescriptorStartHandle());
+
+	SetShader(pShader);
+
+	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)pContext;
+	SetPosition(XMFLOAT3(pTerrain->GetWidth() * 0.5f, 2000.0f, pTerrain->GetLength() * 0.5f));
+	SetPlayerUpdatedContext(pTerrain);
+	SetCameraUpdatedContext(pTerrain);
+}
+
+CTerrainPlayer::~CTerrainPlayer()
+{
+}
+
+CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
+{
+	DWORD nCurrentCameraMode = (m_pCamera) ? m_pCamera->GetMode() : 0x00;
+	if (nCurrentCameraMode == nNewCameraMode) return(m_pCamera);
+	switch (nNewCameraMode)
+	{
+	case FIRST_PERSON_CAMERA:
+		SetFriction(250.0f);
+		SetGravity(XMFLOAT3(0.0f, -400.0f, 0.0f));
+		SetMaxVelocityXZ(300.0f);
+		SetMaxVelocityY(400.0f);
+		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
+		m_pCamera->SetTimeLag(0.0f);
+		m_pCamera->SetOffset(XMFLOAT3(0.0f, 20.0f, 0.0f));
+		m_pCamera->GenerateProjectionMatrix(1.01f, 50000.0f, ASPECT_RATIO, 60.0f);
+		break;
+	case SPACESHIP_CAMERA:
+		SetFriction(125.0f);
+		SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		SetMaxVelocityXZ(300.0f);
+		SetMaxVelocityY(400.0f);
+		m_pCamera = OnChangeCamera(SPACESHIP_CAMERA, nCurrentCameraMode);
+		m_pCamera->SetTimeLag(0.0f);
+		m_pCamera->SetOffset(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pCamera->GenerateProjectionMatrix(1.01f, 50000.0f, ASPECT_RATIO, 60.0f);
+		break;
+	case THIRD_PERSON_CAMERA:
+		SetFriction(250.0f);
+		SetGravity(XMFLOAT3(0.0f, -250.0f, 0.0f));
+		SetMaxVelocityXZ(300.0f);
+		SetMaxVelocityY(400.0f);
+		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
+		m_pCamera->SetTimeLag(0.25f);
+		m_pCamera->SetOffset(XMFLOAT3(0.0f, 20.0f, -50.0f));
+		m_pCamera->SetPosition(Vector3::Add(m_xmf3Position, m_pCamera->GetOffset()));
+		m_pCamera->GenerateProjectionMatrix(1.01f, 50000.0f, ASPECT_RATIO, 60.0f);
+		break;
+	default:
+		break;
+	}
+	Update(fTimeElapsed);
+
+	return(m_pCamera);
+}
+
+void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
+{
+	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)m_pPlayerUpdatedContext;
+	XMFLOAT3 xmf3Scale = pTerrain->GetScale();
+	XMFLOAT3 xmf3PlayerPosition = GetPosition();
+	int z = (int)(xmf3PlayerPosition.z / xmf3Scale.z);
+	bool bReverseQuad = ((z % 2) != 0);
+	float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.z, bReverseQuad) + 6.0f;
+	if (xmf3PlayerPosition.y < fHeight)
+	{
+		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
+		xmf3PlayerVelocity.y = 0.0f;
+		SetVelocity(xmf3PlayerVelocity);
+		xmf3PlayerPosition.y = fHeight;
+		SetPosition(xmf3PlayerPosition);
+	}
+}
+
+void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
+{
+	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)m_pCameraUpdatedContext;
+	XMFLOAT3 xmf3Scale = pTerrain->GetScale();
+	XMFLOAT3 xmf3CameraPosition = m_pCamera->GetPosition();
+	int z = (int)(xmf3CameraPosition.z / xmf3Scale.z);
+	bool bReverseQuad = ((z % 2) != 0);
+	float fHeight = pTerrain->GetHeight(xmf3CameraPosition.x, xmf3CameraPosition.z, bReverseQuad) + 5.0f;
+	if (xmf3CameraPosition.y <= fHeight)
+	{
+		xmf3CameraPosition.y = fHeight;
+		m_pCamera->SetPosition(xmf3CameraPosition);
+		if (m_pCamera->GetMode() == THIRD_PERSON_CAMERA)
+		{
+			CThirdPersonCamera* p3rdPersonCamera = (CThirdPersonCamera*)m_pCamera;
+			p3rdPersonCamera->SetLookAt(GetPosition());
+		}
+	}
+}
+//

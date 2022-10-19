@@ -24,7 +24,30 @@ CScene::~CScene()
 void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-	
+
+	//BuildDefaultLightsAndMaterials();
+
+	//m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+
+	//m_nShaders = 1;
+	//m_ppShaders = new CShader * [m_nShaders];
+
+	//CObjectsShader* pObjectsShader = new CObjectsShader();
+	//pObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+
+	////22.10.14
+	////pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, NULL);//셰이더 구조 고치기
+	//pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	////
+
+	//m_ppShaders[0] = pObjectsShader;
+
+	//CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	//
+	///// //////////////---------------------------------------------------------------------------------------------
+	//
+	//m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
+	//
 	//22.10.12
 	//CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);//추가1 ?
 	//
@@ -264,8 +287,8 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	UpdateShaderVariables(pd3dCommandList);
 
 	//22.10.12
-	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
-	pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
+	//D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
+	//pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
 	//
 
 	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);

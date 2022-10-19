@@ -10,6 +10,13 @@
 #include "Object.h"
 #include "Camera.h"
 
+//22.10.16
+struct CB_PLAYER_INFO
+{
+	XMFLOAT4X4					m_xmf4x4World;
+};
+//
+
 class CPlayer : public CGameObject
 {
 protected:
@@ -35,8 +42,21 @@ protected:
 
 	CShader						*m_pShader = NULL;
 
+	//22.10.14
+	CShader* temp = NULL;
+	//
+
+	//22.10.16
+	ID3D12Resource* m_pd3dcbPlayer = NULL;
+	//
+
 public:
-	CPlayer();
+	//22.10.16
+	CPlayer(){}
+	//인수 개수 변경
+	CPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
+		ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext = NULL, int nMeshes = 1);
+	//
 	virtual ~CPlayer();
 
 	XMFLOAT3 GetPosition() { return(m_xmf3Position); }
@@ -100,5 +120,21 @@ public:
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 	virtual void OnPrepareRender();
 };
+
+//22.10.16
+//class CTerrainPlayer : public CPlayer, public CterrainObj
+class CTerrainPlayer : public CPlayer
+//class CTerrainPlayer : public CterrainObj
+{
+public:
+	CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext = NULL, int nMeshes = 1);
+	virtual ~CTerrainPlayer();
+
+	virtual CCamera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
+
+	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
+	virtual void OnCameraUpdateCallback(float fTimeElapsed);
+};
+//
 
 

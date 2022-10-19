@@ -139,6 +139,11 @@ public:
 
 public:
 	CGameObject						**m_ppObjects = 0;
+
+	//22.10.14
+	CGameModelObj** m_pObjects = 0;
+	//
+
 	int								m_nObjects = 0;
 
 	ID3D12Resource					*m_pd3dcbGameObjects = NULL;

@@ -360,6 +360,17 @@ void CGameObject::SetMesh(CMesh *pMesh)
 	m_pMesh = pMesh;
 	if (m_pMesh) m_pMesh->AddRef();
 }
+//22.10.16
+void CGameObject::SetMesh(int nIndex, CMesh* pMesh)
+{
+	if (m_ppMeshes)
+	{
+		if (m_ppMeshes[nIndex]) m_ppMeshes[nIndex]->Release();
+		m_ppMeshes[nIndex] = pMesh;
+		if (pMesh) pMesh->AddRef();
+	}
+}
+//
 
 void CGameObject::SetShader(CShader *pShader)
 {
@@ -937,4 +948,269 @@ void CMi24Object::Animate(float fTimeElapsed, XMFLOAT4X4 *pxmf4x4Parent)
 	CGameObject::Animate(fTimeElapsed, pxmf4x4Parent);
 }
 
+//22.10.16
+CHeightMapTerrain::CHeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
+	ID3D12RootSignature* pd3dGraphicsRootSignature, LPCTSTR pFileName,
+	int nWidth, int nLength, int nBlockWidth, int nBlockLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color) : CterrainObj(0)
+{
+	m_nWidth = nWidth;
+	m_nLength = nLength;
+
+	int cxQuadsPerBlock = nBlockWidth - 1;
+	int czQuadsPerBlock = nBlockLength - 1;
+
+	m_xmf3Scale = xmf3Scale;
+
+	m_pHeightMapImage = new CHeightMapImage(pFileName, nWidth, nLength, xmf3Scale);
+
+	long cxBlocks = (m_nWidth - 1) / cxQuadsPerBlock;
+	long czBlocks = (m_nLength - 1) / czQuadsPerBlock;
+
+	m_nMeshes = cxBlocks * czBlocks;
+	m_ppMeshes = new CMesh * [m_nMeshes];
+	for (int i = 0; i < m_nMeshes; i++)	m_ppMeshes[i] = NULL;
+
+	CHeightMapGridMesh* pHeightMapGridMesh = NULL;
+	for (int z = 0, zStart = 0; z < czBlocks; z++)
+	{
+		for (int x = 0, xStart = 0; x < cxBlocks; x++)
+		{
+			xStart = x * (nBlockWidth - 1);
+			zStart = z * (nBlockLength - 1);
+			pHeightMapGridMesh = new CHeightMapGridMesh(pd3dDevice, pd3dCommandList, xStart, zStart, nBlockWidth, nBlockLength, xmf3Scale, xmf4Color, m_pHeightMapImage);
+			SetMesh(x + (z * cxBlocks), pHeightMapGridMesh);
+		}
+	}
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	CTexture* pTerrainTexture = new CTexture(5, RESOURCE_TEXTURE2D, 0, 1);
+
+	pTerrainTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Base_Texture.dds", RESOURCE_TEXTURE2D, 0);
+	pTerrainTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Detail_Texture_7.dds", RESOURCE_TEXTURE2D, 1);
+	pTerrainTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Detail_Texture_1.dds", RESOURCE_TEXTURE2D, 2);
+	pTerrainTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Lava(Diffuse).dds", RESOURCE_TEXTURE2D, 3);
+	//	pTerrainTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/HeightMap-Alpha(Flipped).dds", RESOURCE_TEXTURE2D, 4);
+	pTerrainTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/HeightMap2(Flipped)Alpha.dds", RESOURCE_TEXTURE2D, 4);
+
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+
+	CTerrainShader* pTerrainShader = new CTerrainShader();
+	pTerrainShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pTerrainShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);//그리고 이거
+	pTerrainShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 5);//여기네
+	pTerrainShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObject, ncbElementBytes);
+	pTerrainShader->CreateShaderResourceViews(pd3dDevice, pTerrainTexture, 0, 4);
+
+	CMaterial* pTerrainMaterial = new CMaterial();
+	pTerrainMaterial->SetTexture(pTerrainTexture);
+
+	SetMaterial(pTerrainMaterial);
+
+	SetCbvGPUDescriptorHandle(pTerrainShader->GetGPUCbvDescriptorStartHandle());
+
+	SetShader(pTerrainShader);
+}
+
+CHeightMapTerrain::~CHeightMapTerrain(void)
+{
+	if (m_pHeightMapImage) delete m_pHeightMapImage;
+}
+//---------------------------------------------------------------------
+CterrainObj::CterrainObj(int nMeshes)
+{
+	m_xmf4x4World = Matrix4x4::Identity();
+
+	m_nMeshes = nMeshes;
+	m_ppMeshes = NULL;
+	if (m_nMeshes > 0)
+	{
+		m_ppMeshes = new CMesh * [m_nMeshes];
+		for (int i = 0; i < m_nMeshes; i++)	m_ppMeshes[i] = NULL;
+	}
+}
+
+CterrainObj::~CterrainObj()
+{
+	ReleaseShaderVariables();
+
+	if (m_ppMeshes)
+	{
+		for (int i = 0; i < m_nMeshes; i++)
+		{
+			if (m_ppMeshes[i]) m_ppMeshes[i]->Release();
+			m_ppMeshes[i] = NULL;
+		}
+		delete[] m_ppMeshes;
+	}
+	if (m_pMaterial) m_pMaterial->Release();
+}
+
+void CterrainObj::SetMesh(int nIndex, CMesh* pMesh)
+{
+	if (m_ppMeshes)
+	{
+		if (m_ppMeshes[nIndex]) m_ppMeshes[nIndex]->Release();
+		m_ppMeshes[nIndex] = pMesh;
+		if (pMesh) pMesh->AddRef();
+	}
+}
+
+void CterrainObj::SetShader(CShader* pShader)
+{
+	if (!m_pMaterial)
+	{
+		CMaterial* pMaterial = new CMaterial();
+		SetMaterial(pMaterial);
+	}
+	if (m_pMaterial) m_pMaterial->SetShader(pShader);
+}
+
+void CterrainObj::SetMaterial(CMaterial* pMaterial)
+{
+	if (m_pMaterial) m_pMaterial->Release();
+	m_pMaterial = pMaterial;
+	if (m_pMaterial) m_pMaterial->AddRef();
+}
+
+void CterrainObj::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+	m_pd3dcbGameObject = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, 
+		D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	m_pd3dcbGameObject->Map(0, NULL, (void**)&m_pcbMappedGameObject);
+}
+
+void CterrainObj::ReleaseShaderVariables()
+{
+	if (m_pd3dcbGameObject)
+	{
+		m_pd3dcbGameObject->Unmap(0, NULL);
+		m_pd3dcbGameObject->Release();
+	}
+	if (m_pMaterial) m_pMaterial->ReleaseShaderVariables();
+}
+
+void CterrainObj::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
+}
+
+void CterrainObj::Animate(float fTimeElapsed)
+{
+}
+
+void CterrainObj::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+{
+	OnPrepareRender();
+
+	if (m_pMaterial)
+	{
+		if (m_pMaterial->m_pShader)
+		{
+			m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+			m_pMaterial->m_pShader->UpdateShaderVariables(pd3dCommandList);
+
+			UpdateShaderVariables(pd3dCommandList);
+		}
+		if (m_pMaterial->m_pTexture)
+		{
+			m_pMaterial->m_pTexture->UpdateShaderVariables(pd3dCommandList);
+		}
+	}
+
+	pd3dCommandList->SetGraphicsRootDescriptorTable(2, m_d3dCbvGPUDescriptorHandle);
+
+	if (m_ppMeshes)
+	{
+		for (int i = 0; i < m_nMeshes; i++)
+		{
+			if (m_ppMeshes[i]) m_ppMeshes[i]->Render(pd3dCommandList);
+		}
+	}
+}
+
+void CterrainObj::ReleaseUploadBuffers()
+{
+	if (m_ppMeshes)
+	{
+		for (int i = 0; i < m_nMeshes; i++)
+		{
+			if (m_ppMeshes[i]) m_ppMeshes[i]->ReleaseUploadBuffers();
+		}
+	}
+
+	if (m_pMaterial) m_pMaterial->ReleaseUploadBuffers();
+}
+
+void CterrainObj::SetPosition(float x, float y, float z)
+{
+	m_xmf4x4World._41 = x;
+	m_xmf4x4World._42 = y;
+	m_xmf4x4World._43 = z;
+}
+
+void CterrainObj::SetPosition(XMFLOAT3 xmf3Position)
+{
+	SetPosition(xmf3Position.x, xmf3Position.y, xmf3Position.z);
+}
+
+XMFLOAT3 CterrainObj::GetPosition()
+{
+	return(XMFLOAT3(m_xmf4x4World._41, m_xmf4x4World._42, m_xmf4x4World._43));
+}
+
+XMFLOAT3 CterrainObj::GetLook()
+{
+	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._31, m_xmf4x4World._32, m_xmf4x4World._33)));
+}
+
+XMFLOAT3 CterrainObj::GetUp()
+{
+	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._21, m_xmf4x4World._22, m_xmf4x4World._23)));
+}
+
+XMFLOAT3 CterrainObj::GetRight()
+{
+	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._11, m_xmf4x4World._12, m_xmf4x4World._13)));
+}
+
+void CterrainObj::MoveStrafe(float fDistance)
+{
+	XMFLOAT3 xmf3Position = GetPosition();
+	XMFLOAT3 xmf3Right = GetRight();
+	xmf3Position = Vector3::Add(xmf3Position, xmf3Right, fDistance);
+	CterrainObj::SetPosition(xmf3Position);
+}
+
+void CterrainObj::MoveUp(float fDistance)
+{
+	XMFLOAT3 xmf3Position = GetPosition();
+	XMFLOAT3 xmf3Up = GetUp();
+	xmf3Position = Vector3::Add(xmf3Position, xmf3Up, fDistance);
+	CterrainObj::SetPosition(xmf3Position);
+}
+
+void CterrainObj::MoveForward(float fDistance)
+{
+	XMFLOAT3 xmf3Position = GetPosition();
+	XMFLOAT3 xmf3Look = GetLook();
+	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
+	CterrainObj::SetPosition(xmf3Position);
+}
+
+void CterrainObj::Rotate(float fPitch, float fYaw, float fRoll)
+{
+	XMMATRIX mtxRotate = XMMatrixRotationRollPitchYaw(XMConvertToRadians(fPitch), XMConvertToRadians(fYaw), XMConvertToRadians(fRoll));
+	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
+}
+
+void CterrainObj::Rotate(XMFLOAT3* pxmf3Axis, float fAngle)
+{
+	XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(pxmf3Axis), XMConvertToRadians(fAngle));
+	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
+}
+
+//
 
