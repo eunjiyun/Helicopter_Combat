@@ -52,10 +52,10 @@ protected:
 
 public:
 	//22.10.16
-	CPlayer(){}
+	CPlayer();// {}
 	//인수 개수 변경
-	CPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
-		ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext = NULL, int nMeshes = 1);
+	/*CPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
+		ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext = NULL, int nMeshes = 1);*/
 	//
 	virtual ~CPlayer();
 

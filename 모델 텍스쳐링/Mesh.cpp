@@ -542,10 +542,53 @@ CCubeMeshDiffused::~CCubeMeshDiffused()
 }
 //
 
-//22.10.16
-CHeightMapImage::CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale)
+//22.10.21
+CRawFormatImage::CRawFormatImage(LPCTSTR pFileName, int nWidth, int nLength, bool bFlipY)
 {
 	m_nWidth = nWidth;
+	m_nLength = nLength;
+
+	BYTE* pRawImagePixels = new BYTE[m_nWidth * m_nLength];
+
+	HANDLE hFile = ::CreateFile(pFileName, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY, NULL);
+	DWORD dwBytesRead;
+	::ReadFile(hFile, pRawImagePixels, (m_nWidth * m_nLength), &dwBytesRead, NULL);
+	::CloseHandle(hFile);
+
+	if (bFlipY)
+	{
+		m_pRawImagePixels = new BYTE[m_nWidth * m_nLength];
+		for (int z = 0; z < m_nLength; z++)
+		{
+			for (int x = 0; x < m_nWidth; x++)
+			{
+				m_pRawImagePixels[x + ((m_nLength - 1 - z) * m_nWidth)] = pRawImagePixels[x + (z * m_nWidth)];
+			}
+		}
+
+		if (pRawImagePixels) delete[] pRawImagePixels;
+	}
+	else
+	{
+		m_pRawImagePixels = pRawImagePixels;
+	}
+}
+
+CRawFormatImage::~CRawFormatImage()
+{
+	if (m_pRawImagePixels) delete[] m_pRawImagePixels;
+	m_pRawImagePixels = NULL;
+}
+//
+//22.10.16
+CHeightMapImage::CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale)
+	//22.10.21
+	: CRawFormatImage(pFileName, nWidth, nLength, true)
+	//
+{
+
+	//22.10.21
+	/*m_nWidth = nWidth;
 	m_nLength = nLength;
 	m_xmf3Scale = xmf3Scale;
 
@@ -565,7 +608,10 @@ CHeightMapImage::CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength, XMF
 		}
 	}
 
-	if (pHeightMapPixels) delete[] pHeightMapPixels;
+	if (pHeightMapPixels) delete[] pHeightMapPixels;*/
+
+	m_xmf3Scale = xmf3Scale;
+	//
 }
 
 CHeightMapImage::~CHeightMapImage()
@@ -581,9 +627,16 @@ XMFLOAT3 CHeightMapImage::GetHeightMapNormal(int x, int z)
 	int nHeightMapIndex = x + (z * m_nWidth);
 	int xHeightMapAdd = (x < (m_nWidth - 1)) ? 1 : -1;
 	int zHeightMapAdd = (z < (m_nLength - 1)) ? m_nWidth : -m_nWidth;
-	float y1 = (float)m_pHeightMapPixels[nHeightMapIndex] * m_xmf3Scale.y;
+
+	//22.10.21
+	/*float y1 = (float)m_pHeightMapPixels[nHeightMapIndex] * m_xmf3Scale.y;
 	float y2 = (float)m_pHeightMapPixels[nHeightMapIndex + xHeightMapAdd] * m_xmf3Scale.y;
-	float y3 = (float)m_pHeightMapPixels[nHeightMapIndex + zHeightMapAdd] * m_xmf3Scale.y;
+	float y3 = (float)m_pHeightMapPixels[nHeightMapIndex + zHeightMapAdd] * m_xmf3Scale.y;*/
+	float y1 = (float)m_pRawImagePixels[nHeightMapIndex] * m_xmf3Scale.y;
+	float y2 = (float)m_pRawImagePixels[nHeightMapIndex + xHeightMapAdd] * m_xmf3Scale.y;
+	float y3 = (float)m_pRawImagePixels[nHeightMapIndex + zHeightMapAdd] * m_xmf3Scale.y;
+	//
+
 	XMFLOAT3 xmf3Edge1 = XMFLOAT3(0.0f, y3 - y1, m_xmf3Scale.z);
 	XMFLOAT3 xmf3Edge2 = XMFLOAT3(m_xmf3Scale.x, y2 - y1, 0.0f);
 	XMFLOAT3 xmf3Normal = Vector3::CrossProduct(xmf3Edge1, xmf3Edge2, true);
@@ -631,7 +684,8 @@ float CHeightMapImage::GetHeight(float fx, float fz, bool bReverseQuad)
 	return(fHeight);
 }
 
-CHeightMapGridMesh::CHeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int xStart, int zStart, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color, void* pContext) : CMesh(pd3dDevice, pd3dCommandList)
+CHeightMapGridMesh::CHeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, 
+	int xStart, int zStart, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color, void* pContext) : CMesh(pd3dDevice, pd3dCommandList)
 {
 	m_nVertices = nWidth * nLength;
 	//	m_nStride = sizeof(CTexturedVertex);
@@ -648,8 +702,19 @@ CHeightMapGridMesh::CHeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	CDiffused2TexturedVertex* pVertices = new CDiffused2TexturedVertex[m_nVertices];
 
 	CHeightMapImage* pHeightMapImage = (CHeightMapImage*)pContext;
-	int cxHeightMap = pHeightMapImage->GetHeightMapWidth();
-	int czHeightMap = pHeightMapImage->GetHeightMapLength();
+	//22.10.21
+	/*int cxHeightMap = pHeightMapImage->GetHeightMapWidth();
+	int czHeightMap = pHeightMapImage->GetHeightMapLength();*/
+	int cxHeightMap = pHeightMapImage->GetRawImageWidth();
+	int czHeightMap = pHeightMapImage->GetRawImageLength();
+	//
+
+	//22.10.21
+	m_pxmf3Positions = new XMFLOAT3[m_nVertices];
+	m_pxmf4Colors = new XMFLOAT4[m_nVertices];
+	m_pxmf2TextureCoords0 = new XMFLOAT2[m_nVertices];
+	m_pxmf2TextureCoords1 = new XMFLOAT2[m_nVertices];
+	//
 
 	float fHeight = 0.0f, fMinHeight = +FLT_MAX, fMaxHeight = -FLT_MAX;
 	for (int i = 0, z = zStart; z < (zStart + nLength); z++)
@@ -657,15 +722,21 @@ CHeightMapGridMesh::CHeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		for (int x = xStart; x < (xStart + nWidth); x++, i++)
 		{
 			fHeight = OnGetHeight(x, z, pContext);
-			pVertices[i].m_xmf3Position = XMFLOAT3((x * m_xmf3Scale.x), fHeight, (z * m_xmf3Scale.z));
+			//22.10.21
+			/*pVertices[i].m_xmf3Position = XMFLOAT3((x * m_xmf3Scale.x), fHeight, (z * m_xmf3Scale.z));
 			pVertices[i].m_xmf4Diffuse = Vector4::Add(OnGetColor(x, z, pContext), xmf4Color);
 			pVertices[i].m_xmf2TexCoord0 = XMFLOAT2(float(x) / float(cxHeightMap - 1), float(czHeightMap - 1 - z) / float(czHeightMap - 1));
-			pVertices[i].m_xmf2TexCoord1 = XMFLOAT2(float(x) / float(m_xmf3Scale.x * 0.5f), float(z) / float(m_xmf3Scale.z * 0.5f));
+			pVertices[i].m_xmf2TexCoord1 = XMFLOAT2(float(x) / float(m_xmf3Scale.x * 0.5f), float(z) / float(m_xmf3Scale.z * 0.5f));*/
+			m_pxmf3Positions[i] = XMFLOAT3((x * m_xmf3Scale.x), fHeight, (z * m_xmf3Scale.z));
+			m_pxmf4Colors[i] = Vector4::Add(OnGetColor(x, z, pContext), xmf4Color);
+			m_pxmf2TextureCoords0[i] = XMFLOAT2(float(x) / float(cxHeightMap - 1), float(czHeightMap - 1 - z) / float(czHeightMap - 1));
+			m_pxmf2TextureCoords1[i] = XMFLOAT2(float(x) / float(m_xmf3Scale.x * 0.5f), float(z) / float(m_xmf3Scale.z * 0.5f));
+			//
 			if (fHeight < fMinHeight) fMinHeight = fHeight;
 			if (fHeight > fMaxHeight) fMaxHeight = fHeight;
 		}
 	}
-
+	//여기부터!!!
 	m_pd3dVertexBuffer = CreateBufferResource(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
 
 	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
@@ -715,10 +786,16 @@ CHeightMapGridMesh::~CHeightMapGridMesh()
 float CHeightMapGridMesh::OnGetHeight(int x, int z, void* pContext)
 {
 	CHeightMapImage* pHeightMapImage = (CHeightMapImage*)pContext;
-	BYTE* pHeightMapPixels = pHeightMapImage->GetHeightMapPixels();
+	//22.10.21
+	//BYTE* pHeightMapPixels = pHeightMapImage->GetHeightMapPixels();
+	BYTE* pHeightMapPixels = pHeightMapImage->GetRawImagePixels();
+	//
 	XMFLOAT3 xmf3Scale = pHeightMapImage->GetScale();
-	int nWidth = pHeightMapImage->GetHeightMapWidth();
-	float fHeight = pHeightMapPixels[x + (z * nWidth)] * xmf3Scale.y;
+	//22.10.21
+	//int nWidth = pHeightMapImage->GetHeightMapWidth();
+	int nWidth = pHeightMapImage->GetRawImageWidth();
+	//
+	float fHeight = pHeightMapPixels[x + (z * nWidth)] * xmf3Scale.y;//오류3
 	return(fHeight);
 }
 

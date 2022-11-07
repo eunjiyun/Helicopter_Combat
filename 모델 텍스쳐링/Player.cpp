@@ -11,8 +11,8 @@
 
 //22.10.16
 //인수 개수 변경
-CPlayer::CPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
-	ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext, int nMeshes )
+CPlayer::CPlayer()//(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
+	//ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext, int nMeshes )
 //
 {
 	m_pCamera = NULL;
@@ -354,7 +354,7 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CTerrainPlayer
 //
-CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext, int nMeshes) : CPlayer(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pContext, nMeshes)
+CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext, int nMeshes) //: //CPlayer(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pContext, nMeshes)
 {
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
