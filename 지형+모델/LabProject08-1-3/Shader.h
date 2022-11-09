@@ -130,6 +130,11 @@ public:
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;
 	//
 
+	//22.11.09
+	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	//
+
 	CObjectsShader();
 	virtual ~CObjectsShader();
 

@@ -74,7 +74,10 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Image/HeightMap.raw"), 257, 257, 257, 257, xmf3Scale, xmf4Color);
 
-	m_nShaders = 1;
+	//22.11.09
+	//빌보드랑 스프라이트 추가해야해서 개수를 3개로 늘립니다.
+	m_nShaders = 2;
+	//
 	m_ppShaders = new CShader*[m_nShaders];
 
 	CObjectsShader *pObjectsShader = new CObjectsShader();
@@ -89,11 +92,11 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	pBillboardObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain);
 	m_ppShaders[1] = pBillboardObjectShader;
 
-	CMultiSpriteObjectsShader* pMultiSpriteObjectShader = new CMultiSpriteObjectsShader();
-	pMultiSpriteObjectShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pMultiSpriteObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain);
-	pMultiSpriteObjectShader->SetActive(false);
-	m_ppShaders[2] = pMultiSpriteObjectShader;
+	//CMultiSpriteObjectsShader* pMultiSpriteObjectShader = new CMultiSpriteObjectsShader();
+	//pMultiSpriteObjectShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	//pMultiSpriteObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain);
+	//pMultiSpriteObjectShader->SetActive(false);
+	//m_ppShaders[2] = pMultiSpriteObjectShader;
 	//---------------------------------------------------------------------
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);

@@ -304,6 +304,7 @@ CSkyBoxShader::~CSkyBoxShader()
 
 D3D12_INPUT_LAYOUT_DESC CSkyBoxShader::CreateInputLayout()
 {
+	//22.11.09
 	UINT nInputElementDescs = 1;
 	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = 
 		new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
@@ -316,6 +317,19 @@ D3D12_INPUT_LAYOUT_DESC CSkyBoxShader::CreateInputLayout()
 	d3dInputLayoutDesc.NumElements = nInputElementDescs;
 
 	return(d3dInputLayoutDesc);
+
+	/*UINT nInputElementDescs = 2;
+	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
+	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
+	return(d3dInputLayoutDesc);*/
+	//
 }
 
 D3D12_DEPTH_STENCIL_DESC CSkyBoxShader::CreateDepthStencilState()
@@ -374,6 +388,7 @@ CStandardShader::~CStandardShader()
 
 D3D12_INPUT_LAYOUT_DESC CStandardShader::CreateInputLayout()
 {
+	//22.11.09
 	UINT nInputElementDescs = 5;
 	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = 
 		new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
@@ -389,6 +404,19 @@ D3D12_INPUT_LAYOUT_DESC CStandardShader::CreateInputLayout()
 	d3dInputLayoutDesc.NumElements = nInputElementDescs;
 
 	return(d3dInputLayoutDesc);
+
+	/*UINT nInputElementDescs = 2;
+	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
+	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
+	return(d3dInputLayoutDesc);*/
+	//
 }
 
 D3D12_SHADER_BYTECODE CStandardShader::CreateVertexShader()
@@ -403,6 +431,8 @@ D3D12_SHADER_BYTECODE CStandardShader::CreatePixelShader()
 
 void CStandardShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
+	
+
 	m_nPipelineStates = 1;
 	m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
 
@@ -449,7 +479,8 @@ XMFLOAT3 RandomPositionInSphere(XMFLOAT3 xmf3Center, float fRadius, int nColumn,
 	return(xmf3Position);
 }
 
-void CObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
+void CObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, 
+	ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
 {
 	m_nObjects = 120;
 	m_ppObjects = new CGameObject*[m_nObjects];
@@ -544,6 +575,17 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera 
 		}
 	}
 }
+
+//22.11.09
+void CObjectsShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes * m_nObjects,
+		D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
+}
+//
 
 //22.11.07
 CBillboardObjectsShader::CBillboardObjectsShader()
@@ -699,14 +741,22 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 
 			float fyOffset = 0.0f;
 
+			//22.11.09
+			//껍질을 배열로 바꿔줍시다
 			CMaterial* pMaterial = NULL;
+			//CMaterial** pMaterial = NULL;
+			//
 			CMesh* pMesh = NULL;
 
 			switch (nPixel)
 			{
 			case 102:
 				pMesh = pGrassMesh;
+				//22.11.09
+				//여기도 당연히 배열로
 				pMaterial = ppGrassMaterials[0];
+				//pMaterial[0] = ppGrassMaterials[0];
+				//
 				fyOffset = 8.0f * 0.5f;
 				break;
 			case 128:
@@ -726,7 +776,7 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 				break;
 			case 204:
 				pMesh = pTreeMesh01;
-				pMaterial = ppTreeMaterials[0];
+				pMaterial= ppTreeMaterials[0];
 				fyOffset = 33.0f * 0.5f;
 				break;
 			case 225:
@@ -748,13 +798,18 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 				pBillboardObject = new CGrassObject();
 
 				pBillboardObject->SetMesh(0, pMesh);
-				pBillboardObject->SetMaterial(0,pMaterial);
+
+				//22.11.09
+				//껍질? 뭐가 문제 일까요
+				pBillboardObject->SetMaterial(pMaterial);
+				//
 
 				float xPosition = x * xmf3Scale.x;
 				float zPosition = z * xmf3Scale.z;
 				float fHeight = pTerrain->GetHeight(xPosition, zPosition);
 				pBillboardObject->SetPosition(xPosition, fHeight + fyOffset, zPosition);
-				pBillboardObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * nObjects));
+				pBillboardObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr 
+					+ (::gnCbvSrvDescriptorIncrementSize * nObjects));
 
 				m_ppObjects[nObjects++] = pBillboardObject;
 			}
@@ -952,6 +1007,7 @@ CPlayerShader::~CPlayerShader()
 
 D3D12_INPUT_LAYOUT_DESC CPlayerShader::CreateInputLayout()
 {
+	//22.11.09
 	UINT nInputElementDescs = 5;
 	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
@@ -966,6 +1022,19 @@ D3D12_INPUT_LAYOUT_DESC CPlayerShader::CreateInputLayout()
 	d3dInputLayoutDesc.NumElements = nInputElementDescs;
 
 	return(d3dInputLayoutDesc);
+
+	/*UINT nInputElementDescs = 2;
+	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
+	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
+	return(d3dInputLayoutDesc);*/
+	//
 }
 
 D3D12_SHADER_BYTECODE CPlayerShader::CreateVertexShader()

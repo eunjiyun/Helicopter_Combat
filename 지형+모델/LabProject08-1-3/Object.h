@@ -347,6 +347,10 @@ public:
 
 	float m_fRotationAngle = 0.0f;
 	float m_fRotationDelta = 1.0f;
+
+	//22.11.09
+	void SetMaterial(CMaterial* pMaterial);
+	//
 };
 //===================================================
 
