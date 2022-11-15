@@ -67,6 +67,13 @@ public:
 	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState=0);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState=0);
 
+	//22.11.15
+	void billboardRender(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
+	CGameObject** m_ppObjects = 0;
+	int								m_nObjects = 0;
+	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
+	//
+
 	virtual void ReleaseUploadBuffers() { }
 
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL) { }
@@ -153,6 +160,10 @@ public:
 	//22.11.09
 	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	//
+
+	//22.11.15
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	//
 
 	CObjectsShader();

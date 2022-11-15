@@ -157,6 +157,10 @@ public:
 
 	CMaterial						*m_pMaterial = NULL;
 
+	//22
+	CMaterial* m = NULL;
+	//
+
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
 
 protected:

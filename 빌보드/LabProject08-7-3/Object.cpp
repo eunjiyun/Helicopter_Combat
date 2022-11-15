@@ -288,6 +288,11 @@ void CGameObject::SetMaterial(CMaterial *pMaterial)
 	if (m_pMaterial) m_pMaterial->Release();
 	m_pMaterial = pMaterial;
 	if (m_pMaterial) m_pMaterial->AddRef();
+
+
+	/*if (m) m->Release();
+	m = pMaterial;
+	if (m) m->AddRef();*/
 }
 
 void CGameObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)

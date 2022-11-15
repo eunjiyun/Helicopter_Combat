@@ -52,7 +52,10 @@ protected:
 
 	XMFLOAT3						*m_pxmf3Positions = NULL;
 
+	//22.11.15
+	//포지션버퍼는 이거?
 	ID3D12Resource					*m_pd3dPositionBuffer = NULL;
+	//
 	ID3D12Resource					*m_pd3dPositionUploadBuffer = NULL;
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dPositionBufferView;
 
@@ -60,9 +63,20 @@ protected:
 	int								*m_pnSubSetIndices = NULL;
 	UINT							**m_ppnSubSetIndices = NULL;
 
+	//22.11.15
+	//인덱스버퍼는 이거?
 	ID3D12Resource					**m_ppd3dSubSetIndexBuffers = NULL;
+	//
 	ID3D12Resource					**m_ppd3dSubSetIndexUploadBuffers = NULL;
 	D3D12_INDEX_BUFFER_VIEW			*m_pd3dSubSetIndexBufferViews = NULL;
+
+	//22.11.15
+	//인덱스 버퍼는 이거?
+	ID3D12Resource* m_pd3dIndexBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dVertexBufferView;
+	D3D12_INDEX_BUFFER_VIEW			m_d3dIndexBufferView;
+	UINT							m_nIndices = 0;
+	//
 
 public:
 	UINT GetType() { return(m_nType); }

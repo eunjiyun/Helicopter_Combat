@@ -210,6 +210,11 @@ public:
 	int								m_nMaterials = 0;
 	CMaterial						**m_ppMaterials = NULL;
 
+	//22.11.15
+	CMaterial** m_pMaterials = NULL;
+	CMaterial* m_pMaterial = NULL;
+	//
+
 	XMFLOAT4X4						m_xmf4x4Transform;
 	XMFLOAT4X4						m_xmf4x4World;
 
@@ -273,10 +278,42 @@ public:
 
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
 
-	//22.11.09
-	CMaterial* m_pMaterial = NULL;
+	////22.11.09
+	//CMaterial* m_pMaterial = NULL;
+	////
+
+	////22.11.15
+	//CMesh** m_pMeshes = NULL;
+	//int								nMeshes = 0;
+	CB_GAMEOBJECT_INFO* m_pcbMappedGameObject = NULL;
 	//
 };
+
+//class CGrassObj	:public CGameObject
+//{
+//public:
+//	//22.11.09
+//	CMaterial* m_pMaterial = NULL;
+//	//
+//};
+
+////22.11.15
+////렌더 구조 어떻게 바꿀지 몰라서 그냥 추가
+//class CGrassGameObj
+//{
+//public:
+//	//22.11.09
+//	CMaterial* m_pMaterial = NULL;
+//	//
+//
+//	CMesh** m_pMeshes = NULL;
+//	int								nMeshes = 0;
+//	CB_GAMEOBJECT_INFO* m_pcbMappedGameObject = NULL;
+//
+//public:
+//	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
+//};
+////
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -349,7 +386,8 @@ public:
 	float m_fRotationDelta = 1.0f;
 
 	//22.11.09
-	void SetMaterial(CMaterial* pMaterial);
+	//void SetMaterial(CMaterial* pMaterial);
+	void SetMaterial(int nMaterial, CMaterial* pMaterial);
 	//
 };
 //===================================================

@@ -466,7 +466,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 
 	UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
 
-	if (m_nMaterials > 1)
+	/*if (m_nMaterials > 1)
 	{
 		for (int i = 0; i < m_nMaterials; i++)
 		{
@@ -481,9 +481,9 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 				if (m_ppMeshes[0]) m_ppMeshes[0]->Render(pd3dCommandList, i);
 			}
 		}
-	}
-	else
-	{
+	}*/
+	//else
+	//{
 		if ((m_nMaterials == 1) && (m_ppMaterials[0]))
 		{
 			if (m_ppMaterials[0]->m_pShader) m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
@@ -497,7 +497,36 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 				if (m_ppMeshes[i]) m_ppMeshes[i]->Render(pd3dCommandList, 0);
 			}
 		}
+	//}
+
+	//22.11.15
+	//빌보드 렌더
+	/*if (m_pMaterial)
+	{
+		if (m_pMaterial->m_pShader)
+		{
+			m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+			m_pMaterial->m_pShader->UpdateShaderVariables(pd3dCommandList);
+
+			UpdateShaderVariables(pd3dCommandList);
+		}
+		if (m_pMaterial->m_pTexture)//다른 건 여기 이 부분
+		{
+			m_pMaterial->m_pTexture->UpdateShaderVariables(pd3dCommandList);
+			if (m_pcbMappedGameObject) XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_pMaterial->m_pTexture->m_xmf4x4Texture)));
+		}
 	}
+
+	pd3dCommandList->SetGraphicsRootDescriptorTable(2, m_d3dCbvGPUDescriptorHandle);
+
+	if (m_pMeshes)
+	{
+		for (int i = 0; i < nMeshes; i++)
+		{
+			if (m_pMeshes[i]) m_pMeshes[i]->Render(pd3dCommandList,0);
+		}
+	}*/
+	//
 
 	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
 	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
@@ -903,6 +932,80 @@ CGameObject *CGameObject::LoadGeometryFromFile(ID3D12Device *pd3dDevice, ID3D12G
 	return(pGameObject);
 }
 
+////22.11.15
+//void CGrassGameObj::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+//{
+//	OnPrepareRender();
+//
+//	UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+//
+//	if (m_nMaterials > 1)
+//	{
+//		for (int i = 0; i < m_nMaterials; i++)
+//		{
+//			if (m_ppMaterials[i])
+//			{
+//				if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+//				m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
+//			}
+//
+//			if (m_nMeshes == 1)
+//			{
+//				if (m_ppMeshes[0]) m_ppMeshes[0]->Render(pd3dCommandList, i);
+//			}
+//		}
+//	}
+//	else
+//	{
+//		if ((m_nMaterials == 1) && (m_ppMaterials[0]))
+//		{
+//			if (m_ppMaterials[0]->m_pShader) m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
+//			m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
+//		}
+//
+//		if (m_ppMeshes)
+//		{
+//			for (int i = 0; i < m_nMeshes; i++)
+//			{
+//				if (m_ppMeshes[i]) m_ppMeshes[i]->Render(pd3dCommandList, 0);
+//			}
+//		}
+//	}
+//
+//	//22.11.15
+//	//빌보드 렌더
+//	/*if (m_pMaterial)
+//	{
+//		if (m_pMaterial->m_pShader)
+//		{
+//			m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+//			m_pMaterial->m_pShader->UpdateShaderVariables(pd3dCommandList);
+//
+//			UpdateShaderVariables(pd3dCommandList);
+//		}
+//		if (m_pMaterial->m_pTexture)
+//		{
+//			m_pMaterial->m_pTexture->UpdateShaderVariables(pd3dCommandList);
+//			if (m_pcbMappedGameObject) XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_pMaterial->m_pTexture->m_xmf4x4Texture)));
+//		}
+//	}
+//
+//	pd3dCommandList->SetGraphicsRootDescriptorTable(2, m_d3dCbvGPUDescriptorHandle);
+//
+//	if (m_pMeshes)
+//	{
+//		for (int i = 0; i < nMeshes; i++)
+//		{
+//			if (m_pMeshes[i]) m_pMeshes[i]->Render(pd3dCommandList,0);
+//		}
+//	}*/
+//	//
+//
+//	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
+//	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
+//}
+////
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
 CSkyBox::CSkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : CGameObject(1, 1)
@@ -957,11 +1060,21 @@ void CGrassObject::Animate(float fTimeElapsed)
 }
 
 //22.11.09
-void CGrassObject::SetMaterial(CMaterial* pMaterial)
+void CGrassObject::SetMaterial(int nMaterial, CMaterial* pMaterial)
 {
 	if (m_pMaterial) m_pMaterial->Release();
 	m_pMaterial = pMaterial;
 	if (m_pMaterial) m_pMaterial->AddRef();
+
+//	//22.11.09
+////릴리스를 안 해주면 어떤 문제가 생길까요
+//// 헬리콥터가 까매져요
+//	if (m_pMaterials[nMaterial])
+//		m_pMaterials[nMaterial]->Release();
+//
+//	m_pMaterials[nMaterial] = pMaterial;
+//
+//	if (m_pMaterials[nMaterial]) m_pMaterials[nMaterial]->AddRef();
 }
 //
 //=============================================================
@@ -1131,12 +1244,12 @@ CMultiSpriteObject::~CMultiSpriteObject()
 
 void CMultiSpriteObject::Animate(float fTimeElapsed)
 {
-	if (m_pMaterial && m_pMaterial->m_pTexture)
+	/*if (m_pMaterial && m_pMaterial->m_pTexture)
 	{
 		m_fTime += fTimeElapsed * 0.5f;
 		if (m_fTime >= m_fSpeed) m_fTime = 0.0f;
 		m_pMaterial->m_pTexture->AnimateRowColumn(m_fTime);
-	}
+	}*/
 }
 //
 

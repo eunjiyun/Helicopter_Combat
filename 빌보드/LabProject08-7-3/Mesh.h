@@ -87,7 +87,10 @@ protected:
 	ID3D12Resource					*m_pd3dVertexBuffer = NULL;
 	ID3D12Resource					*m_pd3dVertexUploadBuffer = NULL;
 
+	//22.11.15
+	//인덱스 버퍼는 이거?
 	ID3D12Resource					*m_pd3dIndexBuffer = NULL;
+	//
 	ID3D12Resource					*m_pd3dIndexUploadBuffer = NULL;
 
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dVertexBufferView;

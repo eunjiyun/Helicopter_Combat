@@ -70,6 +70,15 @@ using Microsoft::WRL::ComPtr;
 
 // TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
 
+//22.10.08
+//콘솔창 띄우기
+#ifdef UNICODE
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
+#else
+#pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
+#endif
+//
+
 extern UINT gnCbvSrvDescriptorIncrementSize;
 extern UINT	gnRtvDescriptorIncrementSize;
 extern UINT gnDsvDescriptorIncrementSize;
