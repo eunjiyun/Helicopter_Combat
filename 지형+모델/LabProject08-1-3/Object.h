@@ -215,6 +215,10 @@ public:
 	CMaterial* m_pMaterial = NULL;
 	//
 
+	//22.11.16
+	ID3D12Resource* m_pd3dcbGameObject = NULL;
+	//
+
 	XMFLOAT4X4						m_xmf4x4Transform;
 	XMFLOAT4X4						m_xmf4x4World;
 
@@ -420,16 +424,18 @@ public:
 	float GetLength() { return(m_nLength * m_xmf3Scale.z); }
 };
 
-//22.11.09
-class CMultiSpriteObject : public CGameObject
-{
-public:
-	CMultiSpriteObject();
-	virtual ~CMultiSpriteObject();
-
-	float m_fSpeed = 0.1f;
-	float m_fTime = 0.0f;
-
-	virtual void Animate(float fTimeElapsed);
-};
+////22.11.09
+//class CMultiSpriteObject : public CGameObject
+//{
+//public:
+//	CMultiSpriteObject();
+//	virtual ~CMultiSpriteObject();
 //
+//	float m_fSpeed = 0.1f;
+//	float m_fTime = 0.0f;
+//
+//	virtual void Animate(float fTimeElapsed);
+//};
+////
+
+

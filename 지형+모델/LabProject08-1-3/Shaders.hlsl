@@ -224,7 +224,6 @@ Texture2D gtxtAlphaTexture : register(t16);
 float4 PSTerrain(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtTerrainTexture.Sample(gssWrap, input.uv);
-
 	return(cColor);
 }
 //

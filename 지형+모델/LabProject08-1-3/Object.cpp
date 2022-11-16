@@ -489,6 +489,13 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 			if (m_ppMaterials[0]->m_pShader) m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
 			m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
 		}
+		////22.11.16
+		//if (m_pMaterial->m_pTexture)//다른 건 여기 이 부분
+		//{
+		//	m_pMaterial->m_pTexture->UpdateShaderVariables(pd3dCommandList);
+		//	if (m_pcbMappedGameObject) XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_pMaterial->m_pTexture->m_xmf4x4Texture)));
+		//}
+		////
 
 		if (m_ppMeshes)
 		{
@@ -534,6 +541,12 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 
 void CGameObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
+	//22.11.16
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+	m_pd3dcbGameObject = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	m_pd3dcbGameObject->Map(0, NULL, (void**)&m_pcbMappedGameObject);
+	//
 }
 
 void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
@@ -553,6 +566,14 @@ void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandLis
 
 void CGameObject::ReleaseShaderVariables()
 {
+	//22.11.16
+	if (m_pd3dcbGameObject)
+	{
+		m_pd3dcbGameObject->Unmap(0, NULL);
+		m_pd3dcbGameObject->Release();
+	}
+	if (m_pMaterial) m_pMaterial->ReleaseShaderVariables();
+	//
 }
 
 void CGameObject::ReleaseUploadBuffers()
@@ -1217,8 +1238,14 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 	CTerrainShader* pTerrainShader = new CTerrainShader();
 	pTerrainShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	
+	//22.11.16
 	pTerrainShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 3);
 	pTerrainShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	//pTerrainShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 3);
+	//UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+	//pTerrainShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObject, ncbElementBytes);
+	//
 	pTerrainShader->CreateShaderResourceViews(pd3dDevice, pTerrainTexture, 0, 11);
 
 	CMaterial* pTerrainMaterial = new CMaterial();
@@ -1233,23 +1260,24 @@ CHeightMapTerrain::~CHeightMapTerrain(void)
 	if (m_pHeightMapImage) delete m_pHeightMapImage;
 }
 
-//22.11.09
-CMultiSpriteObject::CMultiSpriteObject()
-{
-}
-
-CMultiSpriteObject::~CMultiSpriteObject()
-{
-}
-
-void CMultiSpriteObject::Animate(float fTimeElapsed)
-{
-	/*if (m_pMaterial && m_pMaterial->m_pTexture)
-	{
-		m_fTime += fTimeElapsed * 0.5f;
-		if (m_fTime >= m_fSpeed) m_fTime = 0.0f;
-		m_pMaterial->m_pTexture->AnimateRowColumn(m_fTime);
-	}*/
-}
+////22.11.09
+//CMultiSpriteObject::CMultiSpriteObject()
+//{
+//}
 //
+//CMultiSpriteObject::~CMultiSpriteObject()
+//{
+//}
+//
+//void CMultiSpriteObject::Animate(float fTimeElapsed)
+//{
+//	/*if (m_pMaterial && m_pMaterial->m_pTexture)
+//	{
+//		m_fTime += fTimeElapsed * 0.5f;
+//		if (m_fTime >= m_fSpeed) m_fTime = 0.0f;
+//		m_pMaterial->m_pTexture->AnimateRowColumn(m_fTime);
+//	}*/
+//}
+////
+
 
