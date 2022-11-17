@@ -74,27 +74,28 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Image/HeightMap.raw"), 257, 257, 257, 257, xmf3Scale, xmf4Color);
 
-	//22.11.09
-	//빌보드랑 스프라이트 추가해야해서 개수를 3개로 늘립니다. //x
-	m_nShaders = 1;
-	//
-	m_ppShaders = new CShader * [m_nShaders];
+	////22.11.09
+	////빌보드랑 스프라이트 추가해야해서 개수를 3개로 늘립니다. //x
+	//m_nShaders = 1;
+	////
+	//m_ppShaders = new CShader * [m_nShaders];
 
-	CObjectsShader* pObjectsShader = new CObjectsShader();
-	pObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, NULL);
+	//CObjectsShader* pObjectsShader = new CObjectsShader();
+	//pObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	//pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, NULL);
 
-	m_ppShaders[0] = pObjectsShader;
+	//m_ppShaders[0] = pObjectsShader;
 	//22.11.15
 	nShaders = 1;
 	m_pShaders = new CShader * [nShaders];
 	//
 	
 	//22.11.07
-	/*CBillboardObjectsShader* pBillboardObjectShader = new CBillboardObjectsShader();
+	CBillboardObjectsShader* pBillboardObjectShader = new CBillboardObjectsShader();
 	pBillboardObjectShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	pBillboardObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain);
-	m_pShaders[0] = pBillboardObjectShader;*/
+	m_pShaders[0] = pBillboardObjectShader;
+
 
 	//CMultiSpriteObjectsShader* pMultiSpriteObjectShader = new CMultiSpriteObjectsShader();
 	//pMultiSpriteObjectShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
@@ -141,7 +142,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 
 	//22.11.16
 	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[9];
-	//D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[11];
+	//D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[10];
 	//
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
@@ -193,13 +194,20 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dDescriptorRanges[7].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	//22.11.16
+	//왜 디스크립터 개수가 3개일까?
 	pd3dDescriptorRanges[8].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[8].NumDescriptors = 3;
 	pd3dDescriptorRanges[8].BaseShaderRegister = 14; //t14~16: gtxtTerrainTexture
 	pd3dDescriptorRanges[8].RegisterSpace = 0;
 	pd3dDescriptorRanges[8].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+	//=================================================================================================
 
+	//pd3dDescriptorRanges[9].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	//pd3dDescriptorRanges[9].NumDescriptors = 1;
+	//pd3dDescriptorRanges[9].BaseShaderRegister = 0; //t0: gtxtTexture
+	//pd3dDescriptorRanges[9].RegisterSpace = 0;
+	//pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	//pd3dDescriptorRanges[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	//pd3dDescriptorRanges[1].NumDescriptors = 1;
@@ -236,7 +244,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	//pd3dDescriptorRanges[8].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	//pd3dDescriptorRanges[9].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	//pd3dDescriptorRanges[9].NumDescriptors = 3;
+	//pd3dDescriptorRanges[9].NumDescriptors = 1;
 	//pd3dDescriptorRanges[9].BaseShaderRegister = 14; //t4: gtxtTerrainBaseTexture
 	//pd3dDescriptorRanges[9].RegisterSpace = 0;
 	//pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
@@ -506,7 +514,7 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 //	m_ppShaders[0]->Render(pd3dCommandList, pCamera);//
 	//22.11.16
 	//m_pShaders[0]->billboardRender(pd3dCommandList, pCamera);//빌보드
-	//m_pShaders[0]->Render(pd3dCommandList, pCamera);//빌보드
+	m_pShaders[0]->Render(pd3dCommandList, pCamera);//빌보드
 	//
 }
 

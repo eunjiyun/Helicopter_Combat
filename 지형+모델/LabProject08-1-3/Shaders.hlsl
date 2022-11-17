@@ -50,8 +50,8 @@ Texture2D gtxtStandardTextures[7] : register(t6);
 
 SamplerState gssWrap : register(s0);
 
-//이걸 추가?
 Texture2D gtxtTexture : register(t0);
+
 
 struct VS_STANDARD_INPUT
 {
@@ -158,8 +158,6 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-
-//추가?
 struct VS_TEXTURED_INPUT
 {
 	float3 position : POSITION;
@@ -171,7 +169,6 @@ struct VS_TEXTURED_OUTPUT
 	float4 position : SV_POSITION;
 	float2 uv : TEXCOORD;
 };
-//
 
 VS_TEXTURED_OUTPUT VSTextured(VS_TEXTURED_INPUT input)
 {
@@ -220,13 +217,12 @@ Texture2D gtxtTerrainTexture : register(t14);
 Texture2D gtxtDetailTexture : register(t15);
 Texture2D gtxtAlphaTexture : register(t16);
 
-//추가?
 float4 PSTerrain(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtTerrainTexture.Sample(gssWrap, input.uv);
+
 	return(cColor);
 }
-//
 
 struct VS_TERRAIN_INPUT
 {

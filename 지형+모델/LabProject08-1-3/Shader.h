@@ -132,8 +132,12 @@ public:
 
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
 
+	//22.11.18
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+	/*virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);*/
+	//
 
 	virtual void CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
 };
@@ -193,6 +197,20 @@ protected:
 	int								m_nObjects = 0;
 };
 
+//class CStandardShader : public CShader
+//{
+//public:
+//	CStandardShader();
+//	virtual ~CStandardShader();
+//
+//	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+//
+//	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
+//	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+//
+//	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+//};
+
 //22.11.16
 class CTexturedShader2 : public CShader
 {
@@ -202,14 +220,23 @@ public:
 
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
 
-	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	//22.11.18
+	/*virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);*/
 
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+	//
+
+	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 };
 
+//22.11.18
 class CObjectsShader2 : public CTexturedShader2
+//class CObjectsShader2 : public CStandardShader
+//
 {
+
 public:
 	CObjectsShader2();
 	virtual ~CObjectsShader2();
@@ -238,7 +265,7 @@ protected:
 
 
 //22.11.07
-class CBillboardObjectsShader : public CObjectsShader2
+class CBillboardObjectsShader : public CObjectsShader2//22.11.18
 {
 public:
 	CBillboardObjectsShader();
