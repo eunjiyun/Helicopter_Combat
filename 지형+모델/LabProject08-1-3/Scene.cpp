@@ -76,15 +76,15 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	////22.11.09
 	////ºôº¸µå¶û ½ºÇÁ¶óÀÌÆ® Ãß°¡ÇØ¾ßÇØ¼­ °³¼ö¸¦ 3°³·Î ´Ã¸³´Ï´Ù. //x
-	//m_nShaders = 1;
-	////
-	//m_ppShaders = new CShader * [m_nShaders];
+	m_nShaders = 1;
+	//
+	m_ppShaders = new CShader * [m_nShaders];
 
-	//CObjectsShader* pObjectsShader = new CObjectsShader();
-	//pObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	//pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, NULL);
+	CObjectsShader* pObjectsShader = new CObjectsShader();
+	pObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, NULL);
 
-	//m_ppShaders[0] = pObjectsShader;
+	m_ppShaders[0] = pObjectsShader;
 	//22.11.15
 	nShaders = 1;
 	m_pShaders = new CShader * [nShaders];
@@ -511,7 +511,7 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	//for (int i = 0; i < m_nShaders; i++) //Çï¸®ÄßÅÍµé //+ºôº¸µå
 	//	if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 
-//	m_ppShaders[0]->Render(pd3dCommandList, pCamera);//
+	m_ppShaders[0]->Render(pd3dCommandList, pCamera);//
 	//22.11.16
 	//m_pShaders[0]->billboardRender(pd3dCommandList, pCamera);//ºôº¸µå
 	m_pShaders[0]->Render(pd3dCommandList, pCamera);//ºôº¸µå
