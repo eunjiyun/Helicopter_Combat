@@ -50,10 +50,8 @@ Texture2D gtxtStandardTextures[7] : register(t6);
 
 SamplerState gssWrap : register(s0);
 
-//22.11.23
-Texture2D gtxtTexture : register(t0);
-//
 
+Texture2D gtxtTexture : register(t0);
 struct VS_STANDARD_INPUT
 {
 	float3 position : POSITION;
@@ -159,21 +157,21 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-struct VS_SPRITE_TEXTURED_INPUT
+struct VS_TEXTURED_INPUT
 {
 	float3 position : POSITION;
 	float2 uv : TEXCOORD;
 };
 
-struct VS_SPRITE_TEXTURED_OUTPUT
+struct VS_TEXTURED_OUTPUT
 {
 	float4 position : SV_POSITION;
 	float2 uv : TEXCOORD;
 };
 
-VS_SPRITE_TEXTURED_OUTPUT VSTextured(VS_SPRITE_TEXTURED_INPUT input)
+VS_TEXTURED_OUTPUT VSTextured(VS_TEXTURED_INPUT input)
 {
-	VS_SPRITE_TEXTURED_OUTPUT output;
+	VS_TEXTURED_OUTPUT output;
 
 	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
 	output.uv = input.uv;
@@ -181,8 +179,15 @@ VS_SPRITE_TEXTURED_OUTPUT VSTextured(VS_SPRITE_TEXTURED_INPUT input)
 	return(output);
 }
 
+float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
+{
+	float4 cColor = gtxtTexture.Sample(gssWrap, input.uv);
+
+	return(cColor);
+}
+
 /*
-float4 PSTextured(VS_SPRITE_TEXTURED_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
+float4 PSTextured(VS_TEXTURED_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
 {
 	float4 cColor;
 	if (nPrimitiveID < 2)
@@ -209,10 +214,9 @@ Texture2D gtxtTerrainTexture : register(t14);
 Texture2D gtxtDetailTexture : register(t15);
 Texture2D gtxtAlphaTexture : register(t16);
 
-float4 PSTextured(VS_SPRITE_TEXTURED_OUTPUT input) : SV_TARGET
+float4 PSTerrain(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtTerrainTexture.Sample(gssWrap, input.uv);
-
 	return(cColor);
 }
 
