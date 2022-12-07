@@ -18,7 +18,30 @@ cbuffer cbGameObjectInfo : register(b2)
 	matrix		gmtxGameObject : packoffset(c0);
 	MATERIAL	gMaterial : packoffset(c4);
 	uint		gnTexturesMask : packoffset(c8);
+	////22.12.06
+	//matrix		gmtxGameObject2 : packoffset(c12);
+	////
 };
+
+//22.12.06
+struct MAT
+{
+	float4				m_cAmbient;
+	float4				m_cDiffuse;
+	float4				m_cSpecular; //a = power
+	float4				m_cEmissive;
+
+	matrix				gmtxTexture;
+	int2				gi2TextureTiling;
+	float2				gf2TextureOffset;
+};
+
+cbuffer cbGrassObjectInfo : register(b3)
+{
+	matrix		gmtxWorld : packoffset(c0);
+	MAT	gMat : packoffset(c4);
+};
+//
 
 #include "Light.hlsl"
 

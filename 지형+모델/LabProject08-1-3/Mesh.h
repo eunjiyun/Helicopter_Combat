@@ -56,7 +56,7 @@ protected:
 	//포지션버퍼는 이거?
 	ID3D12Resource					*m_pd3dPositionBuffer = NULL;
 	//
-	ID3D12Resource					*m_pd3dPositionUploadBuffer = NULL;
+	
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dPositionBufferView;
 
 	int								m_nSubMeshes = 0;
@@ -73,9 +73,17 @@ protected:
 	//22.11.15
 	//인덱스 버퍼는 이거?
 	ID3D12Resource* m_pd3dIndexBuffer = NULL;
+	//22.12.06
+	ID3D12Resource* m_pd3dVertexBuffer = NULL;
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dVertexBufferView;
+	ID3D12Resource* m_pd3dVertexUploadBuffer = NULL;
+	//
 	D3D12_INDEX_BUFFER_VIEW			m_d3dIndexBufferView;
 	UINT							m_nIndices = 0;
+	//
+
+	//22.12.06
+	UINT							m_nStride = 0;
 	//
 
 public:
@@ -99,7 +107,14 @@ public:
 class CTexturedRectMesh : public CMesh
 {
 public:
-	CTexturedRectMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth=20.0f, float fHeight=20.0f, float fDepth=20.0f, float fxPosition=0.0f, float fyPosition=0.0f, float fzPosition=0.0f);
+	CTexturedRectMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth=20.0f, float fHeight=20.0f,float fDepth=20.0f, 
+		float fxPosition=0.0f, float fyPosition=0.0f, float fzPosition=0.0f);
+
+	////22.12.06
+	//CTexturedRectMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth = 20.0f, float fHeight = 20.0f, float fDepth = 20.0f,
+	//	float fxPosition = 0.0f, float fyPosition = 0.0f, float fzPosition = 0.0f);
+	////
+
 	virtual ~CTexturedRectMesh();
 
 protected:
@@ -113,6 +128,16 @@ public:
 	virtual void ReleaseUploadBuffers();
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet);
 };
+
+//22.12.06
+class CTexturedRectMesh2 : public CMesh
+{
+public:
+	CTexturedRectMesh2(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth = 20.0f, float fHeight = 20.0f, float fDepth = 20.0f,
+		float fxPosition = 0.0f, float fyPosition = 0.0f, float fzPosition = 0.0f);
+	virtual ~CTexturedRectMesh2();
+};
+//
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -231,3 +256,27 @@ public:
 	virtual float OnGetHeight(int x, int z, void* pContext);
 	virtual XMFLOAT4 OnGetColor(int x, int z, void* pContext);
 };
+
+//22.12.06
+class CVertex
+{
+public:
+	XMFLOAT3						m_xmf3Position;
+
+public:
+	CVertex() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); }
+	CVertex(XMFLOAT3 xmf3Position) { m_xmf3Position = xmf3Position; }
+	~CVertex() { }
+};
+class CTexturedVertex : public CVertex
+{
+public:
+	XMFLOAT2						m_xmf2TexCoord;
+
+public:
+	CTexturedVertex() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); m_xmf2TexCoord = XMFLOAT2(0.0f, 0.0f); }
+	CTexturedVertex(float x, float y, float z, XMFLOAT2 xmf2TexCoord) { m_xmf3Position = XMFLOAT3(x, y, z); m_xmf2TexCoord = xmf2TexCoord; }
+	CTexturedVertex(XMFLOAT3 xmf3Position, XMFLOAT2 xmf2TexCoord = XMFLOAT2(0.0f, 0.0f)) { m_xmf3Position = xmf3Position; m_xmf2TexCoord = xmf2TexCoord; }
+	~CTexturedVertex() { }
+};
+//

@@ -210,8 +210,40 @@ void CShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *
 	m_d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
 	HRESULT hResult = pd3dDevice->CreateGraphicsPipelineState(&m_d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void **)&m_ppd3dPipelineStates[0]);
-	int a = 0;
+	int pipe= 0;
 }
+
+//22.12.06
+void CShader::CreateShader2(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	ID3DBlob* pd3dVertexShaderBlob = NULL, * pd3dPixelShaderBlob = NULL;
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC d3dPipelineStateDesc;
+	::ZeroMemory(&d3dPipelineStateDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+	d3dPipelineStateDesc.pRootSignature = pd3dGraphicsRootSignature;
+	d3dPipelineStateDesc.VS = CreateVertexShader();
+	d3dPipelineStateDesc.PS = CreatePixelShader();
+	d3dPipelineStateDesc.RasterizerState = CreateRasterizerState();
+	d3dPipelineStateDesc.BlendState = CreateBlendState();
+	d3dPipelineStateDesc.DepthStencilState = CreateDepthStencilState();
+	d3dPipelineStateDesc.InputLayout = CreateInputLayout();
+	d3dPipelineStateDesc.SampleMask = UINT_MAX;
+	d3dPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	d3dPipelineStateDesc.NumRenderTargets = 1;
+	d3dPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	d3dPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	d3dPipelineStateDesc.SampleDesc.Count = 1;
+	d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+	HRESULT hResult = pd3dDevice->CreateGraphicsPipelineState(&d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void**)&m_ppd3dPipelineStates[0]);
+
+	int pipe = 0;
+
+	if (pd3dVertexShaderBlob) pd3dVertexShaderBlob->Release();
+	if (pd3dPixelShaderBlob) pd3dPixelShaderBlob->Release();
+
+	if (d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] d3dPipelineStateDesc.InputLayout.pInputElementDescs;
+}
+//
 
 void CShader::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, int nConstantBufferViews, int nShaderResourceViews)
 {
@@ -265,6 +297,28 @@ void CShader::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTex
 	int nRootParameters = pTexture->GetRootParameters();
 	for (int i = 0; i < nRootParameters; i++) pTexture->SetRootParameterIndex(i, nRootParameterStartIndex + i);
 }
+
+//22.12.06
+void CShader::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture2* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex)
+{
+	m_d3dSrvCPUDescriptorNextHandle.ptr += (::gnCbvSrvDescriptorIncrementSize * nDescriptorHeapIndex);
+	m_d3dSrvGPUDescriptorNextHandle.ptr += (::gnCbvSrvDescriptorIncrementSize * nDescriptorHeapIndex);
+
+	int nTextures = pTexture->GetTextures();
+	UINT nTextureType = pTexture->GetTextureType();
+	for (int i = 0; i < nTextures; i++)
+	{
+		ID3D12Resource* pShaderResource = pTexture->GetResource(i);
+		D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc = pTexture->GetShaderResourceViewDesc(i);
+		pd3dDevice->CreateShaderResourceView(pShaderResource, &d3dShaderResourceViewDesc, m_d3dSrvCPUDescriptorNextHandle);
+		m_d3dSrvCPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+		pTexture->SetGpuDescriptorHandle(i, m_d3dSrvGPUDescriptorNextHandle);
+		m_d3dSrvGPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+	}
+	int nRootParameters = pTexture->GetRootParameters();
+	for (int i = 0; i < nRootParameters; i++) pTexture->SetRootParameterIndex(i, nRootParameterStartIndex + i);
+}
+//
 
 void CShader::CreateShaderResourceView(ID3D12Device* pd3dDevice, CTexture* pTexture, int nIndex)
 {
@@ -797,50 +851,54 @@ D3D12_BLEND_DESC CBillboardObjectsShader::CreateBlendState()
 
 void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)
 {
-	CTexture* ppGrassTextures[2];
-	ppGrassTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	ppGrassTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Grass01.dds", RESOURCE_TEXTURE2D, 0);
-	ppGrassTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	ppGrassTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Grass02.dds", RESOURCE_TEXTURE2D, 0);
+	CTexture2* ppGrassTextures[2];
+	ppGrassTextures[0] = new CTexture2(1, RESOURCE_TEXTURE2D, 0, 1);
+	//22.12.06
+	//LoadTextureFromDDSFile
+	//LoadTextureFromFile2
+	ppGrassTextures[0]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Image/Grass01.dds", RESOURCE_TEXTURE2D, 0);
+	ppGrassTextures[1] = new CTexture2(1, RESOURCE_TEXTURE2D, 0, 1);
+	ppGrassTextures[1]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Image/Grass02.dds", RESOURCE_TEXTURE2D, 0);
 
-	CTexture* ppFlowerTextures[2];
-	ppFlowerTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	ppFlowerTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Flower01.dds", RESOURCE_TEXTURE2D, 0);
-	ppFlowerTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	ppFlowerTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Flower02.dds", RESOURCE_TEXTURE2D, 0);
+	CTexture2* ppFlowerTextures[2];
+	ppFlowerTextures[0] = new CTexture2(1, RESOURCE_TEXTURE2D, 0, 1);
+	ppFlowerTextures[0]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Image/Flower01.dds", RESOURCE_TEXTURE2D, 0);
+	ppFlowerTextures[1] = new CTexture2(1, RESOURCE_TEXTURE2D, 0, 1);
+	ppFlowerTextures[1]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Image/Flower02.dds", RESOURCE_TEXTURE2D, 0);
 
-	CTexture* ppTreeTextures[3];
-	ppTreeTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	ppTreeTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Tree01.dds", RESOURCE_TEXTURE2D, 0);
-	ppTreeTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	ppTreeTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Tree02.dds", RESOURCE_TEXTURE2D, 0);
-	ppTreeTextures[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	ppTreeTextures[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Tree03.dds", RESOURCE_TEXTURE2D, 0);
+	CTexture2* ppTreeTextures[3];
+	ppTreeTextures[0] = new CTexture2(1, RESOURCE_TEXTURE2D, 0, 1);
+	ppTreeTextures[0]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Image/Tree01.dds", RESOURCE_TEXTURE2D, 0);
+	ppTreeTextures[1] = new CTexture2(1, RESOURCE_TEXTURE2D, 0, 1);
+	ppTreeTextures[1]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Image/Tree02.dds", RESOURCE_TEXTURE2D, 0);
+	ppTreeTextures[2] = new CTexture2(1, RESOURCE_TEXTURE2D, 0, 1);
+	ppTreeTextures[2]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Image/Tree03.dds", RESOURCE_TEXTURE2D, 0);
+	//
 
-	CMaterial* ppGrassMaterials[2];
-	ppGrassMaterials[0] = new CMaterial();
+	CMaterial2* ppGrassMaterials[2];
+	ppGrassMaterials[0] = new CMaterial2();
 	ppGrassMaterials[0]->SetTexture(ppGrassTextures[0]);
-	ppGrassMaterials[1] = new CMaterial();
+	ppGrassMaterials[1] = new CMaterial2();
 	ppGrassMaterials[1]->SetTexture(ppGrassTextures[1]);
 
-	CMaterial* ppFlowerMaterials[2];
-	ppFlowerMaterials[0] = new CMaterial();
+	CMaterial2* ppFlowerMaterials[2];
+	ppFlowerMaterials[0] = new CMaterial2();
 	ppFlowerMaterials[0]->SetTexture(ppFlowerTextures[0]);
-	ppFlowerMaterials[1] = new CMaterial();
+	ppFlowerMaterials[1] = new CMaterial2();
 	ppFlowerMaterials[1]->SetTexture(ppFlowerTextures[1]);
 
-	CMaterial* ppTreeMaterials[3];
-	ppTreeMaterials[0] = new CMaterial();
+	CMaterial2* ppTreeMaterials[3];
+	ppTreeMaterials[0] = new CMaterial2();
 	ppTreeMaterials[0]->SetTexture(ppTreeTextures[0]);
-	ppTreeMaterials[1] = new CMaterial();
+	ppTreeMaterials[1] = new CMaterial2();
 	ppTreeMaterials[1]->SetTexture(ppTreeTextures[1]);
-	ppTreeMaterials[2] = new CMaterial();
+	ppTreeMaterials[2] = new CMaterial2();
 	ppTreeMaterials[2]->SetTexture(ppTreeTextures[2]);
 
-	CTexturedRectMesh* pGrassMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 8.0f, 8.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	CTexturedRectMesh* pFlowerMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 8.0f, 16.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	CTexturedRectMesh* pTreeMesh01 = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 24.0f, 36.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	CTexturedRectMesh* pTreeMesh02 = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 16.0f, 46.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	CTexturedRectMesh2* pGrassMesh = new CTexturedRectMesh2(pd3dDevice, pd3dCommandList, 8.0f, 8.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	CTexturedRectMesh2* pFlowerMesh = new CTexturedRectMesh2(pd3dDevice, pd3dCommandList, 8.0f, 16.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	CTexturedRectMesh2* pTreeMesh01 = new CTexturedRectMesh2(pd3dDevice, pd3dCommandList, 24.0f, 36.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	CTexturedRectMesh2* pTreeMesh02 = new CTexturedRectMesh2(pd3dDevice, pd3dCommandList, 16.0f, 46.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
 	CRawFormatImage* pRawFormatImage = new CRawFormatImage(L"Image/ObjectsMap.raw", 257, 257, true);
 	
@@ -889,7 +947,7 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 
 	XMFLOAT3 xmf3Scale = pTerrain->GetScale();
 
-	m_ppObjects = new CGameObject * [m_nObjects];
+	m_ppObjects = new CGameObject2 * [m_nObjects];
 
 	CGrassObject* pBillboardObject = NULL;
 	for (int nObjects = 0, z = 2; z <= 254; z++)
@@ -902,7 +960,7 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 
 			//22.11.09
 			//껍질을 배열로 바꿔줍시다
-			CMaterial* pMaterial = NULL;
+			CMaterial2* pMaterial = NULL;
 			//CMaterial** pMaterial = NULL;
 			//
 			CMesh* pMesh = NULL;
@@ -964,6 +1022,8 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 				pBillboardObject->SetMaterial(0,pMaterial);
 				//
 
+				//1207
+
 				float xPosition = x * xmf3Scale.x;
 				float zPosition = z * xmf3Scale.z;
 				float fHeight = pTerrain->GetHeight(xPosition, zPosition);
@@ -991,11 +1051,12 @@ void CBillboardObjectsShader::ReleaseObjects()
 }
 //
 
-void CBillboardObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+void CBillboardObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)//1207
 {
 	XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
 	for (int j = 0; j < m_nObjects; j++)
 	{
+		//if (m_ppObjects[j]) m_ppObjects[j]->SetLookAt(XMFLOAT3(920,960,1240), XMFLOAT3(0.0f, 1.0f, 0.0f));
 		if (m_ppObjects[j]) m_ppObjects[j]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 	}
 	
@@ -1402,6 +1463,10 @@ void CObjectsShader2::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera
 	//CStandardShader::Render(pd3dCommandList, pCamera);
 	//
 
+	//22.12.06
+	//pd3dCommandList->SetGraphicsRootDescriptorTable(2, m_d3dCbvGPUDescriptorHandle);
+	//
+
 	for (int j = 0; j < m_nObjects; j++)
 	{
 		if (m_ppObjects[j]) m_ppObjects[j]->Render(pd3dCommandList, pCamera);
@@ -1473,7 +1538,7 @@ void CTexturedShader2::CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	m_nPipelineStates = 1;
 	m_ppd3dPipelineStates = new ID3D12PipelineState * [m_nPipelineStates];
 
-	CShader::CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	CShader::CreateShader2(pd3dDevice,  pd3dGraphicsRootSignature);
 }
 //
 

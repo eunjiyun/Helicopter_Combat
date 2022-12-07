@@ -241,9 +241,12 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	//if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
 	//if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
 
-	for (int i = 0; i < m_nShaders; i++)//빌보드를 넣은 것 같은데
-	{
-		m_ppShaders[i]->Render(pd3dCommandList, pCamera);
-	}
+	//22.12.06
+	//for (int i = 0; i < m_nShaders; i++)//빌보드를 넣은 것 같은데
+	//{
+	//	m_ppShaders[i]->Render(pd3dCommandList, pCamera);
+	//}
+	m_ppShaders[0]->Render(pd3dCommandList, pCamera);
+	//
 }
 

@@ -620,6 +620,7 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12Graph
 				pBillboardObject->SetMesh(0, pMesh);
 				pBillboardObject->SetMaterial(pMaterial);
 
+
 				float xPosition = x * xmf3Scale.x;
 				float zPosition = z * xmf3Scale.z;
 				float fHeight = pTerrain->GetHeight(xPosition, zPosition);
@@ -642,7 +643,7 @@ void CBillboardObjectsShader::ReleaseObjects()
 	CObjectsShader::ReleaseObjects();
 }
 
-void CBillboardObjectsShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CBillboardObjectsShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)//1207
 {
 	XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
 	for (int j = 0; j < m_nObjects; j++)

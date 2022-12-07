@@ -330,7 +330,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	pShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 0);
 	pShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbPlayer, ncbElementBytes);
 
-	SetCbvGPUDescriptorHandle(pShader->GetGPUCbvDescriptorStartHandle());
+	//SetCbvGPUDescriptorHandle(pShader->GetGPUCbvDescriptorStartHandle());
 
 	SetShader(pShader);
 
