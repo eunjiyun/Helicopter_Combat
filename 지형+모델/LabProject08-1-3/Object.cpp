@@ -904,8 +904,13 @@ void CGameObject::SetMaterial(int nMaterial, CMaterial *pMaterial)
 	//22.11.09
 	//릴리스를 안 해주면 어떤 문제가 생길까요
 	// 헬리콥터가 까매져요
-	if (m_ppMaterials[nMaterial]) 
-		m_ppMaterials[nMaterial]->Release();
+
+	if (!m_ppMaterials)
+			{ 
+				m_ppMaterials = new CMaterial * [1];
+			}
+	/*if (m_ppMaterials[nMaterial]) 
+		m_ppMaterials[nMaterial]->Release();*/
 
 	m_ppMaterials[nMaterial] = pMaterial;
 	
@@ -1633,31 +1638,31 @@ void CGrassObject::Animate(float fTimeElapsed)
 	Rotate(0.0f, 0.0f, m_fRotationAngle);
 }
 
-//22.11.09
-void CGrassObject::SetMaterial(int nMaterial, CMaterial* pMaterial)
-{
-	/*if (m_pMaterial) m_pMaterial->Release();
-	m_pMaterial = pMaterial;
-	if (m_pMaterial) m_pMaterial->AddRef();*/
-
-//	//22.11.09
-////릴리스를 안 해주면 어떤 문제가 생길까요
-//// 헬리콥터가 까매져요
-
-	if (!m_ppMaterials)
-	{ 
-		m_ppMaterials = new CMaterial * [1];
-	}
-	//else
-	{
-		/*if (m_ppMaterials[nMaterial])
-			m_ppMaterials[nMaterial]->Release();*/
-
-		m_ppMaterials[nMaterial] = pMaterial;
-
-		if (m_ppMaterials[nMaterial]) m_ppMaterials[nMaterial]->AddRef();
-	}
-}
+////22.11.09
+//void CGrassObject::SetMaterial(int nMaterial, CMaterial* pMaterial)
+//{
+//	/*if (m_pMaterial) m_pMaterial->Release();
+//	m_pMaterial = pMaterial;
+//	if (m_pMaterial) m_pMaterial->AddRef();*/
+//
+////	//22.11.09
+//////릴리스를 안 해주면 어떤 문제가 생길까요
+////// 헬리콥터가 까매져요
+//
+//	if (!m_ppMaterials)
+//	{ 
+//		m_ppMaterials = new CMaterial * [1];
+//	}
+//	//else
+//	{
+//		/*if (m_ppMaterials[nMaterial])
+//			m_ppMaterials[nMaterial]->Release();*/
+//
+//		m_ppMaterials[nMaterial] = pMaterial;
+//
+//		if (m_ppMaterials[nMaterial]) m_ppMaterials[nMaterial]->AddRef();
+//	}
+//}
 //
 //=============================================================
 

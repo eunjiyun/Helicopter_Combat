@@ -309,7 +309,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 
 	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
 	//22.12.06
-	pd3dRootParameters[1].Constants.Num32BitValues = 32;
+	pd3dRootParameters[1].Constants.Num32BitValues = 33;
 	//pd3dRootParameters[1].Constants.Num32BitValues = 49;
 	//pd3dRootParameters[1].Constants.Num32BitValues = 32;
 	//

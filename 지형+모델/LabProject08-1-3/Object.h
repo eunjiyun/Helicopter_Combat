@@ -586,7 +586,7 @@ public:
 
 	//22.11.09
 	//void SetMaterial(CMaterial* pMaterial);
-	void SetMaterial(int nMaterial, CMaterial* pMaterial);
+	//void SetMaterial(int nMaterial, CMaterial* pMaterial);
 	//
 };
 //===================================================
