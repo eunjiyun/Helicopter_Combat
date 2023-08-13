@@ -219,60 +219,60 @@ protected:
 //};
 
 //22.11.16
-class CTexturedShader2 : public CShader
-{
-public:
-	CTexturedShader2();
-	virtual ~CTexturedShader2();
-
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-
-	//22.11.18
-	/*virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);*/
-
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
-	//
-
-	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-};
-
-//22.11.18
-class CObjectsShader2 : public CTexturedShader2
-//class CObjectsShader2 : public CStandardShader
+//class CTexturedShader2 : public CShader
+//{
+//public:
+//	CTexturedShader2();
+//	virtual ~CTexturedShader2();
 //
-{
-
-public:
-	CObjectsShader2();
-	virtual ~CObjectsShader2();
-
-	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL);
-	virtual void AnimateObjects(float fTimeElapsed);
-	virtual void ReleaseObjects();
-
-	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
-	virtual void ReleaseShaderVariables();
-
-	virtual void ReleaseUploadBuffers();
-
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
-
-protected:
-	CGameObject2** m_ppObjects = 0;
-	int								m_nObjects = 0;
-
-	ID3D12Resource* m_pd3dcbGameObjects = NULL;
-	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
-};
+//	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
 //
+//	//22.11.18
+//	/*virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
+//	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);*/
+//
+//	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
+//	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+//	//
+//
+//	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+//};
+
+////22.11.18
+//class CObjectsShader2 : public CTexturedShader2
+////class CObjectsShader2 : public CStandardShader
+////
+//{
+//
+//public:
+//	CObjectsShader2();
+//	virtual ~CObjectsShader2();
+//
+//	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL);
+//	virtual void AnimateObjects(float fTimeElapsed);
+//	virtual void ReleaseObjects();
+//
+//	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+//	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+//	virtual void ReleaseShaderVariables();
+//
+//	virtual void ReleaseUploadBuffers();
+//
+//	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
+//	CGameObject2** m_ppObjects;
+//protected:
+//	
+//	int								m_nObjects = 0;
+//
+//	ID3D12Resource* m_pd3dcbGameObjects = NULL;
+//	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
+//};
+////
 
 
 
 //22.11.07
-class CBillboardObjectsShader : public CObjectsShader2//22.11.18
+class CBillboardObjectsShader : public CObjectsShader//22.11.18
 {
 public:
 	CBillboardObjectsShader();
@@ -286,6 +286,10 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 
 	virtual void ReleaseUploadBuffers();
+
+	D3D12_SHADER_BYTECODE CreateVertexShader();
+	D3D12_SHADER_BYTECODE CreatePixelShader();
+	D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
 
 #ifdef _WITH_BATCH_MATERIAL
 	CMaterial* m_ppGrassMaterials[2] = { NULL, NULL };

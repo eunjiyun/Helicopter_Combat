@@ -359,7 +359,7 @@ void CTexture2::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 		{
 			//22.12.06
 			//pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[i], m_pd3dSrvGpuDescriptorHandles[i]);
-			pd3dCommandList->SetGraphicsRootDescriptorTable(9, m_pd3dSrvGpuDescriptorHandles[i]);
+			pd3dCommandList->SetGraphicsRootDescriptorTable(13, m_pd3dSrvGpuDescriptorHandles[i]);
 			//
 		}
 	}
@@ -367,7 +367,7 @@ void CTexture2::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 	{
 		//22.12.06
 		//pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[0], m_pd3dSrvGpuDescriptorHandles[0]);
-		pd3dCommandList->SetGraphicsRootDescriptorTable(9, m_pd3dSrvGpuDescriptorHandles[0]);
+		pd3dCommandList->SetGraphicsRootDescriptorTable(13, m_pd3dSrvGpuDescriptorHandles[0]);
 		//
 	}
 }
@@ -678,7 +678,7 @@ void CGameObject2::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 
 	
 	//12.07
-	pd3dCommandList->SetGraphicsRootDescriptorTable(9, m_d3dCbvGPUDescriptorHandle);// 3 4 5
+	pd3dCommandList->SetGraphicsRootDescriptorTable(12, m_d3dCbvGPUDescriptorHandle);// 3 4 5
 	/*XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World,0);*/
@@ -880,9 +880,15 @@ void CGameObject::SetChild(CGameObject *pChild)
 
 void CGameObject::SetMesh(int nIndex, CMesh* pMesh)
 {
+	if (!m_ppMeshes)
+	{
+		m_ppMeshes = new CMesh * [1];
+		m_nMeshes = 1;
+	}
+
 	if (m_ppMeshes)
 	{
-		if (m_ppMeshes[nIndex]) m_ppMeshes[nIndex]->Release();
+		//if (m_ppMeshes[nIndex]) m_ppMeshes[nIndex]->Release();
 		m_ppMeshes[nIndex] = pMesh;
 		if (pMesh) pMesh->AddRef();
 	}
@@ -953,18 +959,25 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 			m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
 		}
 		////22.11.16
-		//if (m_pMaterial->m_pTexture)//다른 건 여기 이 부분
-		//{
-		//	m_pMaterial->m_pTexture->UpdateShaderVariables(pd3dCommandList);
-		//	if (m_pcbMappedGameObject) XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_pMaterial->m_pTexture->m_xmf4x4Texture)));
-		//}
+		if (m_ppMaterials)
+		{
+			//if(!m_ppMeshes || 0 != strcmp("Body_Instance", m_ppMeshes[0]->m_pstrMeshName))
+			if (!(m_ppMaterials[0]->m_pShader) && m_ppMaterials[0]->m_pTexture)//다른 건 여기 이 부분
+			{
+				m_ppMaterials[0]->m_pTexture->UpdateShaderVariables(pd3dCommandList);
+				if (m_pcbMappedGameObject) XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_ppMaterials[0]->m_pTexture->m_xmf4x4Texture)));
+				pd3dCommandList->SetGraphicsRootDescriptorTable(12, m_d3dCbvGPUDescriptorHandle);
+			}
+		}
 		////
+		
 
 		if (m_ppMeshes)
 		{
 			for (int i = 0; i < m_nMeshes; i++)
 			{
-				if (m_ppMeshes[i]) m_ppMeshes[i]->Render(pd3dCommandList, 0);
+				if (m_ppMeshes[i]) 
+					m_ppMeshes[i]->Render(pd3dCommandList, 0);
 			}
 		}
 	//}
@@ -1001,6 +1014,81 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
 	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
 }
+
+void CGameObject::Render2(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+{
+	OnPrepareRender();
+
+	UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+
+	/*if (m_nMaterials > 1)
+	{
+		for (int i = 0; i < m_nMaterials; i++)
+		{
+			if (m_ppMaterials[i])
+			{
+				if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+				m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
+			}
+
+			if (m_nMeshes == 1)
+			{
+				if (m_ppMeshes[0]) m_ppMeshes[0]->Render(pd3dCommandList, i);
+			}
+		}
+	}*/
+	//else
+	//{
+	if ((m_nMaterials == 1) && (m_ppMaterials[0]))
+	{
+		if (m_ppMaterials[0]->m_pShader) m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
+		m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
+	}
+
+
+	if (m_ppMeshes)
+	{
+		for (int i = 0; i < m_nMeshes; i++)
+		{
+			if (m_ppMeshes[i])
+				m_ppMeshes[i]->Render(pd3dCommandList, 0);
+		}
+	}
+	//}
+
+	//22.11.15
+	//빌보드 렌더
+	/*if (m_pMaterial)
+	{
+		if (m_pMaterial->m_pShader)
+		{
+			m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+			m_pMaterial->m_pShader->UpdateShaderVariables(pd3dCommandList);
+
+			UpdateShaderVariables(pd3dCommandList);
+		}
+		if (m_pMaterial->m_pTexture)//다른 건 여기 이 부분
+		{
+			m_pMaterial->m_pTexture->UpdateShaderVariables(pd3dCommandList);
+			if (m_pcbMappedGameObject) XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_pMaterial->m_pTexture->m_xmf4x4Texture)));
+		}
+	}
+
+	pd3dCommandList->SetGraphicsRootDescriptorTable(2, m_d3dCbvGPUDescriptorHandle);
+
+	if (m_pMeshes)
+	{
+		for (int i = 0; i < nMeshes; i++)
+		{
+			if (m_pMeshes[i]) m_pMeshes[i]->Render(pd3dCommandList,0);
+		}
+	}*/
+	//
+
+	if (m_pSibling) m_pSibling->Render2(pd3dCommandList, pCamera);
+	if (m_pChild) m_pChild->Render2(pd3dCommandList, pCamera);
+}
+
 
 void CGameObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
@@ -1233,6 +1321,8 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device *pd3dDevice, ID3D12Graphics
 			pTexture->SetRootParameterIndex(0, PARAMETER_STANDARD_TEXTURE);
 #endif
 			pMaterial->SetTexture(pTexture);
+
+			
 			SetMaterial(nMaterial, pMaterial);
 
 			UINT nMeshType = GetMeshType(0);
@@ -1544,21 +1634,29 @@ void CGrassObject::Animate(float fTimeElapsed)
 }
 
 //22.11.09
-void CGrassObject::SetMaterial(int nMaterial, CMaterial2* pMaterial)
+void CGrassObject::SetMaterial(int nMaterial, CMaterial* pMaterial)
 {
-	if (m_pMaterial) m_pMaterial->Release();
+	/*if (m_pMaterial) m_pMaterial->Release();
 	m_pMaterial = pMaterial;
-	if (m_pMaterial) m_pMaterial->AddRef();
+	if (m_pMaterial) m_pMaterial->AddRef();*/
 
 //	//22.11.09
 ////릴리스를 안 해주면 어떤 문제가 생길까요
 //// 헬리콥터가 까매져요
-//	if (m_pMaterials[nMaterial])
-//		m_pMaterials[nMaterial]->Release();
-//
-//	m_pMaterials[nMaterial] = pMaterial;
-//
-//	if (m_pMaterials[nMaterial]) m_pMaterials[nMaterial]->AddRef();
+
+	if (!m_ppMaterials)
+	{ 
+		m_ppMaterials = new CMaterial * [1];
+	}
+	//else
+	{
+		/*if (m_ppMaterials[nMaterial])
+			m_ppMaterials[nMaterial]->Release();*/
+
+		m_ppMaterials[nMaterial] = pMaterial;
+
+		if (m_ppMaterials[nMaterial]) m_ppMaterials[nMaterial]->AddRef();
+	}
 }
 //
 //=============================================================

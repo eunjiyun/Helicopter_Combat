@@ -13,6 +13,8 @@ cbuffer cbCameraInfo : register(b1)
 	float3		gvCameraPosition : packoffset(c8);
 };
 
+
+
 cbuffer cbGameObjectInfo : register(b2)
 {
 	matrix		gmtxGameObject : packoffset(c0);

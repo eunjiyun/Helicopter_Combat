@@ -142,7 +142,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 
 	//22.11.16
 	//D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[9];
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[10];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[11];
 	//
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
@@ -208,6 +208,12 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dDescriptorRanges[9].RegisterSpace = 0;
 	pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 	////
+
+	pd3dDescriptorRanges[10].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pd3dDescriptorRanges[10].NumDescriptors = 1;
+	pd3dDescriptorRanges[10].BaseShaderRegister = 0; //t0: gtxtTexture
+	pd3dDescriptorRanges[10].RegisterSpace = 0;
+	pd3dDescriptorRanges[10].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	//=================================================================================================
 
@@ -293,7 +299,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 
 	//22.12.06
 	//D3D12_ROOT_PARAMETER pd3dRootParameters[12];
-	D3D12_ROOT_PARAMETER pd3dRootParameters[13];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[14];
 	//
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -303,7 +309,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 
 	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
 	//22.12.06
-	pd3dRootParameters[1].Constants.Num32BitValues = 33;
+	pd3dRootParameters[1].Constants.Num32BitValues = 32;
 	//pd3dRootParameters[1].Constants.Num32BitValues = 49;
 	//pd3dRootParameters[1].Constants.Num32BitValues = 32;
 	//
@@ -367,6 +373,11 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[12].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[9];
 	pd3dRootParameters[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 	//
+
+	pd3dRootParameters[13].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[13].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[13].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[10];
+	pd3dRootParameters[13].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
 
@@ -506,7 +517,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	}
 
 	//22.11.15
-//	m_pShaders[0]->AnimateObjects(fTimeElapsed);
+	m_pShaders[0]->AnimateObjects(fTimeElapsed);
 	//
 }
 
@@ -538,6 +549,8 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	//m_ppShaders[0]->Render(pd3dCommandList, pCamera);//
 	//22.11.16
 	//m_pShaders[0]->billboardRender(pd3dCommandList, pCamera);//ºôº¸µå
+
+
 	m_pShaders[0]->Render(pd3dCommandList, pCamera);//ºôº¸µå
 	//
 }

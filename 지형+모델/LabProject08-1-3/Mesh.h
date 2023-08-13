@@ -27,6 +27,7 @@ class CMesh
 public:
 	CMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual ~CMesh();
+	char							m_pstrMeshName[256] = { 0 };
 
 private:
 	int								m_nReferences = 0;
@@ -36,7 +37,7 @@ public:
 	void Release() { if (--m_nReferences <= 0) delete this; }
 
 protected:
-	char							m_pstrMeshName[256] = { 0 };
+	
 
 	UINT							m_nType = 0x00;
 

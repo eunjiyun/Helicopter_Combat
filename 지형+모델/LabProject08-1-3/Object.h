@@ -356,6 +356,7 @@ public:
 
 	virtual void OnPrepareRender() { }
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
+	void Render2(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
 
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
@@ -572,7 +573,7 @@ public:
 };
 
 //22.11.07
-class CGrassObject : public CGameObject2
+class CGrassObject : public CGameObject
 {
 public:
 	CGrassObject();
@@ -585,7 +586,7 @@ public:
 
 	//22.11.09
 	//void SetMaterial(CMaterial* pMaterial);
-	void SetMaterial(int nMaterial, CMaterial2* pMaterial);
+	void SetMaterial(int nMaterial, CMaterial* pMaterial);
 	//
 };
 //===================================================
