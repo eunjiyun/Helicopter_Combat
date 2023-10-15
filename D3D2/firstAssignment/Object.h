@@ -620,17 +620,17 @@ public:
 };
 
 ////22.11.09
-//class CMultiSpriteObject : public CGameObject
-//{
-//public:
-//	CMultiSpriteObject();
-//	virtual ~CMultiSpriteObject();
-//
-//	float m_fSpeed = 0.1f;
-//	float m_fTime = 0.0f;
-//
-//	virtual void Animate(float fTimeElapsed);
-//};
+class CMultiSpriteObject : public CGameObject
+{
+public:
+	CMultiSpriteObject();
+	virtual ~CMultiSpriteObject();
+
+	float m_fSpeed = 0.1f;
+	float m_fTime = 0.0f;
+
+	virtual void Animate(float fTimeElapsed);
+};
 ////
 
 

@@ -1832,23 +1832,23 @@ CHeightMapTerrain::~CHeightMapTerrain(void)
 }
 
 ////22.11.09
-//CMultiSpriteObject::CMultiSpriteObject()
-//{
-//}
-//
-//CMultiSpriteObject::~CMultiSpriteObject()
-//{
-//}
-//
-//void CMultiSpriteObject::Animate(float fTimeElapsed)
-//{
-//	/*if (m_pMaterial && m_pMaterial->m_pTexture)
-//	{
-//		m_fTime += fTimeElapsed * 0.5f;
-//		if (m_fTime >= m_fSpeed) m_fTime = 0.0f;
-//		m_pMaterial->m_pTexture->AnimateRowColumn(m_fTime);
-//	}*/
-//}
+CMultiSpriteObject::CMultiSpriteObject()
+{
+}
+
+CMultiSpriteObject::~CMultiSpriteObject()
+{
+}
+
+void CMultiSpriteObject::Animate(float fTimeElapsed)
+{
+	if (m_pMaterial && m_pMaterial->m_pTexture)
+	{
+		m_fTime += fTimeElapsed * 0.5f;
+		if (m_fTime >= m_fSpeed) m_fTime = 0.0f;
+		m_pMaterial->m_pTexture->AnimateRowColumn(m_fTime);
+	}
+}
 ////
 
 
