@@ -89,6 +89,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppShaders[0] = pObjectsShader;
 
 	CMultiSpriteObjectsShader* pMultiSpriteObjectShader = new CMultiSpriteObjectsShader();
+	//CBillboardObjectsShader* pMultiSpriteObjectShader = new CBillboardObjectsShader();
 	pMultiSpriteObjectShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	pMultiSpriteObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain);
 	pMultiSpriteObjectShader->SetActive(false);
@@ -517,7 +518,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Animate(fTimeElapsed, NULL);
 	for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->UpdateTransform(NULL);
 
-	for (int i = 1; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->AnimateObjects(fTimeElapsed);
+	for (int i{}; i < m_nShaders; ++i) if (m_ppShaders[i]) m_ppShaders[i]->AnimateObjects(fTimeElapsed);
 
 	if (m_pLights)
 	{
@@ -552,7 +553,7 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 			m_ppGameObjects[i]->Render(pd3dCommandList, pCamera);
 
 	//22.11.15
-	for (int i = 1; i < m_nShaders; i++) //Çï¸®ÄßÅÍµé //+ºôº¸µå
+	for (int i{1}; i < m_nShaders; ++i) //Çï¸®ÄßÅÍµé //+ºôº¸µå
 		//if (m_ppShaders[i]) 
 			m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 

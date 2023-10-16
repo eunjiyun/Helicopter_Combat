@@ -1840,13 +1840,13 @@ CMultiSpriteObject::~CMultiSpriteObject()
 {
 }
 
-void CMultiSpriteObject::Animate(float fTimeElapsed)
+void CMultiSpriteObject::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
 {
-	if (m_pMaterial && m_pMaterial->m_pTexture)
+	if (m_ppMaterials[0] && m_ppMaterials[0]->m_pTexture)
 	{
 		m_fTime += fTimeElapsed * 0.5f;
 		if (m_fTime >= m_fSpeed) m_fTime = 0.0f;
-		m_pMaterial->m_pTexture->AnimateRowColumn(m_fTime);
+		m_ppMaterials[0]->m_pTexture->AnimateRowColumn(m_fTime);
 	}
 }
 ////

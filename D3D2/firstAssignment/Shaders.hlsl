@@ -4,6 +4,8 @@ struct MATERIAL
 	float4					m_cDiffuse;
 	float4					m_cSpecular; //a = power
 	float4					m_cEmissive;
+
+	//matrix				gmtxTexture;
 };
 
 cbuffer cbCameraInfo : register(b1)
@@ -203,7 +205,16 @@ VS_TEXTURED_OUTPUT VSTextured(VS_TEXTURED_INPUT input)
 
 	return(output);
 }
+VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
+{
+	VS_TEXTURED_OUTPUT output;
 
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);
+	output.uv = mul(float3(input.uv, 1.0f), (float3x3)(gMat.gmtxTexture)).xy;//gmtxGameObject
+	//output.uv = mul(float3(input.uv, 1.0f), (float3x3)(gmtxGameObject)).xy;//gmtxGameObject
+
+	return(output);
+}
 float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtTexture.Sample(gssWrap, input.uv);
