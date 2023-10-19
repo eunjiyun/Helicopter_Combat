@@ -21,29 +21,37 @@ cbuffer cbGameObjectInfo : register(b2)
 {
 	matrix		gmtxGameObject : packoffset(c0);
 	MATERIAL	gMaterial : packoffset(c4);
-	uint		gnTexturesMask : packoffset(c8);
+	
+
+	//uint		gnTexturesMask : packoffset(c8);
+	
 	////22.12.06
 	//matrix		gmtxGameObject2 : packoffset(c12);
 	////
 };
 
 //22.12.06
-struct MAT
-{
-	float4				m_cAmbient;
-	float4				m_cDiffuse;
-	float4				m_cSpecular; //a = power
-	float4				m_cEmissive;
-
-	matrix				gmtxTexture;
-	int2				gi2TextureTiling;
-	float2				gf2TextureOffset;
-};
+//struct MAT
+//{
+//	float4				m_cAmbient;
+//	float4				m_cDiffuse;
+//	float4				m_cSpecular; //a = power
+//	float4				m_cEmissive;
+//
+//	matrix				gmtxTexture;
+//	int2				gi2TextureTiling;
+//	float2				gf2TextureOffset;
+//
+//};
 
 cbuffer cbGrassObjectInfo : register(b3)
 {
-	matrix		gmtxWorld : packoffset(c0);
-	MAT	gMat : packoffset(c4);
+	//matrix		gmtxWorld : packoffset(c0);
+	//MAT	gMat : packoffset(c4);
+
+	uint		gnTexturesMask : packoffset(c0);
+	float3					texMat: packoffset(c4);
+	
 };
 //
 
@@ -209,11 +217,32 @@ VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
 {
 	VS_TEXTURED_OUTPUT output;
 
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);
-	output.uv = mul(float3(input.uv, 1.0f), (float3x3)(gMat.gmtxTexture)).xy;//gmtxGameObject
+	//output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);//gmtxGameObject
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);//gmtxGameObject
+	//output.uv = mul(float3(input.uv, 1.0f), (float3x3)(gMat.gmtxTexture)).xy;//gmtxGameObject
 	//output.uv = mul(float3(input.uv, 1.0f), (float3x3)(gmtxGameObject)).xy;//gmtxGameObject
 
+	//output.uv = mul(float3(input.uv, 1.0f), (float3x3)(texMat)).xy;//gmtxGameObject
+
+	if (texMat.z == 6)//연기 
+	{
+		output.uv.x = (input.uv.x) / texMat.z + texMat.x;
+		output.uv.y = input.uv.y / texMat.z + texMat.y;
+	}
+	else if (texMat.z == 8)//로딩 파티클
+	{
+		output.uv.x = (input.uv.x) / texMat.z + texMat.x;
+		output.uv.y = input.uv.y / (texMat.z * 0.75f) + texMat.y;
+	}
+
 	return(output);
+
+	/*VS_TEXTURED_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return(output);*/
 }
 float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {

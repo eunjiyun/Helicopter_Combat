@@ -716,6 +716,7 @@ void CObjectsShader::AnimateObjects(float fTimeElapsed)
 {
 	for (int j = 0; j < m_nObjects; j++)
 	{
+		
 		m_ppObjects[j]->Animate(fTimeElapsed);
 	}
 }
@@ -741,14 +742,14 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 	//CShader::Render(pd3dCommandList, pCamera, nPipelineState);
 
 	//CShader::Render(pd3dCommandList, pCamera);
-	if (CShader::m_ppd3dPipelineStates)
-		pd3dCommandList->SetPipelineState(CShader::m_ppd3dPipelineStates[nPipelineState]);
+	//if (CShader::m_ppd3dPipelineStates)
+	//	pd3dCommandList->SetPipelineState(CShader::m_ppd3dPipelineStates[nPipelineState]);
 
-	if (m_pd3dCbvSrvDescriptorHeap) //1202오류
-		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+	//if (m_pd3dCbvSrvDescriptorHeap) //1202오류
+	//	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
-	//22.11.15
-	UpdateShaderVariables(pd3dCommandList);
+	////22.11.15
+	//UpdateShaderVariables(pd3dCommandList);
 	//
 
 	for (int j = 0; j < m_nObjects; j++)
@@ -1158,18 +1159,18 @@ D3D12_BLEND_DESC CMultiSpriteObjectsShader::CreateBlendState()
 
 D3D12_SHADER_BYTECODE CMultiSpriteObjectsShader::CreateVertexShader()
 {
-	//return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSSpriteAnimation", "vs_5_1", &m_pd3dVertexShaderBlob));//VSTextured
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSSpriteAnimation", "vs_5_1", &m_pd3dVertexShaderBlob));//VSTextured
 	//return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSTextured", "vs_5_1", &m_pd3dVertexShaderBlob));//VSStandard
-	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSStandard", "vs_5_1", &m_pd3dVertexShaderBlob));//VSStandard
+	//return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSStandard", "vs_5_1", &m_pd3dVertexShaderBlob));//VSStandard
 }
 D3D12_SHADER_BYTECODE CMultiSpriteObjectsShader::CreatePixelShader()
 {
-	//return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSTextured", "ps_5_1", &m_pd3dPixelShaderBlob));
-	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSStandard", "ps_5_1", &m_pd3dPixelShaderBlob));
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSTextured", "ps_5_1", &m_pd3dPixelShaderBlob));
+	//return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSStandard", "ps_5_1", &m_pd3dPixelShaderBlob));
 }
 D3D12_INPUT_LAYOUT_DESC CMultiSpriteObjectsShader::CreateInputLayout()
 {
-	/*UINT nInputElementDescs = 2;
+	UINT nInputElementDescs = 2;
 	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
@@ -1179,80 +1180,80 @@ D3D12_INPUT_LAYOUT_DESC CMultiSpriteObjectsShader::CreateInputLayout()
 	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
 	d3dInputLayoutDesc.NumElements = nInputElementDescs;
 
-	return(d3dInputLayoutDesc);*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	//22.11.18
-   //22.11.09
-	UINT nInputElementDescs = 5;
-	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs =
-		new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
-
-	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	pd3dInputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	pd3dInputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	pd3dInputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-
-	//pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	//pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	//pd3dInputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };//28
-	//pd3dInputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };//36
-	//pd3dInputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 36, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-
-	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
-	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
-	d3dInputLayoutDesc.NumElements = nInputElementDescs;
-
 	return(d3dInputLayoutDesc);
 
-	/*UINT nInputElementDescs = 2;
-	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
-
-	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	pd3dInputElementDescs[1] = { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-
-	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
-	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
-	d3dInputLayoutDesc.NumElements = nInputElementDescs;
-
-	return(d3dInputLayoutDesc);*/
-	//
 
 
-	//UINT nInputElementDescs = 2;
-	//D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
+
+
+
+
+
+
+
+
+
+
+	////22.11.18
+ //  //22.11.09
+	//UINT nInputElementDescs = 5;
+	//D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs =
+	//	new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	//pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	//pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	//pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	//pd3dInputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	//pd3dInputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	//pd3dInputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+	////pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	////pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	////pd3dInputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };//28
+	////pd3dInputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };//36
+	////pd3dInputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 36, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
 	//D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
 	//d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
 	//d3dInputLayoutDesc.NumElements = nInputElementDescs;
 
 	//return(d3dInputLayoutDesc);
-	//
+
+	///*UINT nInputElementDescs = 2;
+	//D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
+	//pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	//pd3dInputElementDescs[1] = { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+	//D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	//d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	//d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
+	//return(d3dInputLayoutDesc);*/
+	////
+
+
+	////UINT nInputElementDescs = 2;
+	////D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
+	////pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	////pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+	////D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	////d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	////d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
+	////return(d3dInputLayoutDesc);
+	////
 }
 
 void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)
 {
 	CTexture* ppSpriteTextures[2];
 	ppSpriteTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1, 8, 8);
-	ppSpriteTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Explode_8x8.dds", RESOURCE_TEXTURE2D, 0);
+	ppSpriteTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Explode_8x8.dds", RESOURCE_TEXTURE2D, 0);//Explode_8x8
 	ppSpriteTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1, 6, 6);
-	ppSpriteTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Explosion_6x6.dds", RESOURCE_TEXTURE2D, 0);
+	ppSpriteTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Explosion_6x6.dds", RESOURCE_TEXTURE2D, 0);//Explosion_6x6
 
 	CMaterial* ppSpriteMaterials[2];
 	ppSpriteMaterials[0] = new CMaterial();
@@ -1269,8 +1270,8 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, m_nObjects, 2);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateConstantBufferViews(pd3dDevice, m_nObjects, m_pd3dcbGameObjects, ncbElementBytes);
-	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[0], 0, 3);
-	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[1], 0, 3);
+	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[0], 0, 12);
+	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[1], 0, 12);
 
 	m_ppObjects = new CGameObject * [m_nObjects];
 
@@ -1283,11 +1284,16 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 		pSpriteObject->SetMesh(0, pSpriteMesh);
 		pSpriteObject->SetMaterial(0,ppSpriteMaterials[j]);
 		pSpriteObject->SetPosition(XMFLOAT3(xmf3Position.x, xmf3Position.y, xmf3Position.z));
-		pSpriteObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * j));
+		//pSpriteObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * j));
 
 		pSpriteObject->m_fSpeed = 3.0f / (ppSpriteTextures[j]->m_nRows * ppSpriteTextures[j]->m_nCols);
 		m_ppObjects[j] = pSpriteObject;
+
+		
 	}
+
+	m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->texMat.z = 8;
+	m_ppObjects[1]->m_ppMaterials[0]->m_pTexture->texMat.z = 6;
 }
 
 void CMultiSpriteObjectsShader::ReleaseUploadBuffers()
@@ -1319,7 +1325,44 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			}
 		}
 
-		CObjectsShader::Render(pd3dCommandList, pCamera);
+		//CObjectsShader::Render(pd3dCommandList, pCamera);
+
+		//22.11.15
+	//빌보드 프로젝트에서 가져온 예시
+	/*CTexturedShader::Render(pd3dCommandList, pCamera);
+
+	for (int j = 0; j < m_nObjects; j++)
+	{
+		if (m_ppObjects[j]) m_ppObjects[j]->Render(pd3dCommandList, pCamera);
+	}*/
+	//
+
+	//22.11.16
+	//CShader::Render(pd3dCommandList, pCamera, nPipelineState);
+
+	//CShader::Render(pd3dCommandList, pCamera);
+	/*if (m_ppd3dPipelineStates)
+		pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);*/
+
+		if (m_pd3dCbvSrvDescriptorHeap) //1202오류
+			pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+
+		//22.11.15
+		UpdateShaderVariables(pd3dCommandList);
+		//
+
+		
+
+		for (int j = 0; j < m_nObjects; j++)
+		{
+			if (m_ppObjects[j])
+			{
+				pd3dCommandList->SetGraphicsRoot32BitConstants(12, 3, &m_ppObjects[j]->m_ppMaterials[0]->m_pTexture->texMat, 1);//조명 관련
+				/*m_ppObjects[j]->Animate(0.16f);
+				m_ppObjects[j]->UpdateTransform(NULL);*/
+				m_ppObjects[j]->Render(pd3dCommandList, pCamera);//여기 렌더 구조를 어떡할지
+			}
+		}
 	}
 }
 
@@ -1333,18 +1376,56 @@ void CTexture::LoadTextureFromFile2(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		pszFileName, &m_ppd3dTextureUploadBuffers[nIndex], D3D12_RESOURCE_STATE_GENERIC_READ/*D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE*/);
 }
 
-void CTexture::AnimateRowColumn(float fTime)
+void CTexture::AnimateRowColumn(/*XMFLOAT3& texMat,*/ float fTime)
 {
-	//	m_xmf4x4Texture = Matrix4x4::Identity();
-	m_xmf4x4Texture._11 = 1.0f / float(m_nRows);
-	m_xmf4x4Texture._22 = 1.0f / float(m_nCols);
-	m_xmf4x4Texture._31 = float(m_nRow) / float(m_nRows);
-	m_xmf4x4Texture._32 = float(m_nCol) / float(m_nCols);
-	if (fTime == 0.0f)
+	////	m_xmf4x4Texture = Matrix4x4::Identity();
+	//m_xmf4x4Texture._11 = 1.0f / float(m_nRows);
+	//m_xmf4x4Texture._22 = 1.0f / float(m_nCols);
+	//m_xmf4x4Texture._31 = float(m_nRow) / float(m_nRows);
+	//m_xmf4x4Texture._32 = float(m_nCol) / float(m_nCols);
+	//if (fTime == 0.0f)
+	//{
+	//	if (++m_nCol == m_nCols) { m_nRow++; m_nCol = 0; }
+	//	if (m_nRow == m_nRows) m_nRow = 0;
+	//}
+
+
+	texMat.x = float(m_nRow) / texMat.z;//가로
+
+	if (4 != texMat.z)
+		texMat.y = float(m_nCol) / texMat.z;//세로
+	else
+		texMat.y = float(m_nCol) / (texMat.z * 1.5f);//세로
+
+	//if (0.0f == fTime)
 	{
-		if (++m_nCol == m_nCols) { m_nRow++; m_nCol = 0; }
-		if (m_nRow == m_nRows) m_nRow = 0;
+		if (++m_nCol == texMat.z)
+		{
+
+			++m_nRow;//가로 증가
+			m_nCol = 0; //세로 0
+
+			/*if (4 != texMat.z)
+			{
+				m_bActive[0] = false;
+				m_bActive[1] = false;
+				m_bActive[2] = false;
+			}*/
+		}
+
+		if (4 != texMat.z)
+		{
+			if (m_nRow == texMat.z)
+				m_nRow = 0;//가로 0
+		}
+		else
+		{
+			if (m_nRow == texMat.z * 1.5f)
+				m_nRow = 0;//가로 0
+		}
 	}
+
+	//cout << "animate" << endl;
 }
 //
 

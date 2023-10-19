@@ -98,8 +98,10 @@ CTexture::~CTexture()
 	if (m_pd3dSamplerGpuDescriptorHandles) delete[] m_pd3dSamplerGpuDescriptorHandles;
 }
 
-void CTexture::SetRootParameterIndex(int nIndex, UINT nRootParameterIndex)
+void CTexture::SetRootParameterIndex(int nIndex, UINT nRootParameterIndex)//1016
 {
+	if (12 == nRootParameterIndex)
+		int a = 0;
 	m_pnRootParameterIndices[nIndex] = nRootParameterIndex;
 }
 
@@ -113,14 +115,22 @@ void CTexture::SetSampler(int nIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSamplerGpuD
 	m_pd3dSamplerGpuDescriptorHandles[nIndex] = d3dSamplerGpuDescriptorHandle;
 }
 
-void CTexture::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+void CTexture::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)//1016
 {
 	if (m_nRootParameters == m_nTextures)
 	{
-		for (int i = 0; i < m_nRootParameters; i++)
+		if (12 == m_pnRootParameterIndices[0])
 		{
-			if (m_pd3dSrvGpuDescriptorHandles[i].ptr && (m_pnRootParameterIndices[i] != -1))
-				pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[i], m_pd3dSrvGpuDescriptorHandles[i]);
+			//pd3dCommandList->SetGraphicsRoot32BitConstants(12, 3, &texMat, 1);//조명 관련
+		}
+		else
+		{
+			for (int i = 0; i < m_nRootParameters; i++)
+			{
+
+				if (m_pd3dSrvGpuDescriptorHandles[i].ptr && (m_pnRootParameterIndices[i] != -1))
+					pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[i], m_pd3dSrvGpuDescriptorHandles[i]);
+			}
 		}
 	}
 	else
@@ -499,7 +509,7 @@ void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4SpecularColor, 24);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4EmissiveColor, 28);
 
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_nType, 32);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(12, 1, &m_nType, 0);
 
 	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
 }
@@ -678,7 +688,13 @@ void CGameObject2::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 
 
 	//12.07
+
+
+
 	pd3dCommandList->SetGraphicsRootDescriptorTable(12, m_d3dCbvGPUDescriptorHandle);// 3 4 5
+
+
+
 	/*XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World,0);*/
@@ -970,8 +986,17 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 		if (!(m_ppMaterials[0]->m_pShader) && m_ppMaterials[0]->m_pTexture)//다른 건 여기 이 부분
 		{
 			m_ppMaterials[0]->m_pTexture->UpdateShaderVariables(pd3dCommandList);
-			if (m_pcbMappedGameObject) XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_ppMaterials[0]->m_pTexture->m_xmf4x4Texture)));
-			pd3dCommandList->SetGraphicsRootDescriptorTable(12, m_d3dCbvGPUDescriptorHandle);
+
+			//pd3dCommandList->SetGraphicsRoot32BitConstants(14, 4, &m_xmf4AmbientColor, 0);//조명 관련
+			//pd3dCommandList->SetGraphicsRoot32BitConstants(14, 4, &m_xmf4AlbedoColor, 4);
+			//pd3dCommandList->SetGraphicsRoot32BitConstants(14, 4, &m_xmf4SpecularColor, 8);
+			//pd3dCommandList->SetGraphicsRoot32BitConstants(14, 4, &m_xmf4EmissiveColor, 12);
+
+			//pd3dCommandList->SetGraphicsRoot32BitConstants(14, 1, &m_nType, 16);
+
+			/*if (m_pcbMappedGameObject) 
+				XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_ppMaterials[0]->m_pTexture->m_xmf4x4Texture)));
+			pd3dCommandList->SetGraphicsRootDescriptorTable(12, m_d3dCbvGPUDescriptorHandle);*/
 		}
 	}
 	////
@@ -1842,7 +1867,7 @@ CMultiSpriteObject::~CMultiSpriteObject()
 
 void CMultiSpriteObject::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
 {
-	if (m_ppMaterials[0] && m_ppMaterials[0]->m_pTexture)
+	if ( m_ppMaterials[0] && m_ppMaterials[0]->m_pTexture)
 	{
 		m_fTime += fTimeElapsed * 0.5f;
 		if (m_fTime >= m_fSpeed) m_fTime = 0.0f;

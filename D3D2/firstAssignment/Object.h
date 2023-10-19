@@ -120,8 +120,10 @@ public:
 	int 							m_nRow = 0;
 	int 							m_nCol = 0;
 	XMFLOAT4X4						m_xmf4x4Texture;
-	void AnimateRowColumn(float fTime = 0.0f);
+	void AnimateRowColumn(/*XMFLOAT3& texMat, */float fTime = 0.0f);
 	//
+
+	XMFLOAT3 texMat = { 0.0f,0.0f,0.0f };
 };
 
 //22.12.06
