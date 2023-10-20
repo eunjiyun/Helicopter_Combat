@@ -742,12 +742,14 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 	//if(120!=m_nObjects)
 		//CShader::Render(pd3dCommandList, pCamera, nPipelineState);
 
-	//CShader::Render(pd3dCommandList, pCamera);
-	/*if (CShader::m_ppd3dPipelineStates)
-		pd3dCommandList->SetPipelineState(CShader::m_ppd3dPipelineStates[nPipelineState]);*/
+	if (120 == m_nObjects)
+	{//CShader::Render(pd3dCommandList, pCamera);
+		if (CShader::m_ppd3dPipelineStates)
+			pd3dCommandList->SetPipelineState(CShader::m_ppd3dPipelineStates[nPipelineState]);
 
-	//if (m_pd3dCbvSrvDescriptorHeap) //1202오류
-		//pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+		if (m_pd3dCbvSrvDescriptorHeap) //1202오류
+			pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+	}
 
 	//22.11.15
 	//UpdateShaderVariables(pd3dCommandList);
@@ -759,6 +761,7 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 		{
 			if (120 == m_nObjects)
 			{
+				//CShader::Render(pd3dCommandList, pCamera);
 				m_ppObjects[j]->Animate(0.16f);
 				m_ppObjects[j]->UpdateTransform(NULL);
 
