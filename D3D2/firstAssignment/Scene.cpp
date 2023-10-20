@@ -82,7 +82,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	//
 	m_ppShaders = new CShader * [m_nShaders];
 
-	CObjectsShader* pObjectsShader = new CObjectsShader();
+	pObjectsShader = new CObjectsShader();
 	pObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, NULL);
 
@@ -485,7 +485,7 @@ void CScene::ReleaseUploadBuffers()
 	if (m_pTerrain) m_pTerrain->ReleaseUploadBuffers();
 	if (m_pSkyBox) m_pSkyBox->ReleaseUploadBuffers();
 
-	for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
+	//for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
 	for (int i = 0; i < m_nGameObjects; i++) m_ppGameObjects[i]->ReleaseUploadBuffers();
 }
 
@@ -562,16 +562,21 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
 	//
 
-	for (int i = 0; i < m_nGameObjects; i++)//??
-		if (m_ppGameObjects[i])
-			m_ppGameObjects[i]->Render(pd3dCommandList, pCamera);
+	//for (int i = 0; i < m_nGameObjects; i++)//??
+	//	if (m_ppGameObjects[i])
+	//		m_ppGameObjects[i]->Render(pd3dCommandList, pCamera);
 
 	//22.11.15
-	for (int i{1}; i < m_nShaders; ++i) //Çï¸®ÄßÅÍµé //+ºôº¸µå
+	//for (int i{0}; i < m_nShaders; ++i) //Çï¸®ÄßÅÍµé //+ºôº¸µå
 		//if (m_ppShaders[i]) 
-			m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 
-	//m_ppShaders[0]->Render(pd3dCommandList, pCamera);//
+	/*if (m_ppShaders[0]->m_ppd3dPipelineStates)
+		pd3dCommandList->SetPipelineState(m_ppShaders[0]->m_ppd3dPipelineStates[0]);*/
+	
+	/*for(int i{};i< m_ppShaders[0]->m_nObjects;++i)
+			m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, pCamera);*/
+
+	pObjectsShader->Render(pd3dCommandList, pCamera);//
 	//22.11.16
 	//m_pShaders[0]->billboardRender(pd3dCommandList, pCamera);//ºôº¸µå
 

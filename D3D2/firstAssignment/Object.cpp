@@ -571,247 +571,7 @@ void CMaterial2::ReleaseUploadBuffers()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//22.12.06
-CGameObject2::CGameObject2(int nMeshes)
-{
-	m_xmf4x4World = Matrix4x4::Identity();
 
-	m_nMeshes = nMeshes;
-	m_ppMeshes = NULL;
-	if (m_nMeshes > 0)
-	{
-		m_ppMeshes = new CMesh * [m_nMeshes];
-		for (int i = 0; i < m_nMeshes; i++)	m_ppMeshes[i] = NULL;
-	}
-}
-
-CGameObject2::~CGameObject2()
-{
-	ReleaseShaderVariables();
-
-	if (m_ppMeshes)
-	{
-		for (int i = 0; i < m_nMeshes; i++)
-		{
-			if (m_ppMeshes[i]) m_ppMeshes[i]->Release();
-			m_ppMeshes[i] = NULL;
-		}
-		delete[] m_ppMeshes;
-	}
-
-	if (m_pMaterial) m_pMaterial->Release();
-}
-
-void CGameObject2::SetMesh(int nIndex, CMesh* pMesh)
-{
-	if (m_ppMeshes)
-	{
-		if (m_ppMeshes[nIndex]) m_ppMeshes[nIndex]->Release();
-		m_ppMeshes[nIndex] = pMesh;
-		if (pMesh) pMesh->AddRef();
-	}
-}
-
-void CGameObject2::SetShader(CShader* pShader)
-{
-	if (!m_pMaterial)
-	{
-		CMaterial2* pMaterial = new CMaterial2();
-		SetMaterial(pMaterial);
-	}
-	if (m_pMaterial) m_pMaterial->SetShader(pShader);
-}
-
-void CGameObject2::SetMaterial(CMaterial2* pMaterial)
-{
-	if (m_pMaterial) m_pMaterial->Release();
-	m_pMaterial = pMaterial;
-	if (m_pMaterial) m_pMaterial->AddRef();
-
-
-	/*if (m) m->Release();
-	m = pMaterial;
-	if (m) m->AddRef();*/
-}
-
-void CGameObject2::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-	m_pd3dcbGameObject = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-
-	m_pd3dcbGameObject->Map(0, NULL, (void**)&m_pcbMappedGameObject);
-}
-
-void CGameObject2::ReleaseShaderVariables()
-{
-	if (m_pd3dcbGameObject)
-	{
-		m_pd3dcbGameObject->Unmap(0, NULL);
-		m_pd3dcbGameObject->Release();
-	}
-	if (m_pMaterial) m_pMaterial->ReleaseShaderVariables();
-}
-
-void CGameObject2::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
-}
-
-void CGameObject2::Animate(float fTimeElapsed)
-{
-}
-
-void CGameObject2::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
-{
-	OnPrepareRender();
-
-	////22.12.06
-	//XMFLOAT4X4 xmf4x4World;
-	//XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
-	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 33);
-	////
-	if (m_pMaterial)
-	{
-		if (m_pMaterial->m_pShader)
-		{
-			m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
-			m_pMaterial->m_pShader->UpdateShaderVariables(pd3dCommandList);
-
-			UpdateShaderVariables(pd3dCommandList);
-		}
-		if (m_pMaterial->m_pTexture)
-		{
-			m_pMaterial->m_pTexture->UpdateShaderVariables(pd3dCommandList);
-			if (m_pcbMappedGameObject) XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_pMaterial->m_pTexture->m_xmf4x4Texture)));
-		}
-	}
-
-
-	//12.07
-
-
-
-	pd3dCommandList->SetGraphicsRootDescriptorTable(12, m_d3dCbvGPUDescriptorHandle);// 3 4 5
-
-
-
-	/*XMFLOAT4X4 xmf4x4World;
-	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World,0);*/
-
-	/*XMFLOAT4X4 xmf4x4World;
-	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));*/
-	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &m_xmf4x4World, 33);
-	//
-	//m_d3dCbvGPUDescriptorHandle
-
-	if (m_ppMeshes)
-	{
-		for (int i = 0; i < m_nMeshes; i++)
-		{
-			if (m_ppMeshes[i]) m_ppMeshes[i]->Render(pd3dCommandList, 0);
-		}
-	}
-}
-
-void CGameObject2::ReleaseUploadBuffers()
-{
-	if (m_ppMeshes)
-	{
-		for (int i = 0; i < m_nMeshes; i++)
-		{
-			if (m_ppMeshes[i]) m_ppMeshes[i]->ReleaseUploadBuffers();
-		}
-	}
-
-	if (m_pMaterial) m_pMaterial->ReleaseUploadBuffers();
-}
-
-void CGameObject2::SetPosition(float x, float y, float z)
-{
-	m_xmf4x4World._41 = x;
-	m_xmf4x4World._42 = y;
-	m_xmf4x4World._43 = z;
-}
-
-void CGameObject2::SetPosition(XMFLOAT3 xmf3Position)
-{
-	SetPosition(xmf3Position.x, xmf3Position.y, xmf3Position.z);
-}
-
-XMFLOAT3 CGameObject2::GetPosition()
-{
-	return(XMFLOAT3(m_xmf4x4World._41, m_xmf4x4World._42, m_xmf4x4World._43));
-}
-
-XMFLOAT3 CGameObject2::GetLook()
-{
-	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._31, m_xmf4x4World._32, m_xmf4x4World._33)));
-}
-
-XMFLOAT3 CGameObject2::GetUp()
-{
-	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._21, m_xmf4x4World._22, m_xmf4x4World._23)));
-}
-
-XMFLOAT3 CGameObject2::GetRight()
-{
-	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._11, m_xmf4x4World._12, m_xmf4x4World._13)));
-}
-
-void CGameObject2::MoveStrafe(float fDistance)
-{
-	XMFLOAT3 xmf3Position = GetPosition();
-	XMFLOAT3 xmf3Right = GetRight();
-	xmf3Position = Vector3::Add(xmf3Position, xmf3Right, fDistance);
-	CGameObject2::SetPosition(xmf3Position);
-}
-
-void CGameObject2::MoveUp(float fDistance)
-{
-	XMFLOAT3 xmf3Position = GetPosition();
-	XMFLOAT3 xmf3Up = GetUp();
-	xmf3Position = Vector3::Add(xmf3Position, xmf3Up, fDistance);
-	CGameObject2::SetPosition(xmf3Position);
-}
-
-void CGameObject2::MoveForward(float fDistance)
-{
-	XMFLOAT3 xmf3Position = GetPosition();
-	XMFLOAT3 xmf3Look = GetLook();
-	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
-	CGameObject2::SetPosition(xmf3Position);
-}
-
-void CGameObject2::Rotate(float fPitch, float fYaw, float fRoll)
-{
-	XMMATRIX mtxRotate = XMMatrixRotationRollPitchYaw(XMConvertToRadians(fPitch), XMConvertToRadians(fYaw), XMConvertToRadians(fRoll));
-	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
-}
-
-void CGameObject2::Rotate(XMFLOAT3* pxmf3Axis, float fAngle)
-{
-	XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(pxmf3Axis), XMConvertToRadians(fAngle));
-	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
-}
-
-void CGameObject2::SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up)
-{
-	XMFLOAT3 xmf3Position(m_xmf4x4World._41, m_xmf4x4World._42, m_xmf4x4World._43);
-	XMFLOAT4X4 mtxLookAt = Matrix4x4::LookAtLH(xmf3Position, xmf3Target, xmf3Up);
-	m_xmf4x4World._11 = mtxLookAt._11; m_xmf4x4World._12 = mtxLookAt._21; m_xmf4x4World._13 = mtxLookAt._31;
-	m_xmf4x4World._21 = mtxLookAt._12; m_xmf4x4World._22 = mtxLookAt._22; m_xmf4x4World._23 = mtxLookAt._32;
-	m_xmf4x4World._31 = mtxLookAt._13; m_xmf4x4World._32 = mtxLookAt._23; m_xmf4x4World._33 = mtxLookAt._33;
-	/*
-		XMFLOAT3 xmf3Look = Vector3::Normalize(Vector3::Subtract(xmf3Target, xmf3Position));
-		XMFLOAT3 xmf3Right = Vector3::CrossProduct(xmf3Up, xmf3Look, true);
-		xmf3Up = Vector3::CrossProduct(xmf3Look, xmf3Right, true);
-		m_xmf4x4World._11 = xmf3Right.x; m_xmf4x4World._12 = xmf3Right.y; m_xmf4x4World._13 = xmf3Right.z;
-		m_xmf4x4World._21 = xmf3Up.x; m_xmf4x4World._22 = xmf3Up.y; m_xmf4x4World._23 = xmf3Up.z;
-		m_xmf4x4World._31 = xmf3Look.x; m_xmf4x4World._32 = xmf3Look.y; m_xmf4x4World._33 = xmf3Look.z;
-		*/
-}
-//
 
 CGameObject::CGameObject()
 {
@@ -980,7 +740,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 		m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
 	}
 	////22.11.16
-	if (m_ppMaterials)
+	 if (m_ppMaterials)
 	{
 		//if(!m_ppMeshes || 0 != strcmp("Body_Instance", m_ppMeshes[0]->m_pstrMeshName))
 		if (!(m_ppMaterials[0]->m_pShader) && m_ppMaterials[0]->m_pTexture)//다른 건 여기 이 부분
@@ -1153,7 +913,7 @@ void CGameObject::ReleaseShaderVariables()
 		m_pd3dcbGameObject->Unmap(0, NULL);
 		m_pd3dcbGameObject->Release();
 	}
-	if (m_pMaterial) m_pMaterial->ReleaseShaderVariables();
+	if (m_ppMaterials) m_ppMaterials[0]->ReleaseShaderVariables();
 	//
 }
 
@@ -1318,6 +1078,7 @@ int CGameObject::FindReplicatedTexture(_TCHAR* pstrTextureName, D3D12_GPU_DESCRI
 	return(nParameterIndex);
 }
 
+//1019
 void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CGameObject* pParent, FILE* pInFile, CShader* pShader)
 {
 	char pstrToken[64] = { '\0' };
@@ -1345,7 +1106,7 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 
 			pMaterial = new CMaterial();
 #ifdef _WITH_STANDARD_TEXTURE_MULTIPLE_DESCRIPTORS
-			pTexture = new CTexture(7, RESOURCE_TEXTURE2D, 0, 7); //0:Albedo, 1:Specular, 2:Metallic, 3:Normal, 4:Emission, 5:DetailAlbedo, 6:DetailNormal
+			pTexture = new CTexture(7, RESOURCE_TEXTURE2D, 0, 1); //0:Albedo, 1:Specular, 2:Metallic, 3:Normal, 4:Emission, 5:DetailAlbedo, 6:DetailNormal
 #else
 			pTexture = new CTexture(7, RESOURCE_TEXTURE2D, 0, 1); //0:Albedo, 1:Specular, 2:Metallic, 3:Normal, 4:Emission, 5:DetailAlbedo, 6:DetailNormal
 			pTexture->SetRootParameterIndex(0, PARAMETER_STANDARD_TEXTURE);
@@ -1536,79 +1297,6 @@ CGameObject* CGameObject::LoadGeometryFromFile(ID3D12Device* pd3dDevice, ID3D12G
 	return(pGameObject);
 }
 
-////22.11.15
-//void CGrassGameObj::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
-//{
-//	OnPrepareRender();
-//
-//	UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
-//
-//	if (m_nMaterials > 1)
-//	{
-//		for (int i = 0; i < m_nMaterials; i++)
-//		{
-//			if (m_ppMaterials[i])
-//			{
-//				if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
-//				m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
-//			}
-//
-//			if (m_nMeshes == 1)
-//			{
-//				if (m_ppMeshes[0]) m_ppMeshes[0]->Render(pd3dCommandList, i);
-//			}
-//		}
-//	}
-//	else
-//	{
-//		if ((m_nMaterials == 1) && (m_ppMaterials[0]))
-//		{
-//			if (m_ppMaterials[0]->m_pShader) m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
-//			m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
-//		}
-//
-//		if (m_ppMeshes)
-//		{
-//			for (int i = 0; i < m_nMeshes; i++)
-//			{
-//				if (m_ppMeshes[i]) m_ppMeshes[i]->Render(pd3dCommandList, 0);
-//			}
-//		}
-//	}
-//
-//	//22.11.15
-//	//빌보드 렌더
-//	/*if (m_pMaterial)
-//	{
-//		if (m_pMaterial->m_pShader)
-//		{
-//			m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
-//			m_pMaterial->m_pShader->UpdateShaderVariables(pd3dCommandList);
-//
-//			UpdateShaderVariables(pd3dCommandList);
-//		}
-//		if (m_pMaterial->m_pTexture)
-//		{
-//			m_pMaterial->m_pTexture->UpdateShaderVariables(pd3dCommandList);
-//			if (m_pcbMappedGameObject) XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_pMaterial->m_pTexture->m_xmf4x4Texture)));
-//		}
-//	}
-//
-//	pd3dCommandList->SetGraphicsRootDescriptorTable(2, m_d3dCbvGPUDescriptorHandle);
-//
-//	if (m_pMeshes)
-//	{
-//		for (int i = 0; i < nMeshes; i++)
-//		{
-//			if (m_pMeshes[i]) m_pMeshes[i]->Render(pd3dCommandList,0);
-//		}
-//	}*/
-//	//
-//
-//	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
-//	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
-//}
-////
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
@@ -1663,33 +1351,7 @@ void CGrassObject::Animate(float fTimeElapsed)
 	Rotate(0.0f, 0.0f, m_fRotationAngle);
 }
 
-////22.11.09
-//void CGrassObject::SetMaterial(int nMaterial, CMaterial* pMaterial)
-//{
-//	/*if (m_pMaterial) m_pMaterial->Release();
-//	m_pMaterial = pMaterial;
-//	if (m_pMaterial) m_pMaterial->AddRef();*/
-//
-////	//22.11.09
-//////릴리스를 안 해주면 어떤 문제가 생길까요
-////// 헬리콥터가 까매져요
-//
-//	if (!m_ppMaterials)
-//	{ 
-//		m_ppMaterials = new CMaterial * [1];
-//	}
-//	//else
-//	{
-//		/*if (m_ppMaterials[nMaterial])
-//			m_ppMaterials[nMaterial]->Release();*/
-//
-//		m_ppMaterials[nMaterial] = pMaterial;
-//
-//		if (m_ppMaterials[nMaterial]) m_ppMaterials[nMaterial]->AddRef();
-//	}
-//}
-//
-//=============================================================
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //

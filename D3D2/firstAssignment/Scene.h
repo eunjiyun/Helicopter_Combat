@@ -73,6 +73,7 @@ public:
 
 	int									m_nShaders = 0;
 	CShader** m_ppShaders = NULL;
+	CObjectsShader* pObjectsShader = nullptr;
 
 	CSkyBox* m_pSkyBox = NULL;
 	CHeightMapTerrain* m_pTerrain = NULL;

@@ -350,7 +350,7 @@ void CShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, int nP
 
 //22.11.16
 //void CShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
-void CShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+void CShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera/*, int nPipelineState*/)
 //
 {
 	//22.11.16
@@ -739,16 +739,17 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 	//
 
 	//22.11.16
-	//CShader::Render(pd3dCommandList, pCamera, nPipelineState);
+	//if(120!=m_nObjects)
+		//CShader::Render(pd3dCommandList, pCamera, nPipelineState);
 
 	//CShader::Render(pd3dCommandList, pCamera);
-	//if (CShader::m_ppd3dPipelineStates)
-	//	pd3dCommandList->SetPipelineState(CShader::m_ppd3dPipelineStates[nPipelineState]);
+	/*if (CShader::m_ppd3dPipelineStates)
+		pd3dCommandList->SetPipelineState(CShader::m_ppd3dPipelineStates[nPipelineState]);*/
 
 	//if (m_pd3dCbvSrvDescriptorHeap) //1202오류
-	//	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+		//pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
-	////22.11.15
+	//22.11.15
 	//UpdateShaderVariables(pd3dCommandList);
 	//
 
@@ -756,9 +757,15 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 	{
 		if (m_ppObjects[j])
 		{
-			/*m_ppObjects[j]->Animate(0.16f);
-			m_ppObjects[j]->UpdateTransform(NULL);*/
-			m_ppObjects[j]->Render(pd3dCommandList, pCamera);//여기 렌더 구조를 어떡할지
+			if (120 == m_nObjects)
+			{
+				m_ppObjects[j]->Animate(0.16f);
+				m_ppObjects[j]->UpdateTransform(NULL);
+
+				m_ppObjects[j]->Render2(pd3dCommandList, pCamera);//여기 렌더 구조를 어떡할지
+			}
+			else
+				m_ppObjects[j]->Render(pd3dCommandList, pCamera);//여기 렌더 구조를 어떡할지
 		}
 	}
 }

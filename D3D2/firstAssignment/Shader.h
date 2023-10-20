@@ -24,7 +24,7 @@ protected:
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC	m_d3dPipelineStateDesc;
 
-	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;
+
 
 	D3D12_CPU_DESCRIPTOR_HANDLE			m_d3dCbvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE			m_d3dCbvGPUDescriptorStartHandle;
@@ -39,6 +39,7 @@ public:
 	int									m_nPipelineStates = 0;
 	ID3D12PipelineState** m_ppd3dPipelineStates = NULL;
 	//
+	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;
 
 	//22.11.07
 	bool							m_bActive = true;
@@ -77,7 +78,7 @@ public:
 
 	//22.11.16
 	//virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState=0);
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera/*, int nPipelineState=0*/);
 	//
 
 
