@@ -132,6 +132,7 @@ public:
 	//
 
 	XMFLOAT3 texMat = { 0.0f,0.0f,0.0f };
+	bool							m_bActive = false;
 };
 
 

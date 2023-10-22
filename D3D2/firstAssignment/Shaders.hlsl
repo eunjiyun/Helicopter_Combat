@@ -6,8 +6,6 @@ struct MATERIAL
 	//float4					m_cEmissive;
 	float3					texMat;
 	uint gnTexturesMask;
-
-	//matrix				gmtxTexture;
 };
 
 cbuffer cbCameraInfo : register(b1)
@@ -23,39 +21,8 @@ cbuffer cbGameObjectInfo : register(b2)
 {
 	matrix		gmtxGameObject : packoffset(c0);
 	MATERIAL	gMaterial : packoffset(c4);
-
-
-//	uint		gnTexturesMask : packoffset(c8);
-
-	////22.12.06
-	//matrix		gmtxGameObject2 : packoffset(c12);
-	////
 };
 
-//22.12.06
-//struct MAT
-//{
-//	float4				m_cAmbient;
-//	float4				m_cDiffuse;
-//	float4				m_cSpecular; //a = power
-//	float4				m_cEmissive;
-//
-//	matrix				gmtxTexture;
-//	int2				gi2TextureTiling;
-//	float2				gf2TextureOffset;
-//
-//};
-
-cbuffer cbGrassObjectInfo : register(b3)
-{
-	//matrix		gmtxWorld : packoffset(c0);
-	//MAT	gMat : packoffset(c4);
-
-	
-	//uint		gnTexturesMask : packoffset(c0);
-	float3					texMat: packoffset(c0);
-};
-//
 
 #include "Light.hlsl"
 
@@ -211,34 +178,16 @@ VS_TEXTURED_OUTPUT VSTextured(VS_TEXTURED_INPUT input)
 	VS_TEXTURED_OUTPUT output;
 
 	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
-	//output.uv = input.uv;
 
-	//if (texMat.z == 6)//연기 
-	//{
-	//	output.uv.x = (input.uv.x) / texMat.z + texMat.x;
-	//	output.uv.y = input.uv.y / texMat.z + texMat.y;
-	//}
-	//else if (texMat.z == 8)//로딩 파티클
-	//{
-	//	output.uv.x = (input.uv.x) / texMat.z + texMat.x;
-	//	output.uv.y = input.uv.y / (texMat.z * 0.75f) + texMat.y;
-	//}
-	//else
-		output.uv = input.uv;
+	output.uv = input.uv;
 
 	return(output);
 }
 VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
-//VS_STANDARD_OUTPUT VSSpriteAnimation(VS_STANDARD_INPUT input)
 {
 	VS_TEXTURED_OUTPUT output;
 
-	//output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);//gmtxGameObject
 	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);//gmtxGameObject
-	//output.uv = mul(float3(input.uv, 1.0f), (float3x3)(gMat.gmtxTexture)).xy;//gmtxGameObject
-	//output.uv = mul(float3(input.uv, 1.0f), (float3x3)(gmtxGameObject)).xy;//gmtxGameObject
-
-	//output.uv = mul(float3(input.uv, 1.0f), (float3x3)(texMat)).xy;//gmtxGameObject
 
 	if (gMaterial.texMat.z == 6)//연기 
 	{
@@ -254,61 +203,8 @@ VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
 		output.uv = input.uv;
 
 	return(output);
-
-	/*VS_TEXTURED_OUTPUT output;
-
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
-	output.uv = input.uv;
-
-	return(output);*/
-
-	/*VS_STANDARD_OUTPUT output;
-
-	output.positionW = (float3)mul(float4(input.position, 1.0f), gmtxGameObject);
-	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
-	output.tangentW = (float3)mul(float4(input.tangent, 1.0f), gmtxGameObject);
-	output.bitangentW = (float3)mul(float4(input.bitangent, 1.0f), gmtxGameObject);
-	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-	output.uv = input.uv;
-
-	return(output);*/
 }
-//float4 PSTexturedd(VS_STANDARD_OUTPUT input) : SV_TARGET
-//{
-//	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-//	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-//	float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-//	float4 cMetallicColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-//	float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-//
-//#ifdef _WITH_STANDARD_TEXTURE_MULTIPLE_DESCRIPTORS
-//	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
-//	if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uv);
-//	if (gnTexturesMask & MATERIAL_NORMAL_MAP) cNormalColor = gtxtNormalTexture.Sample(gssWrap, input.uv);
-//	if (gnTexturesMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtMetallicTexture.Sample(gssWrap, input.uv);
-//	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
-//#else
-//	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtStandardTextures[0].Sample(gssWrap, input.uv);
-//	if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtStandardTextures[1].Sample(gssWrap, input.uv);
-//	if (gnTexturesMask & MATERIAL_NORMAL_MAP) cNormalColor = gtxtStandardTextures[2].Sample(gssWrap, input.uv);
-//	if (gnTexturesMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtStandardTextures[3].Sample(gssWrap, input.uv);
-//	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtStandardTextures[4].Sample(gssWrap, input.uv);
-//#endif
-//
-//	float4 cIllumination = float4(1.0f, 1.0f, 1.0f, 1.0f);
-//	float4 cColor = cAlbedoColor + cSpecularColor + cEmissionColor;
-//	if (gnTexturesMask & MATERIAL_NORMAL_MAP)
-//	{
-//		float3 normalW = input.normalW;
-//		float3x3 TBN = float3x3(normalize(input.tangentW), normalize(input.bitangentW), normalize(input.normalW));
-//		float3 vNormal = normalize(cNormalColor.rgb * 2.0f - 1.0f); //[0, 1] → [-1, 1]
-//		normalW = normalize(mul(vNormal, TBN));
-//		cIllumination = Lighting(input.positionW, normalW);
-//		cColor = lerp(cColor, cIllumination, 0.5f);
-//	}
-//
-//	return(cColor);
-//}
+
 float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtTexture.Sample(gssWrap, input.uv);
@@ -316,27 +212,6 @@ float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 	return(cColor);
 }
 
-/*
-float4 PSTextured(VS_TEXTURED_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
-{
-	float4 cColor;
-	if (nPrimitiveID < 2)
-		cColor = gtxtTextures[0].Sample(gWrapSamplerState, input.uv);
-	else if (nPrimitiveID < 4)
-		cColor = gtxtTextures[1].Sample(gWrapSamplerState, input.uv);
-	else if (nPrimitiveID < 6)
-		cColor = gtxtTextures[2].Sample(gWrapSamplerState, input.uv);
-	else if (nPrimitiveID < 8)
-		cColor = gtxtTextures[3].Sample(gWrapSamplerState, input.uv);
-	else if (nPrimitiveID < 10)
-		cColor = gtxtTextures[4].Sample(gWrapSamplerState, input.uv);
-	else
-		cColor = gtxtTextures[5].Sample(gWrapSamplerState, input.uv);
-	float4 cColor = gtxtTextures[NonUniformResourceIndex(nPrimitiveID/2)].Sample(gWrapSamplerState, input.uv);
-
-	return(cColor);
-}
-*/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //

@@ -147,10 +147,8 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 {
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
 
-	//22.11.16
-	//D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[9];
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[11];
-	//
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[10];
+	
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
@@ -200,21 +198,13 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dDescriptorRanges[7].RegisterSpace = 0;
 	pd3dDescriptorRanges[7].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	//22.11.16
-	//왜 디스크립터 개수가 3개일까?
+
 	pd3dDescriptorRanges[8].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[8].NumDescriptors = 3;
 	pd3dDescriptorRanges[8].BaseShaderRegister = 14; //t14~16: gtxtTerrainTexture
 	pd3dDescriptorRanges[8].RegisterSpace = 0;
 	pd3dDescriptorRanges[8].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	//////22.12.06
-	//pd3dDescriptorRanges[9].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-	//pd3dDescriptorRanges[9].NumDescriptors = 1;
-	//pd3dDescriptorRanges[9].BaseShaderRegister = 3; //GameObject
-	//pd3dDescriptorRanges[9].RegisterSpace = 0;
-	//pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-	//////
 
 	pd3dDescriptorRanges[9].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[9].NumDescriptors = 1;
@@ -222,97 +212,9 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dDescriptorRanges[9].RegisterSpace = 0;
 	pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	pd3dDescriptorRanges[10].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-	pd3dDescriptorRanges[10].NumDescriptors = 1;
-	pd3dDescriptorRanges[10].BaseShaderRegister = 3; //GameObject
-	pd3dDescriptorRanges[10].RegisterSpace = 0;
-	pd3dDescriptorRanges[10].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	//=================================================================================================
-
-	//pd3dDescriptorRanges[9].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	//pd3dDescriptorRanges[9].NumDescriptors = 1;
-	//pd3dDescriptorRanges[9].BaseShaderRegister = 0; //t0: gtxtTexture
-	//pd3dDescriptorRanges[9].RegisterSpace = 0;
-	//pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	//pd3dDescriptorRanges[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	//pd3dDescriptorRanges[1].NumDescriptors = 1;
-	//pd3dDescriptorRanges[1].BaseShaderRegister = 0; //t0: gtxtTexture
-	//pd3dDescriptorRanges[1].RegisterSpace = 0;
-	//pd3dDescriptorRanges[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	//pd3dDescriptorRanges[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	//pd3dDescriptorRanges[2].NumDescriptors = 1;
-	//pd3dDescriptorRanges[2].BaseShaderRegister = 4; //t4: gtxtTerrainBaseTexture
-	//pd3dDescriptorRanges[2].RegisterSpace = 0;
-	//pd3dDescriptorRanges[2].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	//pd3dDescriptorRanges[3].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	//pd3dDescriptorRanges[3].NumDescriptors = 1;
-	//pd3dDescriptorRanges[3].BaseShaderRegister = 5; //t5: gtxtTerrainDetailTexture
-	//pd3dDescriptorRanges[3].RegisterSpace = 0;
-	//pd3dDescriptorRanges[3].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	//pd3dDescriptorRanges[4].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	//pd3dDescriptorRanges[4].NumDescriptors = 1;
-	//pd3dDescriptorRanges[4].BaseShaderRegister = 6; //t6: gtxtTerrainAlphaTexture
-	//pd3dDescriptorRanges[4].RegisterSpace = 0;
-	//pd3dDescriptorRanges[4].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	/*Texture2D gtxtTerrainTexture : register(t14);
-	Texture2D gtxtDetailTexture : register(t15);
-	Texture2D gtxtAlphaTexture : register(t16);*/
-
-	//pd3dDescriptorRanges[8].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	//pd3dDescriptorRanges[8].NumDescriptors = 1;
-	//pd3dDescriptorRanges[8].BaseShaderRegister = 0; //t0: gtxtTexture
-	//pd3dDescriptorRanges[8].RegisterSpace = 0;
-	//pd3dDescriptorRanges[8].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	//pd3dDescriptorRanges[9].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	//pd3dDescriptorRanges[9].NumDescriptors = 1;
-	//pd3dDescriptorRanges[9].BaseShaderRegister = 14; //t4: gtxtTerrainBaseTexture
-	//pd3dDescriptorRanges[9].RegisterSpace = 0;
-	//pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	//pd3dDescriptorRanges[10].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	//pd3dDescriptorRanges[10].NumDescriptors = 1;
-	//pd3dDescriptorRanges[10].BaseShaderRegister = 15; //t5: gtxtTerrainDetailTexture
-	//pd3dDescriptorRanges[10].RegisterSpace = 0;
-	//pd3dDescriptorRanges[10].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	//pd3dDescriptorRanges[11].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	//pd3dDescriptorRanges[11].NumDescriptors = 1;
-	//pd3dDescriptorRanges[11].BaseShaderRegister = 16; //t6: gtxtTerrainAlphaTexture
-	//pd3dDescriptorRanges[11].RegisterSpace = 0;
-	//pd3dDescriptorRanges[11].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 
-
-
-	//pd3dDescriptorRanges[8].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	//pd3dDescriptorRanges[8].NumDescriptors = 1;
-	//pd3dDescriptorRanges[8].BaseShaderRegister = 14; //t4: gtxtTerrainBaseTexture
-	//pd3dDescriptorRanges[8].RegisterSpace = 0;
-	//pd3dDescriptorRanges[8].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	//pd3dDescriptorRanges[9].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	//pd3dDescriptorRanges[9].NumDescriptors = 1;
-	//pd3dDescriptorRanges[9].BaseShaderRegister = 15; //t5: gtxtTerrainDetailTexture
-	//pd3dDescriptorRanges[9].RegisterSpace = 0;
-	//pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	//pd3dDescriptorRanges[10].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	//pd3dDescriptorRanges[10].NumDescriptors = 1;
-	//pd3dDescriptorRanges[10].BaseShaderRegister = 16; //t6: gtxtTerrainAlphaTexture
-	//pd3dDescriptorRanges[10].RegisterSpace = 0;
-	//pd3dDescriptorRanges[10].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-	//=======================================================================================================
-
-	//22.12.06
-	//D3D12_ROOT_PARAMETER pd3dRootParameters[12];
-	D3D12_ROOT_PARAMETER pd3dRootParameters[14];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[13];
 	//
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -321,11 +223,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	//22.12.06
 	pd3dRootParameters[1].Constants.Num32BitValues = 32;
-	//pd3dRootParameters[1].Constants.Num32BitValues = 49;
-	//pd3dRootParameters[1].Constants.Num32BitValues = 32;
-	//
 	pd3dRootParameters[1].Constants.ShaderRegister = 2; //GameObject
 	pd3dRootParameters[1].Constants.RegisterSpace = 0;
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
@@ -380,34 +278,11 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[11].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[8]);
 	pd3dRootParameters[11].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	////22.12.06
-	/*pd3dRootParameters[12].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	pd3dRootParameters[12].DescriptorTable.NumDescriptorRanges = 1;
-	pd3dRootParameters[12].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[9];
-	pd3dRootParameters[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;*/
-	//
-
-	//pd3dRootParameters[12].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	////22.12.06
-	//pd3dRootParameters[12].Constants.Num32BitValues = 4;
-	////pd3dRootParameters[1].Constants.Num32BitValues = 49;
-	////pd3dRootParameters[1].Constants.Num32BitValues = 32;
-	////
-	//pd3dRootParameters[12].Constants.ShaderRegister = 3; //GameObject
-	//pd3dRootParameters[12].Constants.RegisterSpace = 0;
-	//pd3dRootParameters[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[12].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[12].DescriptorTable.NumDescriptorRanges = 1;
-	pd3dRootParameters[12].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[10];
-	pd3dRootParameters[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-
-
-
-	pd3dRootParameters[13].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	pd3dRootParameters[13].DescriptorTable.NumDescriptorRanges = 1;
-	pd3dRootParameters[13].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[9];
-	pd3dRootParameters[13].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	pd3dRootParameters[12].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[9];
+	pd3dRootParameters[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
 
@@ -520,6 +395,8 @@ bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 		case 'R': m_ppGameObjects[0]->MoveUp(-1.0f); break;
 		case 'F':
 			m_ppShaders[1]->SetActive(!m_ppShaders[1]->GetActive());
+		/*	for (int i{}; i < 2; ++i)
+				m_ppShaders[1]->m_ppObjects[i]->m_ppMaterials[0]->m_pTexture->m_bActive = true;*/
 			break;
 		default:
 			break;

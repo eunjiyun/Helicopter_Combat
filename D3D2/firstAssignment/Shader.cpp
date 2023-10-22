@@ -669,7 +669,9 @@ void CObjectsShader::AnimateObjects(float fTimeElapsed)
 	{
 
 		m_ppObjects[j]->Animate(fTimeElapsed);
+
 	}
+	//m_bActive = m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive;
 }
 
 void CObjectsShader::ReleaseUploadBuffers()
@@ -904,17 +906,16 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, m_nObjects, 7);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	//22.11.09
-	//m_pd3dcbGameObjects가 Null 왜?
+
 	CreateConstantBufferViews(pd3dDevice, m_nObjects, m_pd3dcbGameObjects, ncbElementBytes);
-	//
-	CreateShaderResourceViews(pd3dDevice, ppGrassTextures[0], 0, 13);
-	CreateShaderResourceViews(pd3dDevice, ppGrassTextures[1], 0, 13);
-	CreateShaderResourceViews(pd3dDevice, ppFlowerTextures[0], 0, 13);
-	CreateShaderResourceViews(pd3dDevice, ppFlowerTextures[1], 0, 13);
-	CreateShaderResourceViews(pd3dDevice, ppTreeTextures[0], 0, 13);
-	CreateShaderResourceViews(pd3dDevice, ppTreeTextures[1], 0, 13);
-	CreateShaderResourceViews(pd3dDevice, ppTreeTextures[2], 0, 13);
+	
+	CreateShaderResourceViews(pd3dDevice, ppGrassTextures[0], 0, 12);
+	CreateShaderResourceViews(pd3dDevice, ppGrassTextures[1], 0, 12);
+	CreateShaderResourceViews(pd3dDevice, ppFlowerTextures[0], 0, 12);
+	CreateShaderResourceViews(pd3dDevice, ppFlowerTextures[1], 0, 12);
+	CreateShaderResourceViews(pd3dDevice, ppTreeTextures[0], 0, 12);
+	CreateShaderResourceViews(pd3dDevice, ppTreeTextures[1], 0, 12);
+	CreateShaderResourceViews(pd3dDevice, ppTreeTextures[2], 0, 12);
 
 	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)pContext;
 
@@ -934,22 +935,14 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 
 			float fyOffset = 0.0f;
 
-			//22.11.09
-			//껍질을 배열로 바꿔줍시다
 			CMaterial* pMaterial = NULL;
-			//CMaterial** pMaterial = NULL;
-			//
 			CMesh* pMesh = NULL;
 
 			switch (nPixel)
 			{
 			case 102:
 				pMesh = pGrassMesh;
-				//22.11.09
-				//여기도 당연히 배열로
 				pMaterial = ppGrassMaterials[0];
-				//pMaterial[0] = ppGrassMaterials[0];
-				//
 				fyOffset = 8.0f * 0.5f;
 				break;
 			case 128:
@@ -992,14 +985,8 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 
 				pBillboardObject->SetMesh(0, pMesh);
 
-				//22.11.09
-				//껍질? 뭐가 문제 일까요
-				//void SetMaterial(int nMaterial, CMaterial *pMaterial);
 				pBillboardObject->SetMaterial(0, pMaterial);
-				//
-
-				//1207
-
+			
 				float xPosition = x * xmf3Scale.x;
 				float zPosition = z * xmf3Scale.z;
 				float fHeight = pTerrain->GetHeight(xPosition, zPosition);
@@ -1013,19 +1000,16 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 	}
 }
 
-//22.11.18
 void CBillboardObjectsShader::ReleaseUploadBuffers()
 {
 	CObjectsShader::ReleaseUploadBuffers();
-	//CObjectsShader::ReleaseUploadBuffers();
 }
 
 void CBillboardObjectsShader::ReleaseObjects()
 {
 	CObjectsShader::ReleaseObjects();
-	//CObjectsShader::ReleaseObjects();
 }
-//
+
 
 D3D12_SHADER_BYTECODE CBillboardObjectsShader::CreateVertexShader()
 {
@@ -1223,14 +1207,14 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, m_nObjects, 2);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateConstantBufferViews(pd3dDevice, m_nObjects, m_pd3dcbGameObjects, ncbElementBytes);
-	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[0], 0, 13);
-	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[1], 0, 13);
+	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[0], 0, 12);
+	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[1], 0, 12);
 
 	m_ppObjects = new CGameObject * [m_nObjects];
 
 	XMFLOAT3 xmf3Position = XMFLOAT3(1030.0f, 180.0f, 1410.0f);
 	CMultiSpriteObject* pSpriteObject = NULL;
-	for (int j = 0; j < m_nObjects; j++)
+	for (int j{}; j < m_nObjects; ++j)
 	{
 		pSpriteObject = new CMultiSpriteObject();
 
@@ -1239,12 +1223,19 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 		pSpriteObject->SetPosition(XMFLOAT3(xmf3Position.x, xmf3Position.y, xmf3Position.z));
 		pSpriteObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * j));
 
-		pSpriteObject->m_fSpeed = 3.0f / (ppSpriteTextures[j]->m_nRows * ppSpriteTextures[j]->m_nCols);
+		if(0==j)
+			pSpriteObject->m_ppMaterials[0]->m_pTexture->texMat.z = 8;
+		else
+			pSpriteObject->m_ppMaterials[0]->m_pTexture->texMat.z = 6;
+
+		//pSpriteObject->m_fSpeed = 1.0f / (ppSpriteTextures[j]->m_nRows * ppSpriteTextures[j]->m_nCols);
+		pSpriteObject->m_fSpeed = 2.0f / (pSpriteObject->m_ppMaterials[0]->m_pTexture->texMat.z * pSpriteObject->m_ppMaterials[0]->m_pTexture->texMat.z);
+		
 		m_ppObjects[j] = pSpriteObject;
 	}
 
-	m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->texMat.z = 8;
-	m_ppObjects[1]->m_ppMaterials[0]->m_pTexture->texMat.z = 6;
+
+	
 }
 
 void CMultiSpriteObjectsShader::ReleaseUploadBuffers()
@@ -1259,6 +1250,8 @@ void CMultiSpriteObjectsShader::ReleaseObjects()
 //1021
 void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
+	
+	//if (m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive)
 	if (m_bActive)
 	{
 		XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
@@ -1267,6 +1260,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 		XMFLOAT3 xmf3PlayerLook = pPlayer->GetLookVector();
 		xmf3PlayerPosition.y += 5.0f;
 		XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
+	
 		for (int j{}; j < m_nObjects; ++j)
 		{
 			if (m_ppObjects[j])
@@ -1337,17 +1331,6 @@ void CTexture::LoadTextureFromFile2(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 void CTexture::AnimateRowColumn(/*XMFLOAT3& texMat,*/ float fTime)
 {
-	////	m_xmf4x4Texture = Matrix4x4::Identity();
-	//m_xmf4x4Texture._11 = 1.0f / float(m_nRows);
-	//m_xmf4x4Texture._22 = 1.0f / float(m_nCols);
-	//m_xmf4x4Texture._31 = float(m_nRow) / float(m_nRows);
-	//m_xmf4x4Texture._32 = float(m_nCol) / float(m_nCols);
-	//if (fTime == 0.0f)
-	//{
-	//	if (++m_nCol == m_nCols) { m_nRow++; m_nCol = 0; }
-	//	if (m_nRow == m_nRows) m_nRow = 0;
-	//}
-
 
 	texMat.x = float(m_nRow) / texMat.z;//가로
 
@@ -1356,7 +1339,7 @@ void CTexture::AnimateRowColumn(/*XMFLOAT3& texMat,*/ float fTime)
 	else
 		texMat.y = float(m_nCol) / (texMat.z * 1.5f);//세로
 
-	//if (0.0f == fTime)
+	if (0.0f == fTime)
 	{
 		if (++m_nCol == texMat.z)
 		{
@@ -1364,12 +1347,9 @@ void CTexture::AnimateRowColumn(/*XMFLOAT3& texMat,*/ float fTime)
 			++m_nRow;//가로 증가
 			m_nCol = 0; //세로 0
 
-			/*if (4 != texMat.z)
-			{
-				m_bActive[0] = false;
-				m_bActive[1] = false;
-				m_bActive[2] = false;
-			}*/
+
+			m_bActive = false;
+			
 		}
 
 		if (4 != texMat.z)
