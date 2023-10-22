@@ -122,6 +122,8 @@ void CTexture::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 		if (12 == m_pnRootParameterIndices[0])
 		{
 			//pd3dCommandList->SetGraphicsRoot32BitConstants(12, 3, &texMat, 1);//조명 관련
+			//if (m_pd3dSrvGpuDescriptorHandles[0].ptr && (m_pnRootParameterIndices[0] != -1))
+				pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[0], m_pd3dSrvGpuDescriptorHandles[0]);
 		}
 		else
 		{
@@ -293,173 +295,6 @@ D3D12_SHADER_RESOURCE_VIEW_DESC CTexture::GetShaderResourceViewDesc(int nIndex)
 	return(d3dShaderResourceViewDesc);
 }
 
-//22.12.06
-CTexture2::CTexture2(int nTextures, UINT nTextureType, int nSamplers, int nRootParameters, int nRows, int nCols)
-{
-	m_nTextureType = nTextureType;
-
-	m_nTextures = nTextures;
-	if (m_nTextures > 0)
-	{
-		m_ppd3dTextures = new ID3D12Resource * [m_nTextures];
-		for (int i = 0; i < m_nTextures; i++) m_ppd3dTextures[i] = NULL;
-		m_ppd3dTextureUploadBuffers = new ID3D12Resource * [m_nTextures];
-		for (int i = 0; i < m_nTextures; i++) m_ppd3dTextureUploadBuffers[i] = NULL;
-		m_pd3dSrvGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nTextures];
-		for (int i = 0; i < m_nTextures; i++) m_pd3dSrvGpuDescriptorHandles[i].ptr = NULL;
-
-		m_pnResourceTypes = new UINT[m_nTextures];
-		for (int i = 0; i < m_nTextures; i++) m_pnResourceTypes[i] = -1;
-
-		m_pdxgiBufferFormats = new DXGI_FORMAT[m_nTextures];
-		for (int i = 0; i < m_nTextures; i++) m_pnResourceTypes[i] = DXGI_FORMAT_UNKNOWN;
-		m_pnBufferElements = new int[m_nTextures];
-		for (int i = 0; i < m_nTextures; i++) m_pnBufferElements[i] = 0;
-	}
-	m_nRootParameters = nRootParameters;
-	if (nRootParameters > 0) m_pnRootParameterIndices = new int[nRootParameters];
-	for (int i = 0; i < m_nRootParameters; i++) m_pnRootParameterIndices[i] = -1;
-
-	m_nSamplers = nSamplers;
-	if (m_nSamplers > 0) m_pd3dSamplerGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nSamplers];
-
-	m_nRows = nRows;
-	m_nCols = nCols;
-
-	m_xmf4x4Texture = Matrix4x4::Identity();
-}
-
-CTexture2::~CTexture2()
-{
-	if (m_ppd3dTextures)
-	{
-		for (int i = 0; i < m_nTextures; i++) if (m_ppd3dTextures[i]) m_ppd3dTextures[i]->Release();
-		delete[] m_ppd3dTextures;
-	}
-	if (m_pnResourceTypes) delete[] m_pnResourceTypes;
-	if (m_pdxgiBufferFormats) delete[] m_pdxgiBufferFormats;
-	if (m_pnBufferElements) delete[] m_pnBufferElements;
-
-	if (m_pnRootParameterIndices) delete[] m_pnRootParameterIndices;
-	if (m_pd3dSrvGpuDescriptorHandles) delete[] m_pd3dSrvGpuDescriptorHandles;
-
-	if (m_pd3dSamplerGpuDescriptorHandles) delete[] m_pd3dSamplerGpuDescriptorHandles;
-}
-
-void CTexture2::SetRootParameterIndex(int nIndex, UINT nRootParameterIndex)
-{
-	m_pnRootParameterIndices[nIndex] = nRootParameterIndex;
-}
-
-void CTexture2::SetGpuDescriptorHandle(int nIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGpuDescriptorHandle)
-{
-	m_pd3dSrvGpuDescriptorHandles[nIndex] = d3dSrvGpuDescriptorHandle;
-}
-
-void CTexture2::SetSampler(int nIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSamplerGpuDescriptorHandle)
-{
-	m_pd3dSamplerGpuDescriptorHandles[nIndex] = d3dSamplerGpuDescriptorHandle;
-}
-
-void CTexture2::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	if (m_nRootParameters == m_nTextures)
-	{
-		for (int i = 0; i < m_nRootParameters; i++)
-		{
-			//22.12.06
-			//pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[i], m_pd3dSrvGpuDescriptorHandles[i]);
-			pd3dCommandList->SetGraphicsRootDescriptorTable(13, m_pd3dSrvGpuDescriptorHandles[i]);
-			//
-		}
-	}
-	else
-	{
-		//22.12.06
-		//pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[0], m_pd3dSrvGpuDescriptorHandles[0]);
-		pd3dCommandList->SetGraphicsRootDescriptorTable(13, m_pd3dSrvGpuDescriptorHandles[0]);
-		//
-	}
-}
-
-void CTexture2::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, int nParameterIndex, int nTextureIndex)
-{
-	pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[nParameterIndex], m_pd3dSrvGpuDescriptorHandles[nTextureIndex]);
-}
-
-void CTexture2::ReleaseShaderVariables()
-{
-}
-
-void CTexture2::ReleaseUploadBuffers()
-{
-	if (m_ppd3dTextureUploadBuffers)
-	{
-		for (int i = 0; i < m_nTextures; i++) if (m_ppd3dTextureUploadBuffers[i]) m_ppd3dTextureUploadBuffers[i]->Release();
-		delete[] m_ppd3dTextureUploadBuffers;
-		m_ppd3dTextureUploadBuffers = NULL;
-	}
-}
-
-void CTexture2::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
-	wchar_t* pszFileName, UINT nResourceType,
-	UINT nIndex)
-{
-	m_pnResourceTypes[nIndex] = nResourceType;
-	m_ppd3dTextures[nIndex] = ::CreateTextureResourceFromDDSFile(pd3dDevice, pd3dCommandList,
-		pszFileName, &m_ppd3dTextureUploadBuffers[nIndex], D3D12_RESOURCE_STATE_GENERIC_READ/*D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE*/);
-}
-
-D3D12_SHADER_RESOURCE_VIEW_DESC CTexture2::GetShaderResourceViewDesc(int nIndex)
-{
-	ID3D12Resource* pShaderResource = GetResource(nIndex);
-	D3D12_RESOURCE_DESC d3dResourceDesc = pShaderResource->GetDesc();
-
-	D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc;
-	d3dShaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-
-	int nTextureType = GetTextureType(nIndex);
-	switch (nTextureType)
-	{
-	case RESOURCE_TEXTURE2D: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize == 1)
-	case RESOURCE_TEXTURE2D_ARRAY: //[]
-		d3dShaderResourceViewDesc.Format = d3dResourceDesc.Format;
-		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		d3dShaderResourceViewDesc.Texture2D.MipLevels = -1;
-		d3dShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-		d3dShaderResourceViewDesc.Texture2D.PlaneSlice = 0;
-		d3dShaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-		break;
-	case RESOURCE_TEXTURE2DARRAY: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize != 1)
-		d3dShaderResourceViewDesc.Format = d3dResourceDesc.Format;
-		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
-		d3dShaderResourceViewDesc.Texture2DArray.MipLevels = -1;
-		d3dShaderResourceViewDesc.Texture2DArray.MostDetailedMip = 0;
-		d3dShaderResourceViewDesc.Texture2DArray.PlaneSlice = 0;
-		d3dShaderResourceViewDesc.Texture2DArray.ResourceMinLODClamp = 0.0f;
-		d3dShaderResourceViewDesc.Texture2DArray.FirstArraySlice = 0;
-		d3dShaderResourceViewDesc.Texture2DArray.ArraySize = d3dResourceDesc.DepthOrArraySize;
-		break;
-	case RESOURCE_TEXTURE_CUBE: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize == 6)
-		d3dShaderResourceViewDesc.Format = d3dResourceDesc.Format;
-		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-		d3dShaderResourceViewDesc.TextureCube.MipLevels = -1;
-		d3dShaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
-		d3dShaderResourceViewDesc.TextureCube.ResourceMinLODClamp = 0.0f;
-		break;
-	case RESOURCE_BUFFER: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
-		d3dShaderResourceViewDesc.Format = m_pdxgiBufferFormats[nIndex];
-		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-		d3dShaderResourceViewDesc.Buffer.FirstElement = 0;
-		d3dShaderResourceViewDesc.Buffer.NumElements = m_pnBufferElements[nIndex];
-		d3dShaderResourceViewDesc.Buffer.StructureByteStride = 0;
-		d3dShaderResourceViewDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-		break;
-	}
-
-	return(d3dShaderResourceViewDesc);
-}
-//
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -487,14 +322,7 @@ void CMaterial::SetTexture(CTexture* pTexture)
 	if (m_pTexture) m_pTexture->AddRef();
 }
 
-//22.12.06
-void CMaterial::SetTexture(CTexture2* pTexture)
-{
-	if (m_pTexture2) m_pTexture2->Release();
-	m_pTexture2 = pTexture;
-	if (m_pTexture2) m_pTexture2->AddRef();
-}
-//
+
 
 void CMaterial::ReleaseUploadBuffers()
 {
@@ -507,9 +335,21 @@ void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AmbientColor, 16);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AlbedoColor, 20);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4SpecularColor, 24);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4EmissiveColor, 28);
+	
 
-	pd3dCommandList->SetGraphicsRoot32BitConstants(12, 1, &m_nType, 0);
+	//if (m_xmf4AmbientColor.x == 0 && m_xmf4AmbientColor.y == 0 && m_xmf4AmbientColor.z == 0)
+		//cout << "m_xmf4AmbientColor" << endl;
+
+	//if (m_xmf4AlbedoColor.x == 0 && m_xmf4AlbedoColor.y == 0 && m_xmf4AlbedoColor.z == 0)
+	//	cout << "m_xmf4AlbedoColor" << endl;
+
+	/*if (m_xmf4SpecularColor.x == 0 && m_xmf4SpecularColor.y == 0 && m_xmf4SpecularColor.z == 0)
+		cout << "m_xmf4SpecularColor" << endl;
+
+	if (m_xmf4EmissiveColor.x == 0 && m_xmf4EmissiveColor.y == 0 && m_xmf4EmissiveColor.z == 0)
+		cout << "m_xmf4EmissiveColor" << endl;*/
+
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_nType, 31);
 
 	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
 }
@@ -520,54 +360,7 @@ void CMaterial::ReleaseShaderVariables()
 	if (m_pTexture) m_pTexture->ReleaseShaderVariables();
 }
 
-//22.12.06
-CMaterial2::CMaterial2()
-{
-}
 
-CMaterial2::~CMaterial2()
-{
-	if (m_pTexture) m_pTexture->Release();
-	if (m_pShader) m_pShader->Release();
-}
-
-void CMaterial2::SetReflection(MATERIAL* m_pReflection)
-{
-	m_pReflection = m_pReflection;
-}
-
-void CMaterial2::SetTexture(CTexture2* pTexture)
-{
-	if (m_pTexture) m_pTexture->Release();
-	m_pTexture = pTexture;
-	if (m_pTexture) m_pTexture->AddRef();
-}
-
-void CMaterial2::SetShader(CShader* pShader)
-{
-	if (m_pShader) m_pShader->Release();
-	m_pShader = pShader;
-	if (m_pShader) m_pShader->AddRef();
-}
-
-void CMaterial2::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
-}
-
-void CMaterial2::ReleaseShaderVariables()
-{
-	//22.11.07
-	//if (m_pShader) m_pShader->ReleaseShaderVariables();
-	//if (m_pTexture) m_pTexture->ReleaseShaderVariables();
-	//
-}
-
-void CMaterial2::ReleaseUploadBuffers()
-{
-	if (m_pTexture) m_pTexture->ReleaseUploadBuffers();
-}
-//
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -740,11 +533,15 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 		m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
 	}
 	////22.11.16
-	 if (m_ppMaterials)
+	if (m_ppMaterials)
 	{
 		//if(!m_ppMeshes || 0 != strcmp("Body_Instance", m_ppMeshes[0]->m_pstrMeshName))
 		if (!(m_ppMaterials[0]->m_pShader) && m_ppMaterials[0]->m_pTexture)//다른 건 여기 이 부분
 		{
+			pd3dCommandList->SetGraphicsRoot32BitConstants(1, 3, &m_ppMaterials[0]->m_pTexture->texMat, 28);
+
+			//cout << "texMat.z : " << m_ppMaterials[0]->m_pTexture->texMat.z << endl;
+
 			m_ppMaterials[0]->m_pTexture->UpdateShaderVariables(pd3dCommandList);
 
 			//pd3dCommandList->SetGraphicsRoot32BitConstants(14, 4, &m_xmf4AmbientColor, 0);//조명 관련
@@ -754,9 +551,9 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 
 			//pd3dCommandList->SetGraphicsRoot32BitConstants(14, 1, &m_nType, 16);
 
-			/*if (m_pcbMappedGameObject) 
-				XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_ppMaterials[0]->m_pTexture->m_xmf4x4Texture)));
-			pd3dCommandList->SetGraphicsRootDescriptorTable(12, m_d3dCbvGPUDescriptorHandle);*/
+			//if (m_pcbMappedGameObject)
+				//XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_ppMaterials[0]->m_pTexture->m_xmf4x4Texture)));
+			
 		}
 	}
 	////
@@ -1529,7 +1326,7 @@ CMultiSpriteObject::~CMultiSpriteObject()
 
 void CMultiSpriteObject::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
 {
-	if ( m_ppMaterials[0] && m_ppMaterials[0]->m_pTexture)
+	if (m_ppMaterials[0] && m_ppMaterials[0]->m_pTexture)
 	{
 		m_fTime += fTimeElapsed * 0.5f;
 		if (m_fTime >= m_fSpeed) m_fTime = 0.0f;

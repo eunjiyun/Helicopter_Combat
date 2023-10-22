@@ -235,8 +235,17 @@ void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamer
 	{
 		//22.11.16
 		//인수 세 개
-		//if (m_pShader) m_pShader->Render(pd3dCommandList, pCamera, 0);
+
 		if (m_pShader) m_pShader->Render(pd3dCommandList, pCamera);
+
+		//if (m_pShader->m_ppd3dPipelineStates)
+		//	pd3dCommandList->SetPipelineState(m_pShader->m_ppd3dPipelineStates[0]);
+
+		//if (m_pShader->m_pd3dCbvSrvDescriptorHeap) //1202오류
+		//	pd3dCommandList->SetDescriptorHeaps(1, &m_pShader->m_pd3dCbvSrvDescriptorHeap);
+
+		//m_pShader->UpdateShaderVariables(pd3dCommandList);
+		
 		//
 		CGameObject::Render2(pd3dCommandList, pCamera);
 

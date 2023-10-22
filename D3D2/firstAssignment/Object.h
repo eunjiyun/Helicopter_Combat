@@ -40,11 +40,19 @@ struct CB_GAMEOBJECT_INFO
 {
 	XMFLOAT4X4						m_xmf4x4World;
 	MATERIAL						m_material;
-
-	XMFLOAT4X4						m_xmf4x4Texture;
-	XMINT2							m_xmi2TextureTiling;
-	XMFLOAT2						m_xmf2TextureOffset;
 };
+
+//XMFLOAT4X4						m_xmf4x4Texture;
+//XMINT2							m_xmi2TextureTiling;
+//XMFLOAT2						m_xmf2TextureOffset;
+
+
+struct CB_GRASSOBJECT_INFO//GrassObjectInfo
+{
+	UINT							m_nType = 0x00;
+	XMFLOAT3						texMat = XMFLOAT3(0.f, 0.f, 0.f);
+};
+
 //============================================================
 
 class CTexture
@@ -126,75 +134,7 @@ public:
 	XMFLOAT3 texMat = { 0.0f,0.0f,0.0f };
 };
 
-//22.12.06
-class CTexture2
-{
-public:
-	CTexture2(int nTextureResources, UINT nResourceType,
-		int nSamplers, int nRootParameters, int nRows = 1, int nCols = 1);
-	virtual ~CTexture2();
 
-private:
-	int								m_nReferences = 0;
-
-	UINT							m_nTextureType = RESOURCE_TEXTURE2D;
-	int								m_nTextures = 0;
-	ID3D12Resource** m_ppd3dTextures = NULL;
-	ID3D12Resource** m_ppd3dTextureUploadBuffers = NULL;
-
-	UINT* m_pnResourceTypes = NULL;
-
-	DXGI_FORMAT* m_pdxgiBufferFormats = NULL;
-	int* m_pnBufferElements = NULL;
-
-	int								m_nRootParameters = 0;
-	int* m_pnRootParameterIndices = NULL;
-	D3D12_GPU_DESCRIPTOR_HANDLE* m_pd3dSrvGpuDescriptorHandles = NULL;
-
-	int								m_nSamplers = 0;
-	D3D12_GPU_DESCRIPTOR_HANDLE* m_pd3dSamplerGpuDescriptorHandles = NULL;
-
-	int 							m_nRow = 0;
-	int 							m_nCol = 0;
-
-public:
-	int 							m_nRows = 1;
-	int 							m_nCols = 1;
-
-	XMFLOAT4X4						m_xmf4x4Texture;
-
-public:
-	void AddRef() { m_nReferences++; }
-	void Release() { if (--m_nReferences <= 0) delete this; }
-
-	void SetSampler(int nIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSamplerGpuDescriptorHandle);
-
-	void UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, int nParameterIndex, int nTextureIndex);
-	void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
-	void ReleaseShaderVariables();
-
-	void LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, wchar_t* pszFileName, UINT nResourceType, UINT nIndex);
-
-	void SetRootParameterIndex(int nIndex, UINT nRootParameterIndex);
-	int GetRootParameterIndex(int nIndex) { return(m_pnRootParameterIndices[nIndex]); }
-	void SetGpuDescriptorHandle(int nIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGpuDescriptorHandle);
-
-	int GetRootParameters() { return(m_nRootParameters); }
-	int GetTextures() { return(m_nTextures); }
-	ID3D12Resource* GetResource(int nIndex) { return(m_ppd3dTextures[nIndex]); }
-
-	UINT GetTextureType() { return(m_nTextureType); }
-	UINT GetTextureType(int nIndex) { return(m_pnResourceTypes[nIndex]); }
-	DXGI_FORMAT GetBufferFormat(int nIndex) { return(m_pdxgiBufferFormats[nIndex]); }
-	int GetBufferElements(int nIndex) { return(m_pnBufferElements[nIndex]); }
-
-	D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(int nIndex);
-
-	void ReleaseUploadBuffers();
-
-	void Animate() { }
-	void AnimateRowColumn(float fTime = 0.0f);
-};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -225,9 +165,7 @@ public:
 	CShader* m_pShader = NULL;
 	CTexture* m_pTexture = NULL;
 
-	//22.12.06
-	CTexture2* m_pTexture2 = NULL;
-	//
+
 
 	XMFLOAT4						m_xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	XMFLOAT4						m_xmf4EmissiveColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -238,9 +176,7 @@ public:
 	void SetMaterialType(UINT nType) { m_nType |= nType; }
 	void SetTexture(CTexture* pTexture);
 
-	//22.12.06
-	void SetTexture(CTexture2* pTexture);
-	//
+	
 
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
@@ -257,37 +193,7 @@ public:
 	float							m_fGlossyReflection = 0.0f;
 };
 
-//22.12.06
-class CMaterial2
-{
-public:
-	CMaterial2();
-	virtual ~CMaterial2();
 
-private:
-	int								m_nReferences = 0;
-
-public:
-	void AddRef() { m_nReferences++; }
-	void Release() { if (--m_nReferences <= 0) delete this; }
-
-	XMFLOAT4						m_xmf4Albedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-
-	MATERIAL* m_pReflection = NULL;
-	CTexture2* m_pTexture = NULL;
-	CShader* m_pShader = NULL;
-
-	void SetAlbedo(XMFLOAT4 xmf4Albedo) { m_xmf4Albedo = xmf4Albedo; }
-	void SetReflection(MATERIAL* m_pReflection);
-	void SetTexture(CTexture2* pTexture);
-	void SetShader(CShader* pShader);
-
-	void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
-	void ReleaseShaderVariables();
-
-	void ReleaseUploadBuffers();
-};
-//
 
 class CGameObject
 {
@@ -407,6 +313,7 @@ public:
 	//CMesh** m_pMeshes = NULL;
 	//int								nMeshes = 0;
 	CB_GAMEOBJECT_INFO* m_pcbMappedGameObject = NULL;
+	CB_GRASSOBJECT_INFO* grassObj = NULL;
 	//
 };
 

@@ -131,7 +131,6 @@
     <ClInclude Include="d3dx12.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
     <ClInclude Include="firstAssignment.h" />
-    <ClInclude Include="framework.h" />
     <ClInclude Include="GameFramework.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Object.h" />

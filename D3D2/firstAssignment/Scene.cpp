@@ -108,7 +108,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_pShaders[0] = pBillboardObjectShader;
 
 
-	
+
 	//---------------------------------------------------------------------
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -149,7 +149,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 
 	//22.11.16
 	//D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[9];
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[10];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[11];
 	//
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
@@ -221,6 +221,12 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dDescriptorRanges[9].BaseShaderRegister = 0; //t0: gtxtTexture
 	pd3dDescriptorRanges[9].RegisterSpace = 0;
 	pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	pd3dDescriptorRanges[10].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	pd3dDescriptorRanges[10].NumDescriptors = 1;
+	pd3dDescriptorRanges[10].BaseShaderRegister = 3; //GameObject
+	pd3dDescriptorRanges[10].RegisterSpace = 0;
+	pd3dDescriptorRanges[10].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	//=================================================================================================
 
@@ -381,15 +387,20 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;*/
 	//
 
-	pd3dRootParameters[12].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	//22.12.06
-	pd3dRootParameters[12].Constants.Num32BitValues = 4;
-	//pd3dRootParameters[1].Constants.Num32BitValues = 49;
-	//pd3dRootParameters[1].Constants.Num32BitValues = 32;
-	//
-	pd3dRootParameters[12].Constants.ShaderRegister = 3; //GameObject
-	pd3dRootParameters[12].Constants.RegisterSpace = 0;
-	pd3dRootParameters[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	//pd3dRootParameters[12].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	////22.12.06
+	//pd3dRootParameters[12].Constants.Num32BitValues = 4;
+	////pd3dRootParameters[1].Constants.Num32BitValues = 49;
+	////pd3dRootParameters[1].Constants.Num32BitValues = 32;
+	////
+	//pd3dRootParameters[12].Constants.ShaderRegister = 3; //GameObject
+	//pd3dRootParameters[12].Constants.RegisterSpace = 0;
+	//pd3dRootParameters[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	pd3dRootParameters[12].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[12].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[12].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[10];
+	pd3dRootParameters[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
 
 
@@ -530,7 +541,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Animate(fTimeElapsed, NULL);
 	for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->UpdateTransform(NULL);
 
-	for (int i{}; i < m_nShaders; ++i) 
+	for (int i{}; i < m_nShaders; ++i)
 		if (m_ppShaders[i] && m_ppShaders[i]->m_bActive)
 			m_ppShaders[i]->AnimateObjects(fTimeElapsed);
 
@@ -566,22 +577,21 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	//	if (m_ppGameObjects[i])
 	//		m_ppGameObjects[i]->Render(pd3dCommandList, pCamera);
 
-	//22.11.15
-	//for (int i{0}; i < m_nShaders; ++i) //Çï¸®ÄßÅÍµé //+ºôº¸µå
-		//if (m_ppShaders[i]) 
+
 
 	/*if (m_ppShaders[0]->m_ppd3dPipelineStates)
 		pd3dCommandList->SetPipelineState(m_ppShaders[0]->m_ppd3dPipelineStates[0]);*/
+
+		/*for(int i{};i< m_ppShaders[0]->m_nObjects;++i)
+				m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, pCamera);*/
+
 	
-	/*for(int i{};i< m_ppShaders[0]->m_nObjects;++i)
-			m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, pCamera);*/
-
-	pObjectsShader->Render(pd3dCommandList, pCamera);//
-	//22.11.16
-	//m_pShaders[0]->billboardRender(pd3dCommandList, pCamera);//ºôº¸µå
+	m_pShaders[0]->Render(pd3dCommandList, pCamera);//Ç®
+	m_ppShaders[1]->Render(pd3dCommandList, pCamera);//ºÒ²É
+	pObjectsShader->Render(pd3dCommandList, pCamera);//Çï±â
 
 
-	m_pShaders[0]->Render(pd3dCommandList, pCamera);//ºôº¸µå
+	
 	//
 }
 
