@@ -88,7 +88,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	m_ppShaders[0] = pObjectsShader;
 
-	CMultiSpriteObjectsShader* pMultiSpriteObjectShader = new CMultiSpriteObjectsShader();
+	pMultiSpriteObjectShader = new CMultiSpriteObjectsShader();
 	//CBillboardObjectsShader* pMultiSpriteObjectShader = new CBillboardObjectsShader();
 	pMultiSpriteObjectShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	pMultiSpriteObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain);
@@ -148,7 +148,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
 
 	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[10];
-	
+
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
@@ -394,9 +394,11 @@ bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 		case 'Q': m_ppGameObjects[0]->MoveUp(+1.0f); break;
 		case 'R': m_ppGameObjects[0]->MoveUp(-1.0f); break;
 		case 'F':
-			m_ppShaders[1]->SetActive(!m_ppShaders[1]->GetActive());
-		/*	for (int i{}; i < 2; ++i)
-				m_ppShaders[1]->m_ppObjects[i]->m_ppMaterials[0]->m_pTexture->m_bActive = true;*/
+			//m_ppShaders[1]->SetActive(true);
+			//for (int i{}; i < 2; ++i)
+			pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
+			//pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_nRow = 0;
+			//pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_nCol = 0;
 			break;
 		default:
 			break;
@@ -415,12 +417,16 @@ bool CScene::ProcessInput(UCHAR* pKeysBuffer)
 
 void CScene::AnimateObjects(float fTimeElapsed)
 {
+
 	for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Animate(fTimeElapsed, NULL);
 	for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->UpdateTransform(NULL);
 
-	for (int i{}; i < m_nShaders; ++i)
-		if (m_ppShaders[i] && m_ppShaders[i]->m_bActive)
-			m_ppShaders[i]->AnimateObjects(fTimeElapsed);
+	//for (int i{}; i < m_nShaders; ++i)
+		//if (m_ppShaders[i] && m_ppShaders[i]->m_bActive)
+	m_ppShaders[0]->AnimateObjects(fTimeElapsed);
+
+	if (pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive)
+		pMultiSpriteObjectShader->AnimateObjects(fTimeElapsed);
 
 	if (m_pLights)
 	{
@@ -462,13 +468,13 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 		/*for(int i{};i< m_ppShaders[0]->m_nObjects;++i)
 				m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, pCamera);*/
 
-	
+
 	m_pShaders[0]->Render(pd3dCommandList, pCamera);//Ç®
 	m_ppShaders[1]->Render(pd3dCommandList, pCamera);//ºÒ²É
 	pObjectsShader->Render(pd3dCommandList, pCamera);//Çï±â
 
 
-	
+
 	//
 }
 

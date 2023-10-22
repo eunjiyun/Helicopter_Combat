@@ -695,7 +695,7 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 	//if(120!=m_nObjects)
 		//CShader::Render(pd3dCommandList, pCamera, nPipelineState);
 
-	if (120 == m_nObjects||2== m_nObjects)
+	if (120 == m_nObjects || 2 == m_nObjects)
 	{
 		if (CStandardShader::m_ppd3dPipelineStates)
 			pd3dCommandList->SetPipelineState(CStandardShader::m_ppd3dPipelineStates[0]);
@@ -704,9 +704,9 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 			pd3dCommandList->SetDescriptorHeaps(1, &(CStandardShader::m_pd3dCbvSrvDescriptorHeap));
 	}
 
-	if(2 == m_nObjects)
-	//22.11.15
-	UpdateShaderVariables(pd3dCommandList);
+	if (2 == m_nObjects)
+		//22.11.15
+		UpdateShaderVariables(pd3dCommandList);
 	//
 
 	for (int j = 0; j < m_nObjects; j++)
@@ -761,8 +761,8 @@ void CObjectsShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dComman
 		if (m_ppObjects[j]->m_ppMaterials[0] && m_ppObjects[j]->m_ppMaterials[0]->m_pTexture)
 		{
 			//XMStoreFloat4x4(&pbMappedcbGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&(m_ppObjects[j]->m_ppMaterials[0]->m_pTexture->m_xmf4x4Texture))));
-		
-			
+
+
 			//XMStoreFloat3(&pbMappedcbGameObject2->texMat, &m_ppObjects[j]->m_ppMaterials[0]->m_pTexture->texMat);
 			//pbMappedcbGameObject2->m_nType = m_ppObjects[j]->m_ppMaterials[0]->m_nType;
 		/*	pbMappedcbGameObject2->texMat.x = m_ppObjects[j]->m_ppMaterials[0]->m_pTexture->texMat.x;
@@ -908,7 +908,7 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	CreateConstantBufferViews(pd3dDevice, m_nObjects, m_pd3dcbGameObjects, ncbElementBytes);
-	
+
 	CreateShaderResourceViews(pd3dDevice, ppGrassTextures[0], 0, 12);
 	CreateShaderResourceViews(pd3dDevice, ppGrassTextures[1], 0, 12);
 	CreateShaderResourceViews(pd3dDevice, ppFlowerTextures[0], 0, 12);
@@ -986,7 +986,7 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 				pBillboardObject->SetMesh(0, pMesh);
 
 				pBillboardObject->SetMaterial(0, pMaterial);
-			
+
 				float xPosition = x * xmf3Scale.x;
 				float zPosition = z * xmf3Scale.z;
 				float fHeight = pTerrain->GetHeight(xPosition, zPosition);
@@ -1223,19 +1223,19 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 		pSpriteObject->SetPosition(XMFLOAT3(xmf3Position.x, xmf3Position.y, xmf3Position.z));
 		pSpriteObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * j));
 
-		if(0==j)
+		if (0 == j)
 			pSpriteObject->m_ppMaterials[0]->m_pTexture->texMat.z = 8;
 		else
 			pSpriteObject->m_ppMaterials[0]->m_pTexture->texMat.z = 6;
 
 		//pSpriteObject->m_fSpeed = 1.0f / (ppSpriteTextures[j]->m_nRows * ppSpriteTextures[j]->m_nCols);
 		pSpriteObject->m_fSpeed = 2.0f / (pSpriteObject->m_ppMaterials[0]->m_pTexture->texMat.z * pSpriteObject->m_ppMaterials[0]->m_pTexture->texMat.z);
-		
+
 		m_ppObjects[j] = pSpriteObject;
 	}
 
 
-	
+
 }
 
 void CMultiSpriteObjectsShader::ReleaseUploadBuffers()
@@ -1250,9 +1250,9 @@ void CMultiSpriteObjectsShader::ReleaseObjects()
 //1021
 void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
-	
-	//if (m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive)
-	if (m_bActive)
+
+
+	if (/*m_bActive&&*/ m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive)
 	{
 		XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
 		CPlayer* pPlayer = pCamera->GetPlayer();
@@ -1260,7 +1260,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 		XMFLOAT3 xmf3PlayerLook = pPlayer->GetLookVector();
 		xmf3PlayerPosition.y += 5.0f;
 		XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
-	
+
 		for (int j{}; j < m_nObjects; ++j)
 		{
 			if (m_ppObjects[j])
@@ -1285,13 +1285,13 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 	//22.11.16
 		//CShader::Render(pd3dCommandList, pCamera);
 
-		if (m_ppd3dPipelineStates) 
+		if (m_ppd3dPipelineStates)
 			pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
 		CObjectsShader::UpdateShaderVariables(pd3dCommandList);
 		//pd3dCommandList->SetGraphicsRootDescriptorTable(12, CObjectsShader::m_d3dCbvGPUDescriptorHandle);
-	
+
 
 	//CShader::Render(pd3dCommandList, pCamera);
 	//if (m_ppd3dPipelineStates)
@@ -1331,36 +1331,38 @@ void CTexture::LoadTextureFromFile2(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 void CTexture::AnimateRowColumn(/*XMFLOAT3& texMat,*/ float fTime)
 {
-
-	texMat.x = float(m_nRow) / texMat.z;//가로
-
-	if (4 != texMat.z)
-		texMat.y = float(m_nCol) / texMat.z;//세로
-	else
-		texMat.y = float(m_nCol) / (texMat.z * 1.5f);//세로
-
-	if (0.0f == fTime)
+	//if (m_bActive)
 	{
-		if (++m_nCol == texMat.z)
-		{
-
-			++m_nRow;//가로 증가
-			m_nCol = 0; //세로 0
-
-
-			m_bActive = false;
-			
-		}
+		texMat.x = float(m_nRow) / texMat.z;//가로
 
 		if (4 != texMat.z)
-		{
-			if (m_nRow == texMat.z)
-				m_nRow = 0;//가로 0
-		}
+			texMat.y = float(m_nCol) / texMat.z;//세로
 		else
+			texMat.y = float(m_nCol) / (texMat.z * 1.5f);//세로
+
+		if (0.0f == fTime)
 		{
-			if (m_nRow == texMat.z * 1.5f)
-				m_nRow = 0;//가로 0
+			if (++m_nCol == texMat.z)
+			{
+
+				++m_nRow;//가로 증가
+				m_nCol = 0; //세로 0
+
+
+				m_bActive = false;
+
+			}
+
+			if (4 != texMat.z)
+			{
+				if (m_nRow == texMat.z)
+					m_nRow = 0;//가로 0
+			}
+			else
+			{
+				if (m_nRow == texMat.z * 1.5f)
+					m_nRow = 0;//가로 0
+			}
 		}
 	}
 
