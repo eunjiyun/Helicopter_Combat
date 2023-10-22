@@ -290,13 +290,20 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
-	case WM_RBUTTONDOWN:
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
 		break;
+	case WM_RBUTTONDOWN:
+		
+		m_pScene->pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
+
+		break;
+
 	case WM_LBUTTONUP:
-	case WM_RBUTTONUP:
 		::ReleaseCapture();
+		break;
+	case WM_RBUTTONUP:
+		
 		break;
 	case WM_MOUSEMOVE:
 		break;
@@ -314,9 +321,9 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		switch (wParam)
 		{
 		case VK_ESCAPE:
-			//22.11.07
-		case 0x50:
-			//
+			if (onFullScreen)
+				ChangeSwapChainState();
+
 			::PostQuitMessage(0);
 			break;
 		case VK_RETURN:
@@ -326,7 +333,12 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_F3:
 			m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
 			break;
-		case VK_F9:
+		case VK_CONTROL:
+			if (onFullScreen)
+				onFullScreen = false;
+			else
+				onFullScreen = true;
+
 			ChangeSwapChainState();
 			break;
 		case VK_F5:
@@ -443,12 +455,12 @@ void CGameFramework::ProcessInput()
 	if (!bProcessedByScene)
 	{
 		DWORD dwDirection = 0;
-		if (pKeysBuffer[VK_UP] & 0xF0) dwDirection |= DIR_FORWARD;
-		if (pKeysBuffer[VK_DOWN] & 0xF0) dwDirection |= DIR_BACKWARD;
-		if (pKeysBuffer[VK_LEFT] & 0xF0) dwDirection |= DIR_LEFT;
-		if (pKeysBuffer[VK_RIGHT] & 0xF0) dwDirection |= DIR_RIGHT;
-		if (pKeysBuffer[VK_PRIOR] & 0xF0) dwDirection |= DIR_UP;
-		if (pKeysBuffer[VK_NEXT] & 0xF0) dwDirection |= DIR_DOWN;
+		if (pKeysBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;//W
+		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//S
+		if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//A
+		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//D
+		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_UP;//X
+		if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_DOWN;//C
 
 		float cxDelta = 0.0f, cyDelta = 0.0f;
 		POINT ptCursorPos;

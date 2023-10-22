@@ -202,9 +202,6 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState = 0);
 
 	CGameObject** m_ppObjects = 0;
-
-protected:
-
 	int								m_nObjects = 0;
 };
 

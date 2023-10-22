@@ -387,19 +387,37 @@ bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-		case 'W': m_ppGameObjects[0]->MoveForward(+1.0f); break;
-		case 'S': m_ppGameObjects[0]->MoveForward(-1.0f); break;
-		case 'A': m_ppGameObjects[0]->MoveStrafe(-1.0f); break;
-		case 'D': m_ppGameObjects[0]->MoveStrafe(+1.0f); break;
-		case 'Q': m_ppGameObjects[0]->MoveUp(+1.0f); break;
-		case 'R': m_ppGameObjects[0]->MoveUp(-1.0f); break;
-		case 'F':
-			//m_ppShaders[1]->SetActive(true);
-			//for (int i{}; i < 2; ++i)
-			pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
-			//pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_nRow = 0;
-			//pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_nCol = 0;
+		case VK_UP: 
+			//m_ppGameObjects[0]->MoveForward(+1.0f); 
+			for(int i{};i< pObjectsShader->m_nObjects;++i)
+				pObjectsShader->m_ppObjects[i]->MoveForward(+1.0f);
 			break;
+		case VK_DOWN: 
+			//m_ppGameObjects[0]->MoveForward(-1.0f); 
+			for (int i{}; i < pObjectsShader->m_nObjects; ++i)
+			pObjectsShader->m_ppObjects[i]->MoveForward(-1.0f);
+			break;
+		case VK_LEFT: 
+			//m_ppGameObjects[0]->MoveStrafe(-1.0f); 
+			for (int i{}; i < pObjectsShader->m_nObjects; ++i)
+			pObjectsShader->m_ppObjects[i]->MoveStrafe(-1.0f);
+			break;
+		case VK_RIGHT: 
+			//m_ppGameObjects[0]->MoveStrafe(+1.0f); 
+			for (int i{}; i < pObjectsShader->m_nObjects; ++i)
+			pObjectsShader->m_ppObjects[i]->MoveStrafe(+1.0f);
+			break;
+		case VK_RETURN:
+			//m_ppGameObjects[0]->MoveUp(+1.0f); 
+			for (int i{}; i < pObjectsShader->m_nObjects; ++i)
+			pObjectsShader->m_ppObjects[i]->MoveUp(+1.0f);
+			break;
+		case 0x10://SHIFT
+			//m_ppGameObjects[0]->MoveUp(-1.0f); 
+			for (int i{}; i < pObjectsShader->m_nObjects; ++i)
+			pObjectsShader->m_ppObjects[i]->MoveUp(-1.0f);
+			break;
+
 		default:
 			break;
 		}
