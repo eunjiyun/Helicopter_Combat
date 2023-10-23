@@ -27,7 +27,7 @@ class CStandardShader;
 
 class CGameObject;
 
-//22.11.07
+
 struct MATERIAL
 {
 	XMFLOAT4						m_xmf4Ambient;
@@ -42,9 +42,7 @@ struct CB_GAMEOBJECT_INFO
 	MATERIAL						m_material;
 };
 
-//XMFLOAT4X4						m_xmf4x4Texture;
-//XMINT2							m_xmi2TextureTiling;
-//XMFLOAT2						m_xmf2TextureOffset;
+
 
 
 struct CB_GRASSOBJECT_INFO//GrassObjectInfo
@@ -58,10 +56,9 @@ struct CB_GRASSOBJECT_INFO//GrassObjectInfo
 class CTexture
 {
 public:
-	//CTexture(int nTextureResources, UINT nResourceType, int nSamplers, int nRootParameters);
-	//22.11.09
+
 	CTexture(int nTextureResources, UINT nResourceType, int nSamplers, int nRootParameters, int nRows = 1, int nCols = 1);
-	//
+	
 	virtual ~CTexture();
 
 private:
@@ -121,15 +118,13 @@ public:
 
 	void ReleaseUploadBuffers();
 
-	//22.11.09
-	void LoadTextureFromFile2(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, wchar_t* pszFileName, UINT nResourceType, UINT nIndex);
-	int 							m_nRows = 1;
+    int 							m_nRows = 1;
 	int 							m_nCols = 1;
 	int 							m_nRow = 0;
 	int 							m_nCol = 0;
 	XMFLOAT4X4						m_xmf4x4Texture;
-	void AnimateRowColumn(/*XMFLOAT3& texMat, */float fTime = 0.0f);
-	//
+	void AnimateRowColumn(float fTime = 0.0f);
+
 
 	XMFLOAT3 texMat = { 0.0f,0.0f,0.0f };
 	bool							m_bActive = false;
@@ -198,56 +193,24 @@ public:
 
 class CGameObject
 {
-private:
-	int								m_nReferences = 0;
-
-public:
-	void AddRef();
-	void Release();
-
 public:
 	CGameObject();
 	CGameObject(int nMeshes, int nMaterials);
 	virtual ~CGameObject();
 
 public:
-	//22.11.07
-	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
-	void SetCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr)
-	{
+	void AddRef();
+	void Release();
+
+
+	void SetCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr){
 		m_d3dCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr;
 	}
 
-	void SetLookAt(XMFLOAT3& xmf3Target,
-		XMFLOAT3& xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f));
-	//======================================================
+	void SetLookAt(XMFLOAT3& xmf3Target,XMFLOAT3& xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f));
 
-	//22.12.06
 	D3D12_GPU_DESCRIPTOR_HANDLE getGPUDescriptorHandle() { return m_d3dCbvGPUDescriptorHandle; }
 	void SetCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
-	//
-
-
-	char							m_pstrFrameName[64];
-
-	int								m_nMeshes = 0;
-	CMesh** m_ppMeshes = NULL;
-
-	int								m_nMaterials = 0;
-	CMaterial** m_ppMaterials = NULL;
-
-
-
-	//22.11.16
-	ID3D12Resource* m_pd3dcbGameObject = NULL;
-	//
-
-	XMFLOAT4X4						m_xmf4x4Transform;
-	XMFLOAT4X4						m_xmf4x4World;
-
-	CGameObject* m_pParent = NULL;
-	CGameObject* m_pChild = NULL;
-	CGameObject* m_pSibling = NULL;
 
 	virtual void SetMesh(int nIndex, CMesh* pMesh);
 	void SetShader(int nMaterial, CShader* pShader);
@@ -298,24 +261,42 @@ public:
 
 	UINT GetMeshType(UINT nIndex) { return((m_ppMeshes[nIndex]) ? m_ppMeshes[nIndex]->GetType() : 0x00); }
 
-public:
+
 	void LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CGameObject* pParent, FILE* pInFile, CShader* pShader);
 
 	static CGameObject* LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CGameObject* pParent, FILE* pInFile, CShader* pShader);
 	static CGameObject* LoadGeometryFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, CShader* pShader);
 
 	static void PrintFrameInfo(CGameObject* pGameObject, CGameObject* pParent);
+	void	Boundingbox_Transform();
 
-	////22.11.09
-	//CMaterial* m_pMaterial = NULL;
-	////
-
-	////22.11.15
-	//CMesh** m_pMeshes = NULL;
-	//int								nMeshes = 0;
+private:
+	int								m_nReferences = 0;
+public:
 	CB_GAMEOBJECT_INFO* m_pcbMappedGameObject = NULL;
 	CB_GRASSOBJECT_INFO* grassObj = NULL;
-	//
+	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
+	BoundingBox aabb;
+
+	char							m_pstrFrameName[64];
+
+	int								m_nMeshes = 0;
+	CMesh** m_ppMeshes = nullptr;
+
+	int								m_nMaterials = 0;
+	CMaterial** m_ppMaterials = NULL;
+
+
+	ID3D12Resource* m_pd3dcbGameObject = NULL;
+
+
+	XMFLOAT4X4						m_xmf4x4Transform;
+	XMFLOAT4X4						m_xmf4x4World;
+
+	CGameObject* m_pParent = NULL;
+	CGameObject* m_pChild = NULL;
+	CGameObject* m_pSibling = NULL;
+
 };
 
 
@@ -378,7 +359,7 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
 };
 
-//22.11.07
+
 class CGrassObject : public CGameObject
 {
 public:
@@ -390,10 +371,7 @@ public:
 	float m_fRotationAngle = 0.0f;
 	float m_fRotationDelta = 1.0f;
 
-	//22.11.09
-	//void SetMaterial(CMaterial* pMaterial);
-	//void SetMaterial(int nMaterial, CMaterial* pMaterial);
-	//
+
 };
 //===================================================
 
@@ -425,7 +403,6 @@ public:
 	float GetLength() { return(m_nLength * m_xmf3Scale.z); }
 };
 
-////22.11.09
 class CMultiSpriteObject : public CGameObject
 {
 public:
@@ -437,6 +414,6 @@ public:
 
 	virtual void Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent = NULL);
 };
-////
+
 
 

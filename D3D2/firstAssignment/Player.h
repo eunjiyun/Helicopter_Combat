@@ -13,7 +13,7 @@
 class CPlayer : public CGameObject
 {
 protected:
-	XMFLOAT3					m_xmf3Position;
+	
 	XMFLOAT3					m_xmf3Right;
 	XMFLOAT3					m_xmf3Up;
 	XMFLOAT3					m_xmf3Look;
@@ -34,7 +34,11 @@ protected:
 	CCamera* m_pCamera = NULL;
 
 	CShader* m_pShader = NULL;
-
+public:
+	XMFLOAT3 MagicPos = { 5000, 5000, 5000 };
+	BoundingBox aabb;
+	XMFLOAT3					m_xmf3Position;
+	bool attack = false;
 public:
 	CPlayer();
 	virtual ~CPlayer();
@@ -81,7 +85,7 @@ public:
 	virtual CCamera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed) { return(NULL); }
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
-	//void Render2(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
+
 
 };
 

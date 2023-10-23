@@ -87,8 +87,7 @@ public:
 	ID3D12Resource* m_pd3dcbLights = NULL;
 	LIGHTS* m_pcbMappedLights = NULL;
 
-	//22.11.15
 	CShader** m_pShaders = NULL;
 	int							nShaders = 0;
-	//
+
 };

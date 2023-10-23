@@ -76,10 +76,9 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 
-	//22.11.09
-	//빌보드랑 스프라이트 추가해야해서 개수를 3개로 늘립니다. //x
+	
 	m_nShaders = 2;
-	//
+
 	m_ppShaders = new CShader * [m_nShaders];
 
 	pObjectsShader = new CObjectsShader();
@@ -87,6 +86,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, NULL);
 
 	m_ppShaders[0] = pObjectsShader;
+
 
 	pMultiSpriteObjectShader = new CMultiSpriteObjectsShader();
 	//CBillboardObjectsShader* pMultiSpriteObjectShader = new CBillboardObjectsShader();
@@ -388,32 +388,32 @@ bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 		switch (wParam)
 		{
 		case VK_UP: 
-			//m_ppGameObjects[0]->MoveForward(+1.0f); 
+
 			for(int i{};i< pObjectsShader->m_nObjects;++i)
 				pObjectsShader->m_ppObjects[i]->MoveForward(+1.0f);
 			break;
 		case VK_DOWN: 
-			//m_ppGameObjects[0]->MoveForward(-1.0f); 
+
 			for (int i{}; i < pObjectsShader->m_nObjects; ++i)
 			pObjectsShader->m_ppObjects[i]->MoveForward(-1.0f);
 			break;
 		case VK_LEFT: 
-			//m_ppGameObjects[0]->MoveStrafe(-1.0f); 
+ 
 			for (int i{}; i < pObjectsShader->m_nObjects; ++i)
 			pObjectsShader->m_ppObjects[i]->MoveStrafe(-1.0f);
 			break;
 		case VK_RIGHT: 
-			//m_ppGameObjects[0]->MoveStrafe(+1.0f); 
+ 
 			for (int i{}; i < pObjectsShader->m_nObjects; ++i)
 			pObjectsShader->m_ppObjects[i]->MoveStrafe(+1.0f);
 			break;
 		case VK_RETURN:
-			//m_ppGameObjects[0]->MoveUp(+1.0f); 
+
 			for (int i{}; i < pObjectsShader->m_nObjects; ++i)
 			pObjectsShader->m_ppObjects[i]->MoveUp(+1.0f);
 			break;
 		case 0x10://SHIFT
-			//m_ppGameObjects[0]->MoveUp(-1.0f); 
+
 			for (int i{}; i < pObjectsShader->m_nObjects; ++i)
 			pObjectsShader->m_ppObjects[i]->MoveUp(-1.0f);
 			break;
@@ -452,9 +452,33 @@ void CScene::AnimateObjects(float fTimeElapsed)
 		m_pLights[1].m_xmf3Direction = m_pPlayer->GetLookVector();
 	}
 
-	//22.11.15
+
 	m_pShaders[0]->AnimateObjects(fTimeElapsed);
-	//
+
+	if (m_pPlayer->attack)
+	{
+		XMFLOAT3 Cur_LookVector = m_pPlayer->GetLookVector();
+		XMFLOAT3 Cur_Pos = m_pPlayer->GetPosition();
+
+		XMVECTOR Bullet_Origin = XMLoadFloat3(&Cur_Pos);
+		XMVECTOR Bullet_Direction = XMLoadFloat3(&Cur_LookVector);
+
+		for (int i{}; i < pObjectsShader->m_nObjects; ++i)
+		{
+			float bullet_monster_distance = Vector3::Length(Vector3::Subtract(pObjectsShader->m_ppObjects[i]->aabb.Center, Cur_Pos));
+			if (pObjectsShader->m_ppObjects[i]->aabb.Intersects(Bullet_Origin, Bullet_Direction, bullet_monster_distance))
+			{
+				//monstersInRange.push_back(monster);
+				cout <<i<< "명중" << endl;
+				m_pPlayer->attack = false;
+			}
+		}
+
+		/*XMFLOAT3 distanceVector = Vector3::Subtract(targetPlayer->GetPosition(), Pos);
+		MagicPos = Vector3::Add(GetPosition(), XMFLOAT3(0, 10, 0));
+		MagicLook = Vector3::Normalize(distanceVector);*/
+	}
+
 }
 
 void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
@@ -469,7 +493,7 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
 
-	//22.12.06
+	
 	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
 	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
 	//
@@ -480,19 +504,14 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 
 
 
-	/*if (m_ppShaders[0]->m_ppd3dPipelineStates)
-		pd3dCommandList->SetPipelineState(m_ppShaders[0]->m_ppd3dPipelineStates[0]);*/
 
-		/*for(int i{};i< m_ppShaders[0]->m_nObjects;++i)
-				m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, pCamera);*/
 
 
 	m_pShaders[0]->Render(pd3dCommandList, pCamera);//풀
 	m_ppShaders[1]->Render(pd3dCommandList, pCamera);//불꽃
+
 	pObjectsShader->Render(pd3dCommandList, pCamera);//헬기
 
 
-
-	//
 }
 

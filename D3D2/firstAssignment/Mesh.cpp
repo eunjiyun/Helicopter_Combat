@@ -11,13 +11,11 @@ CMesh::CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandLis
 
 CMesh::~CMesh()
 {
-	//22.12.06
 	/*if (m_pd3dPositionBuffer)
 		m_pd3dPositionBuffer->Release();*/
 
 	if (m_pd3dVertexBuffer)
 		m_pd3dVertexBuffer->Release();
-	//
 
 	if (m_nSubMeshes > 0)
 	{
@@ -55,17 +53,13 @@ void CMesh::ReleaseUploadBuffers()
 void CMesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet)
 {
 	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
-	//22.11.15
-	//pd3dCommandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dPositionBufferView);
 	pd3dCommandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dVertexBufferView);
-	//
 
 	if ((m_nSubMeshes > 0) && (nSubSet < m_nSubMeshes))//스카이 박스가 사용
 	{
 		pd3dCommandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
 		pd3dCommandList->DrawIndexedInstanced(m_pnSubSetIndices[nSubSet], 1, 0, 0, 0);
 	}
-	////22.11.15
 	//else if (m_pd3dIndexBuffer)//스카이박스가 사용
 	//{
 	//	//pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
@@ -74,7 +68,6 @@ void CMesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet)
 	//	pd3dCommandList->IASetIndexBuffer(&m_d3dIndexBufferView);
 	//	pd3dCommandList->DrawIndexedInstanced(m_nIndices, 1, 0, 0, 0);
 	//}
-	////
 	else
 	{
 		pd3dCommandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
@@ -971,10 +964,8 @@ void CHeightMapGridMesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, int 
 {
 	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
 
-	//22.11.15
-	//D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[4] = { m_d3dPositionBufferView, m_d3dColorBufferView, m_d3dTextureCoord0BufferView, m_d3dTextureCoord1BufferView };
 	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[4] = { m_d3dVertexBufferView, m_d3dColorBufferView, m_d3dTextureCoord0BufferView, m_d3dTextureCoord1BufferView };
-	//
+
 	pd3dCommandList->IASetVertexBuffers(m_nSlot, 4, pVertexBufferViews);
 
 	if ((m_nSubMeshes > 0) && (nSubSet < m_nSubMeshes))

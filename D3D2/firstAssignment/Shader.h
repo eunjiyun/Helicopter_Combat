@@ -35,16 +35,16 @@ protected:
 	D3D12_GPU_DESCRIPTOR_HANDLE			m_d3dSrvGPUDescriptorNextHandle;
 
 public:
-	//22.11.17
+
 	int									m_nPipelineStates = 0;
 	ID3D12PipelineState** m_ppd3dPipelineStates = NULL;
-	//
+
 	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;
 
-	//22.11.07
+
 	bool							m_bActive = true;
 
-	//
+
 
 	void AddRef() { m_nReferences++; }
 	void Release() { if (--m_nReferences <= 0) delete this; }
@@ -63,10 +63,10 @@ public:
 	D3D12_SHADER_BYTECODE ReadCompiledShaderFromFile(WCHAR* pszFileName, ID3DBlob** ppd3dShaderBlob = NULL);
 
 	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	//22.12.06
+
 
 	D3D12_GPU_DESCRIPTOR_HANDLE m_d3dCbvGPUDescriptorHandle;
-	//
+
 
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) { }
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList) { }
@@ -76,20 +76,18 @@ public:
 
 	virtual void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState = 0);
 
-	//22.11.16
-	//virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState=0);
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera/*, int nPipelineState=0*/);
-	//
+
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
+
 
 
 	CGameObject** m_ppObjects = 0;
 	int								m_nObjects = 0;
 	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
-	//
 
-	//22.11.16
+
 	ID3D12GraphicsCommandList* pd3dCommandList;
-	//
+
 
 	virtual void ReleaseUploadBuffers() { }
 
@@ -139,12 +137,10 @@ public:
 
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
 
-	//22.11.18
+
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
-	/*virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);*/
-	//
+
 
 	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 };
@@ -166,29 +162,15 @@ public:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
 };
-//
 
-//22.11.09
+
+
 class CObjectsShader : public CStandardShader
-	//class CObjectsShader : public CTexturedShader
-	//
 {
 public:
-
-	//22.11.07
-	ID3D12Resource* m_pd3dcbGameObjects = NULL;
-	ID3D12Resource* grassObj = NULL;
-	//
-
-	//22.11.09
-	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
-	CB_GRASSOBJECT_INFO* grassMappedObj = NULL;
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	//
 
-	//22.11.15
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
-	//
 
 	CObjectsShader();
 	virtual ~CObjectsShader();
@@ -201,16 +183,19 @@ public:
 
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState = 0);
 
+
+public:
 	CGameObject** m_ppObjects = 0;
 	int								m_nObjects = 0;
+	ID3D12Resource* m_pd3dcbGameObjects = NULL;
+	ID3D12Resource* grassObj = NULL;
+
+	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
+	CB_GRASSOBJECT_INFO* grassMappedObj = NULL;
+	
 };
 
-
-
-
-
-//22.11.07
-class CBillboardObjectsShader : public CObjectsShader//22.11.18
+class CBillboardObjectsShader : public CObjectsShader
 {
 public:
 	CBillboardObjectsShader();
@@ -280,10 +265,8 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-//22.11.09
-//class CTerrainShader : public CShader
+
 class CTerrainShader : public CTexturedShader
-	//
 {
 public:
 	CTerrainShader();

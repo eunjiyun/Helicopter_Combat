@@ -7,11 +7,7 @@
 #include "Shader.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//22.11.09
-//CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootParameters)
 CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootParameters, int nRows, int nCols)
-//
 {
 	m_nTextureType = nTextureType;
 
@@ -39,44 +35,6 @@ CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootPar
 	m_nSamplers = nSamplers;
 	if (m_nSamplers > 0) m_pd3dSamplerGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nSamplers];
 }
-
-//22.11.09
-//CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootParameters, int nRows, int nCols)
-//{
-//	m_nTextureType = nTextureType;
-//
-//	m_nTextures = nTextures;
-//	if (m_nTextures > 0)
-//	{
-//		m_ppd3dTextures = new ID3D12Resource * [m_nTextures];
-//		for (int i = 0; i < m_nTextures; i++) m_ppd3dTextures[i] = NULL;
-//		m_ppd3dTextureUploadBuffers = new ID3D12Resource * [m_nTextures];
-//		for (int i = 0; i < m_nTextures; i++) m_ppd3dTextureUploadBuffers[i] = NULL;
-//		m_pd3dSrvGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nTextures];
-//		for (int i = 0; i < m_nTextures; i++) m_pd3dSrvGpuDescriptorHandles[i].ptr = NULL;
-//
-//		m_pnResourceTypes = new UINT[m_nTextures];
-//		for (int i = 0; i < m_nTextures; i++) m_pnResourceTypes[i] = -1;
-//
-//		m_pdxgiBufferFormats = new DXGI_FORMAT[m_nTextures];
-//		for (int i = 0; i < m_nTextures; i++) m_pnResourceTypes[i] = DXGI_FORMAT_UNKNOWN;
-//		m_pnBufferElements = new int[m_nTextures];
-//		for (int i = 0; i < m_nTextures; i++) m_pnBufferElements[i] = 0;
-//	}
-//	m_nRootParameters = nRootParameters;
-//	if (nRootParameters > 0) m_pnRootParameterIndices = new int[nRootParameters];
-//	for (int i = 0; i < m_nRootParameters; i++) m_pnRootParameterIndices[i] = -1;
-//
-//	m_nSamplers = nSamplers;
-//	if (m_nSamplers > 0) m_pd3dSamplerGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nSamplers];
-//
-//	m_nRows = nRows;
-//	m_nCols = nCols;
-//
-//	m_xmf4x4Texture = Matrix4x4::Identity();
-//}
-
-//
 
 CTexture::~CTexture()
 {
@@ -119,21 +77,14 @@ void CTexture::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	if (m_nRootParameters == m_nTextures)
 	{
-		if (12 == m_pnRootParameterIndices[0])
-		{
-			//pd3dCommandList->SetGraphicsRoot32BitConstants(12, 3, &texMat, 1);//조명 관련
-			//if (m_pd3dSrvGpuDescriptorHandles[0].ptr && (m_pnRootParameterIndices[0] != -1))
-				pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[0], m_pd3dSrvGpuDescriptorHandles[0]);
-		}
-		else
-		{
-			for (int i = 0; i < m_nRootParameters; i++)
-			{
 
-				if (m_pd3dSrvGpuDescriptorHandles[i].ptr && (m_pnRootParameterIndices[i] != -1))
-					pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[i], m_pd3dSrvGpuDescriptorHandles[i]);
-			}
+		for (int i = 0; i < m_nRootParameters; i++)
+		{
+
+			if (m_pd3dSrvGpuDescriptorHandles[i].ptr && (m_pnRootParameterIndices[i] != -1))
+				pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[i], m_pd3dSrvGpuDescriptorHandles[i]);
 		}
+
 	}
 	else
 	{
@@ -335,7 +286,7 @@ void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AmbientColor, 16);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AlbedoColor, 20);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4SpecularColor, 24);
-	
+
 
 	//if (m_xmf4AmbientColor.x == 0 && m_xmf4AmbientColor.y == 0 && m_xmf4AmbientColor.z == 0)
 		//cout << "m_xmf4AmbientColor" << endl;
@@ -490,6 +441,7 @@ void CGameObject::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
 {
 	if (m_pSibling) m_pSibling->Animate(fTimeElapsed, pxmf4x4Parent);
 	if (m_pChild) m_pChild->Animate(fTimeElapsed, &m_xmf4x4World);
+	aabb = BoundingBox(XMFLOAT3(GetPosition().x, GetPosition().y, GetPosition().z), XMFLOAT3(5, 10, 5));
 }
 
 CGameObject* CGameObject::FindFrame(char* pstrFrameName)
@@ -553,7 +505,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 
 			//if (m_pcbMappedGameObject)
 				//XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_ppMaterials[0]->m_pTexture->m_xmf4x4Texture)));
-			
+
 		}
 	}
 	////
@@ -608,6 +560,7 @@ void CGameObject::Render2(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 
 	UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
 
+
 	/*if (m_nMaterials > 1)
 	{
 		for (int i = 0; i < m_nMaterials; i++)
@@ -638,7 +591,10 @@ void CGameObject::Render2(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 		for (int i = 0; i < m_nMeshes; i++)
 		{
 			if (m_ppMeshes[i])
+			{
 				m_ppMeshes[i]->Render(pd3dCommandList, 0);
+				Boundingbox_Transform();
+			}
 		}
 	}
 	//}
@@ -875,7 +831,6 @@ int CGameObject::FindReplicatedTexture(_TCHAR* pstrTextureName, D3D12_GPU_DESCRI
 	return(nParameterIndex);
 }
 
-//1019
 void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CGameObject* pParent, FILE* pInFile, CShader* pShader)
 {
 	char pstrToken[64] = { '\0' };
@@ -1074,14 +1029,11 @@ void CGameObject::PrintFrameInfo(CGameObject* pGameObject, CGameObject* pParent)
 CGameObject* CGameObject::LoadGeometryFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
 	ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, CShader* pShader)
 {
-	//22.11.09
-	//문자열을 파일로
 	FILE* pInFile = NULL;
 	::fopen_s(&pInFile, pstrFileName, "rb");
 	::rewind(pInFile);
 
 	CGameObject* pGameObject = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInFile, pShader);
-	//
 
 #ifdef _WITH_DEBUG_FRAME_HIERARCHY
 	TCHAR pstrDebug[256] = { 0 };
@@ -1093,7 +1045,17 @@ CGameObject* CGameObject::LoadGeometryFromFile(ID3D12Device* pd3dDevice, ID3D12G
 
 	return(pGameObject);
 }
-
+void CGameObject::Boundingbox_Transform()
+{
+	if (m_ppMeshes[0])
+	{
+		m_ppMeshes[0]->m_xmBoundingBox.Transform(aabb, XMLoadFloat4x4(&m_xmf4x4World));
+		m_ppMeshes[0]->OBBox.Extents.x = sqrtf(m_ppMeshes[0]->OBBox.Extents.x * m_ppMeshes[0]->OBBox.Extents.x);
+		m_ppMeshes[0]->OBBox.Extents.y = sqrtf(m_ppMeshes[0]->OBBox.Extents.y * m_ppMeshes[0]->OBBox.Extents.y);
+		m_ppMeshes[0]->OBBox.Extents.z = sqrtf(m_ppMeshes[0]->OBBox.Extents.z * m_ppMeshes[0]->OBBox.Extents.z);
+		m_ppMeshes[0]->OBBox.Transform(m_ppMeshes[0]->OBBox, XMLoadFloat4x4(&m_xmf4x4World));
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
@@ -1129,8 +1091,7 @@ void CSkyBox::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamer
 
 	CGameObject::Render(pd3dCommandList, pCamera);
 }
-
-//22.11.07
+//=======================================================================================
 CGrassObject::CGrassObject()
 {
 }
@@ -1315,7 +1276,7 @@ CHeightMapTerrain::~CHeightMapTerrain(void)
 	if (m_pHeightMapImage) delete m_pHeightMapImage;
 }
 
-////22.11.09
+
 CMultiSpriteObject::CMultiSpriteObject()
 {
 }
@@ -1333,6 +1294,6 @@ void CMultiSpriteObject::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
 		m_ppMaterials[0]->m_pTexture->AnimateRowColumn(m_fTime);
 	}
 }
-////
+
 
 

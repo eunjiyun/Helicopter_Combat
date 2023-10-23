@@ -296,6 +296,9 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	case WM_RBUTTONDOWN:
 		
 		m_pScene->pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
+		m_pPlayer->attack = true;
+
+		
 
 		break;
 
@@ -303,7 +306,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		::ReleaseCapture();
 		break;
 	case WM_RBUTTONUP:
-		
+		m_pPlayer->attack = false;
 		break;
 	case WM_MOUSEMOVE:
 		break;
@@ -425,6 +428,7 @@ void CGameFramework::BuildObjects()
 	CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
 	pAirplanePlayer->SetPosition(XMFLOAT3(920.0f, 745.0f, 1270.0));
 	m_pScene->m_pPlayer = m_pPlayer = pAirplanePlayer;
+
 	m_pCamera = m_pPlayer->GetCamera();
 
 	m_pd3dCommandList->Close();

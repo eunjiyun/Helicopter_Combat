@@ -53,10 +53,9 @@ protected:
 
 	XMFLOAT3* m_pxmf3Positions = NULL;
 
-	//22.11.15
-	//포지션버퍼는 이거?
+
 	ID3D12Resource* m_pd3dPositionBuffer = NULL;
-	//
+
 
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dPositionBufferView;
 
@@ -64,34 +63,34 @@ protected:
 	int* m_pnSubSetIndices = NULL;
 	UINT** m_ppnSubSetIndices = NULL;
 
-	//22.11.15
-	//인덱스버퍼는 이거?
+
 	ID3D12Resource** m_ppd3dSubSetIndexBuffers = NULL;
-	//
+
 	ID3D12Resource** m_ppd3dSubSetIndexUploadBuffers = NULL;
 	D3D12_INDEX_BUFFER_VIEW* m_pd3dSubSetIndexBufferViews = NULL;
 
-	//22.11.15
-	//인덱스 버퍼는 이거?
+
 	ID3D12Resource* m_pd3dIndexBuffer = NULL;
-	//22.12.06
+
 	ID3D12Resource* m_pd3dVertexBuffer = NULL;
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dVertexBufferView;
 	ID3D12Resource* m_pd3dVertexUploadBuffer = NULL;
-	//
+
 	D3D12_INDEX_BUFFER_VIEW			m_d3dIndexBufferView;
 	UINT							m_nIndices = 0;
-	//
 
-	//22.12.06
 	UINT							m_nStride = 0;
-	//
+
 
 public:
 	UINT GetType() { return(m_nType); }
 
 	virtual void ReleaseUploadBuffers();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet);
+
+public:
+	BoundingBox						m_xmBoundingBox;
+	BoundingOrientedBox				OBBox;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -111,10 +110,7 @@ public:
 	CTexturedRectMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth = 20.0f, float fHeight = 20.0f, float fDepth = 20.0f,
 		float fxPosition = 0.0f, float fyPosition = 0.0f, float fzPosition = 0.0f);
 
-	////22.12.06
-	//CTexturedRectMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth = 20.0f, float fHeight = 20.0f, float fDepth = 20.0f,
-	//	float fxPosition = 0.0f, float fyPosition = 0.0f, float fzPosition = 0.0f);
-	////
+
 
 	virtual ~CTexturedRectMesh();
 
@@ -258,7 +254,7 @@ public:
 	virtual XMFLOAT4 OnGetColor(int x, int z, void* pContext);
 };
 
-//22.12.06
+
 class CVertex
 {
 public:
@@ -280,4 +276,3 @@ public:
 	CTexturedVertex(XMFLOAT3 xmf3Position, XMFLOAT2 xmf2TexCoord = XMFLOAT2(0.0f, 0.0f)) { m_xmf3Position = xmf3Position; m_xmf2TexCoord = xmf2TexCoord; }
 	~CTexturedVertex() { }
 };
-//
