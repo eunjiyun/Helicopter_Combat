@@ -470,6 +470,8 @@ void CScene::AnimateObjects(float fTimeElapsed)
 			{
 				//monstersInRange.push_back(monster);
 				cout <<i<< "ИэСп" << endl;
+				pMultiSpriteObjectShader->hit = pObjectsShader->m_ppObjects[i]->GetPosition();
+				pMultiSpriteObjectShader->act = true;
 				m_pPlayer->attack = false;
 			}
 		}

@@ -962,7 +962,7 @@ void CBillboardObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList,
 		if (m_ppObjects[j]) m_ppObjects[j]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 	}
 
-	
+
 
 	if (m_ppd3dPipelineStates) pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
@@ -1086,7 +1086,7 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 	ppSpriteMaterials[4] = new CMaterial();
 	ppSpriteMaterials[4]->SetTexture(ppSpriteTextures[4]);
 
-	
+
 	CTexturedRectMesh* pSpriteMesh = nullptr;
 
 	m_nObjects = 5;
@@ -1107,23 +1107,26 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 
 	XMFLOAT3 xmf3Position = XMFLOAT3(1030.0f, 180.0f, 1410.0f);
 	CMultiSpriteObject* pSpriteObject = NULL;
-	for (int j{}; j <m_nObjects; ++j)
+	for (int j{}; j < m_nObjects; ++j)
 	{
 		pSpriteObject = new CMultiSpriteObject();
 
-		if(0==j||1==j)
+		if (0 == j || 1 == j)
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 		else
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 50.0f, 50.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
 		pSpriteObject->SetMesh(0, pSpriteMesh);
 		pSpriteObject->SetMaterial(0, ppSpriteMaterials[j]);
+
+
 		pSpriteObject->SetPosition(XMFLOAT3(xmf3Position.x, xmf3Position.y, xmf3Position.z));
+
 		pSpriteObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * j));
 
 		if (0 == j)
 			pSpriteObject->m_ppMaterials[0]->m_pTexture->texMat.z = 8;
-		else if(1==j)
+		else if (1 == j)
 			pSpriteObject->m_ppMaterials[0]->m_pTexture->texMat.z = 6;
 		else
 			pSpriteObject->m_ppMaterials[0]->m_pTexture->texMat.z = 1;
@@ -1150,7 +1153,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 {
 
 
-	if ( m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive)
+	if (m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive)
 	{
 		XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
 		CPlayer* pPlayer = pCamera->GetPlayer();
@@ -1158,13 +1161,37 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 		XMFLOAT3 xmf3PlayerLook = pPlayer->GetLookVector();
 		xmf3PlayerPosition.y += 5.0f;
 		XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
+		XMFLOAT3 xmf3MonPos, xmf3MonLook;
 
 		for (int j{}; j < m_nObjects; ++j)
 		{
 			if (m_ppObjects[j])
 			{
-				m_ppObjects[j]->SetPosition(xmf3Position);
-				m_ppObjects[j]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+				if (0 == j || 1 == j)
+				{
+					m_ppObjects[j]->SetPosition(xmf3Position);
+					m_ppObjects[j]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+
+				}
+				else if (2 == j)
+				{
+					xmf3MonPos = hit;
+					//xmf3MonLook = hit->GetLook();
+					//xmf3MonPos.y += 50.0f;
+
+				/*	xmf3MonPos.x = (xmf3MonPos.x + 1.f * xmf3PlayerPosition.x) / 2;
+					xmf3MonPos.y = (xmf3MonPos.y + 1.f * xmf3PlayerPosition.y) / 2;
+					xmf3MonPos.z = (xmf3MonPos.z + 1.f * xmf3PlayerPosition.z) / 2;*/
+
+					xmf3Position = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
+					//xmf3PlayerPosition = hitPos;
+					//xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
+					m_ppObjects[j]->SetPosition(xmf3Position);
+					m_ppObjects[j]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+					//m_ppObjects[j]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+				}
+
+
 			}
 		}
 
@@ -1190,11 +1217,13 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			}
 		}
 	}
+	else
+		hit = XMFLOAT3(0, 0, 0);
 }
 
 
 
-void CTexture::AnimateRowColumn( float fTime)
+void CTexture::AnimateRowColumn(float fTime)
 {
 
 	texMat.x = float(m_nRow) / texMat.z;//°¡·Î
