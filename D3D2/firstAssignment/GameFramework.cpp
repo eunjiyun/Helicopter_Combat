@@ -286,6 +286,10 @@ void CGameFramework::ChangeSwapChainState()
 
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
+	random_device rd;
+	mt19937 gen(rd());
+	uniform_int_distribution<> dist(3, 5);
+
 	if (m_pScene) m_pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 	switch (nMessageID)
 	{
@@ -297,7 +301,10 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		
 		m_pScene->pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
 		m_pPlayer->attack = true;
+		
 
+		m_pScene->pMultiSpriteObjectShader->score = dist(gen);
+		cout << m_pScene->pMultiSpriteObjectShader->score << endl;
 		
 
 		break;

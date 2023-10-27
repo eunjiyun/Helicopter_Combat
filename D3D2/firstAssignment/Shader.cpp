@@ -749,9 +749,7 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 {
 	CTexture* ppGrassTextures[2];
 	ppGrassTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	//22.12.06
-	//LoadTextureFromDDSFile
-	//LoadTextureFromFile2
+
 	ppGrassTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Grass01.dds", RESOURCE_TEXTURE2D, 0);//grass01
 	ppGrassTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
 	ppGrassTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Grass02.dds", RESOURCE_TEXTURE2D, 0);
@@ -769,7 +767,6 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 	ppTreeTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Tree02.dds", RESOURCE_TEXTURE2D, 0);
 	ppTreeTextures[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
 	ppTreeTextures[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Tree03.dds", RESOURCE_TEXTURE2D, 0);
-	//
 
 	CMaterial* ppGrassMaterials[2];
 	ppGrassMaterials[0] = new CMaterial();
@@ -1058,7 +1055,7 @@ void CMultiSpriteObjectsShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12Gra
 
 void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)
 {
-	CTexture* ppSpriteTextures[5];
+
 	ppSpriteTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1, 8, 8);
 	ppSpriteTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Explode_8x8.dds", RESOURCE_TEXTURE2D, 0);//Explode_8x8
 	ppSpriteTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1, 6, 6);
@@ -1073,7 +1070,10 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 	ppSpriteTextures[4] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
 	ppSpriteTextures[4]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/c.dds", RESOURCE_TEXTURE2D, 0);//Explosion_6x6
 
-	CMaterial* ppSpriteMaterials[5];
+	ppSpriteTextures[5] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	ppSpriteTextures[5]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/a.dds", RESOURCE_TEXTURE2D, 0);//Explosion_6x6
+
+	CMaterial* ppSpriteMaterials[6];
 	ppSpriteMaterials[0] = new CMaterial();
 	ppSpriteMaterials[0]->SetTexture(ppSpriteTextures[0]);
 	ppSpriteMaterials[1] = new CMaterial();
@@ -1085,15 +1085,17 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 	ppSpriteMaterials[3]->SetTexture(ppSpriteTextures[3]);
 	ppSpriteMaterials[4] = new CMaterial();
 	ppSpriteMaterials[4]->SetTexture(ppSpriteTextures[4]);
+	ppSpriteMaterials[5] = new CMaterial();
+	ppSpriteMaterials[5]->SetTexture(ppSpriteTextures[5]);
 
 
 	CTexturedRectMesh* pSpriteMesh = nullptr;
 
-	m_nObjects = 5;
+	m_nObjects = 6;
 
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, m_nObjects, 5);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, m_nObjects, 6);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateConstantBufferViews(pd3dDevice, m_nObjects, m_pd3dcbGameObjects, ncbElementBytes);
 	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[0], 0, 12);
@@ -1101,6 +1103,7 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[2], 0, 12);
 	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[3], 0, 12);
 	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[4], 0, 12);
+	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[5], 0, 12);
 
 
 	m_ppObjects = new CGameObject * [m_nObjects];
@@ -1163,6 +1166,8 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 		XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
 		XMFLOAT3 xmf3MonPos, xmf3MonLook;
 
+	
+
 		for (int j{}; j < m_nObjects; ++j)
 		{
 			if (m_ppObjects[j])
@@ -1189,6 +1194,13 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 					m_ppObjects[j]->SetPosition(xmf3Position);
 					m_ppObjects[j]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 					//m_ppObjects[j]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+
+					//if(2!=score)
+						//m_ppObjects[j]->m_ppMaterials[0]->m_pTexture = m_ppObjects[score]->m_ppMaterials[0]->m_pTexture;
+
+					//m_ppObjects[j]->m_ppMaterials[0]->SetTexture(m_ppObjects[score]->m_ppMaterials[0]->m_pTexture);
+					m_ppObjects[j]->m_ppMaterials[0]->SetTexture(ppSpriteTextures[score]);
+
 				}
 
 

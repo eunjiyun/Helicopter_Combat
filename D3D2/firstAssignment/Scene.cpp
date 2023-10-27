@@ -444,7 +444,10 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	m_ppShaders[0]->AnimateObjects(fTimeElapsed);
 
 	if (pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive)
+	{
 		pMultiSpriteObjectShader->AnimateObjects(fTimeElapsed);
+		//pMultiSpriteObjectShader->m_ppObjects[2]->m_ppMaterials[0]->SetTexture(pMultiSpriteObjectShader->ppSpriteTextures[pMultiSpriteObjectShader->score]);
+	}
 
 	if (m_pLights)
 	{
@@ -471,7 +474,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 				//monstersInRange.push_back(monster);
 				cout <<i<< "ИэСп" << endl;
 				pMultiSpriteObjectShader->hit = pObjectsShader->m_ppObjects[i]->GetPosition();
-				pMultiSpriteObjectShader->act = true;
+			
 				m_pPlayer->attack = false;
 			}
 		}

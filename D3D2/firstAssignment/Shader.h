@@ -244,7 +244,8 @@ public:
 	virtual void ReleaseUploadBuffers();
 public:
 	XMFLOAT3 hit;
-	bool act{ false };
+	int score{};
+	CTexture* ppSpriteTextures[6];
 };
 //---------------------------------------------------------------------------------------
 
