@@ -467,6 +467,25 @@ void CScene::AnimateObjects(float fTimeElapsed)
 
 
 
+	random_device rd;
+	mt19937 gen(rd());
+	uniform_int_distribution<> dist(1, 6);
+
+	for (const auto& o : pObjectsShader->obj)
+	{
+		if (1 == dist(gen))
+			o->MoveForward(+1.0f);//forward
+		else if (2 == dist(gen))
+			o->MoveForward(-1.0f);//back
+		else if (3 == dist(gen))
+			o->MoveStrafe(-1.0f);//left
+		else if (4 == dist(gen))
+			o->MoveStrafe(+1.0f);//right
+		else if (5 == dist(gen))
+			o->MoveUp(+1.0f);//up
+		else if (6 == dist(gen))
+			o->MoveUp(-1.0f);//down
+	}
 
 	if (m_pPlayer->attack)
 	{
@@ -478,6 +497,8 @@ void CScene::AnimateObjects(float fTimeElapsed)
 
 		for (int i{}; i < pObjectsShader->m_nObjects; ++i)
 		{
+			
+
 			float bullet_monster_distance = Vector3::Length(Vector3::Subtract(pObjectsShader->obj[i]->aabb.Center, Cur_Pos));
 			if (pObjectsShader->obj[i]->aabb.Intersects(Bullet_Origin, Bullet_Direction, bullet_monster_distance))
 			{
@@ -487,6 +508,10 @@ void CScene::AnimateObjects(float fTimeElapsed)
 				pObjectsShader->obj.erase(pObjectsShader->obj.begin() + i);
 
 				m_pPlayer->attack = false;
+
+				
+
+
 			}
 		}
 

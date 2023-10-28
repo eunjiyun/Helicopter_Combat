@@ -556,10 +556,10 @@ void CGameObject::ReleaseShaderVariables()
 
 void CGameObject::ReleaseUploadBuffers()
 {
-	for (int i = 0; i < m_nMeshes; i++)
+	/*for (int i = 0; i < m_nMeshes; i++)
 	{
 		if (m_ppMeshes[i]) m_ppMeshes[i]->ReleaseUploadBuffers();
-	}
+	}*/
 
 	for (int i = 0; i < m_nMaterials; i++)
 	{
