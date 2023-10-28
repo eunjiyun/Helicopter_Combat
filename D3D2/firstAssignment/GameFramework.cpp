@@ -571,6 +571,7 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
+	UpdateShaderVariables();
 	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
 
 #ifdef _WITH_PLAYER_TOP
@@ -615,3 +616,29 @@ void CGameFramework::FrameAdvance()
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
 
+void CGameFramework::UpdateShaderVariables()
+{
+	float fCurrentTime = m_GameTimer.GetTotalTime();
+	float fElapsedTime = m_GameTimer.GetTimeElapsed();
+
+	/*pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_nType, 28);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_nType, 29);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 2, &m_nType,30);*/
+
+	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &fCurrentTime, 28);
+	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &fElapsedTime, 29);
+	m_pScene->cuT = &fCurrentTime;
+	m_pScene->elT = &fElapsedTime;
+
+	POINT ptCursorPos;
+	::GetCursorPos(&ptCursorPos);
+	::ScreenToClient(m_hWnd, &ptCursorPos);
+	float fxCursorPos = (ptCursorPos.x < 0) ? 0.0f : float(ptCursorPos.x);
+	float fyCursorPos = (ptCursorPos.y < 0) ? 0.0f : float(ptCursorPos.y);
+
+	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &fxCursorPos, 30);
+	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &fyCursorPos, 31);
+
+	m_pScene->x = &fxCursorPos;
+	m_pScene->y = &fyCursorPos;
+}

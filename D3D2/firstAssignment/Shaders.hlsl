@@ -2,10 +2,16 @@ struct MATERIAL
 {
 	float4					m_cAmbient;
 	float4					m_cDiffuse;
-	float4					m_cSpecular; //a = power
+
+
+	//float4					m_cSpecular; //a = power
 	//float4					m_cEmissive;
 	float3					texMat;
 	uint gnTexturesMask;
+
+	float 		gfCurrentTime;
+	float		gfElapsedTime;
+	float2		gf2CursorPos;
 };
 
 cbuffer cbCameraInfo : register(b1)
@@ -23,12 +29,12 @@ cbuffer cbGameObjectInfo : register(b2)
 	MATERIAL	gMaterial : packoffset(c4);
 };
 
-cbuffer cbFrameworkInfo : register(b3)
-{
-	float 		gfCurrentTime;
-	float		gfElapsedTime;
-	float2		gf2CursorPos;
-};
+//cbuffer cbFrameworkInfo : register(b3)
+//{
+//	float 		gfCurrentTime;
+//	float		gfElapsedTime;
+//	float2		gf2CursorPos;
+//};
 
 #include "Light.hlsl"
 
@@ -303,7 +309,7 @@ VS_RIPPLE_WATER_OUTPUT VSRippleWater(VS_RIPPLE_WATER_INPUT input)
 	//	input.position.y += sin(gfCurrentTime * 1.0f + (((input.position.x * input.position.x) + (input.position.z * input.position.z)) - (1000 * 1000) * 2) * 0.0001f) * 10.0f;
 
 	//	input.position.y += sin(gfCurrentTime * 1.0f + (((input.position.x * input.position.x) + (input.position.z * input.position.z))) * 0.0001f) * 10.0f;
-	input.position.y += sin(gfCurrentTime * 0.35f + input.position.x * 0.35f) * 2.95f + cos(gfCurrentTime * 0.30f + input.position.z * 0.35f) * 2.05f;
+	input.position.y += sin(gMaterial.gfCurrentTime * 0.35f + input.position.x * 0.35f) * 2.95f + cos(gMaterial.gfCurrentTime * 0.30f + input.position.z * 0.35f) * 2.05f;
 	output.position = mul(float4(input.position, 1.0f), gmtxGameObject);
 	if (155.0f < output.position.y) output.position.y = 155.0f;
 	output.position = mul(mul(output.position, gmtxView), gmtxProjection);
@@ -321,14 +327,14 @@ float4 PSRippleWater(VS_RIPPLE_WATER_OUTPUT input) : SV_TARGET
 	float2 uv = input.uv0;
 
 #ifdef _WITH_STATIC_MATRIX
-	sf3x3TextureAnimation._m21 = gfCurrentTime * 0.00125f;
+	sf3x3TextureAnimation._m21 = gMaterial.gfCurrentTime * 0.00125f;
 	uv = mul(float3(input.uv0, 1.0f), sf3x3TextureAnimation).xy;
 #else
 #ifdef _WITH_CONSTANT_BUFFER_MATRIX
 	uv = mul(float3(input.uv0, 1.0f), (float3x3)gf4x4TextureAnimation).xy;
 	//	uv = mul(float4(uv, 1.0f, 0.0f), gf4x4TextureAnimation).xy;
 #else
-	uv.y += gfCurrentTime * 0.00125f;
+	uv.y += gMaterial.gfCurrentTime * 0.00125f;
 #endif
 #endif
 	//gssWrap

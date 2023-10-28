@@ -66,7 +66,7 @@ private:
 
 	UINT							m_nTextureType;
 
-	int								m_nTextures = 0;
+	
 	_TCHAR(*m_ppstrTextureNames)[64] = NULL;
 	ID3D12Resource** m_ppd3dTextures = NULL;
 	ID3D12Resource** m_ppd3dTextureUploadBuffers;
@@ -128,6 +128,7 @@ public:
 
 	XMFLOAT3 texMat = { 0.0f,0.0f,0.0f };
 	bool							m_bActive = false;
+	int								m_nTextures = 0;
 };
 
 

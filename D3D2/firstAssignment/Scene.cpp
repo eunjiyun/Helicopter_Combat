@@ -148,7 +148,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 {
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
 
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[10];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[11];
 
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
@@ -213,9 +213,15 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dDescriptorRanges[9].RegisterSpace = 0;
 	pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+	pd3dDescriptorRanges[10].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pd3dDescriptorRanges[10].NumDescriptors = 3;
+	pd3dDescriptorRanges[10].BaseShaderRegister = 3; //t4: gtxtWaterBaseTexture, t5: gtxtWaterDetailTexture, t6: gtxtWaterDetailAlphaTexture
+	pd3dDescriptorRanges[10].RegisterSpace = 0;
+	pd3dDescriptorRanges[10].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[13];
+
+	D3D12_ROOT_PARAMETER pd3dRootParameters[14];
 	//
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -284,6 +290,11 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[12].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[12].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[9];
 	pd3dRootParameters[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	pd3dRootParameters[13].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[13].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[13].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[10];
+	pd3dRootParameters[13].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
 
@@ -500,9 +511,20 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
 
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, cuT, 28);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, elT, 29);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, x, 30);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, y, 31);
+
+	//cout << "cuT : " << *cuT << endl;
+
 	
 	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
+	
 	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
+
+	m_pTerrainWater->m_nMaterials = 1;
+	if(m_pTerrainWater)m_pTerrainWater->Render(pd3dCommandList, pCamera);
 	//
 
 	//for (int i = 0; i < m_nGameObjects; i++)//??

@@ -59,8 +59,6 @@ CTexture::~CTexture()
 
 void CTexture::SetRootParameterIndex(int nIndex, UINT nRootParameterIndex)//1016
 {
-	if (12 == nRootParameterIndex)
-		int a = 0;
 	m_pnRootParameterIndices[nIndex] = nRootParameterIndex;
 }
 
@@ -82,19 +80,31 @@ void CTexture::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 		for (int i = 0; i < m_nRootParameters; i++)
 		{
 
+		/*	if (3 == m_pnRootParameterIndices[i])
+				cout << "3번1" << endl;
+			else if(13== m_pnRootParameterIndices[i])
+				cout << "13번1" << endl;*/
 			if (m_pd3dSrvGpuDescriptorHandles[i].ptr && (m_pnRootParameterIndices[i] != -1))
 				pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[i], m_pd3dSrvGpuDescriptorHandles[i]);
 		}
 
 	}
-	else
+	else//1028
 	{
+		/*if (3 == m_pnRootParameterIndices[0])
+			cout << "3번2" << endl;
+		else if (13 == m_pnRootParameterIndices[0])
+			cout << "13번2" << endl;*/
 		if (m_pd3dSrvGpuDescriptorHandles[0].ptr) pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[0], m_pd3dSrvGpuDescriptorHandles[0]);
 	}
 }
 
 void CTexture::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, int nParameterIndex, int nTextureIndex)
 {
+	/*if (3 == m_pnRootParameterIndices[0])
+		cout << "3번3" << endl;
+	else if (13 == m_pnRootParameterIndices[0])
+		cout << "13번3" << endl;*/
 	pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[nParameterIndex], m_pd3dSrvGpuDescriptorHandles[nTextureIndex]);
 }
 
@@ -288,7 +298,7 @@ void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 {
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AmbientColor, 16);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AlbedoColor, 20);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4SpecularColor, 24);
+	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4SpecularColor, 24);
 
 
 	//if (m_xmf4AmbientColor.x == 0 && m_xmf4AmbientColor.y == 0 && m_xmf4AmbientColor.z == 0)
@@ -303,7 +313,12 @@ void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 	if (m_xmf4EmissiveColor.x == 0 && m_xmf4EmissiveColor.y == 0 && m_xmf4EmissiveColor.z == 0)
 		cout << "m_xmf4EmissiveColor" << endl;*/
 
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_nType, 31);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_nType, 27);
+
+	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &fCurrentTime, 28);
+	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &fElapsedTime, 29);
+	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &fxCursorPos, 30);
+	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &fyCursorPos, 31);
 
 	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
 }
@@ -491,9 +506,10 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 	if (m_ppMaterials)
 	{
 		//if(!m_ppMeshes || 0 != strcmp("Body_Instance", m_ppMeshes[0]->m_pstrMeshName))
-		if (!(m_ppMaterials[0]->m_pShader) && m_ppMaterials[0]->m_pTexture)//다른 건 여기 이 부분
+		if (!(m_ppMaterials[0]->m_pShader) && m_ppMaterials[0]->m_pTexture
+			||3== m_ppMaterials[0]->m_pTexture->m_nTextures)//다른 건 여기 이 부분
 		{
-			pd3dCommandList->SetGraphicsRoot32BitConstants(1, 3, &m_ppMaterials[0]->m_pTexture->texMat, 28);
+			pd3dCommandList->SetGraphicsRoot32BitConstants(1, 3, &m_ppMaterials[0]->m_pTexture->texMat, 24);
 
 			//cout << "texMat.z : " << m_ppMaterials[0]->m_pTexture->texMat.z << endl;
 
@@ -1331,18 +1347,27 @@ CRippleWater::CRippleWater(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	CRippleWaterShader* pRippleWaterShader = new CRippleWaterShader();
-	pRippleWaterShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pRippleWaterShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 3);
-	pRippleWaterShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	
+
 
 	CTexture* pWaterTexture = new CTexture(3, RESOURCE_TEXTURE2D, 0, 1);
 	pWaterTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Water_Base_Texture_0.dds", RESOURCE_TEXTURE2D, 0);
 	pWaterTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Water_Detail_Texture_0.dds", RESOURCE_TEXTURE2D, 1);
 	pWaterTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Lava(Diffuse).dds", RESOURCE_TEXTURE2D, 2);
-	pRippleWaterShader->CreateShaderResourceViews(pd3dDevice, pWaterTexture, 0, 5);
+	CRippleWaterShader* pRippleWaterShader = new CRippleWaterShader();
+	pRippleWaterShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 3);
+	//SetSbvCPUDescriptorHandle(pRippleWaterShader->GetGPUCbvDescriptorStartHandle());
+	pRippleWaterShader->CreateShaderResourceViews(pd3dDevice, pWaterTexture, 0, 13);
 
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+
+	
+	pRippleWaterShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	
+	pRippleWaterShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	
+
+	
 
 
 	//D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle = pRippleWaterShader->CreateConstantBufferView(pd3dDevice, m_pd3dcbGameObject, ncbElementBytes);
