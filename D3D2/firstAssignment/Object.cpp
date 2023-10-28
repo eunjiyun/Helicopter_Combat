@@ -6,6 +6,7 @@
 #include "Object.h"
 #include "Shader.h"
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootParameters, int nRows, int nCols)
 {
@@ -1295,6 +1296,67 @@ void CMultiSpriteObject::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
 		if (m_fTime >= m_fSpeed) m_fTime = 0.0f;
 		m_ppMaterials[0]->m_pTexture->AnimateRowColumn(m_fTime);
 	}
+}
+
+//=============================================================================================
+
+CRippleWater::CRippleWater(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int nWidth, int nLength, int nBlockWidth, int nBlockLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color) //: CGameObject(0)
+{
+	m_nWidth = nWidth;
+	m_nLength = nLength;
+
+	int cxQuadsPerBlock = nBlockWidth - 1;
+	int czQuadsPerBlock = nBlockLength - 1;
+
+	m_xmf3Scale = xmf3Scale;
+
+	long cxBlocks = (m_nWidth - 1) / cxQuadsPerBlock;
+	long czBlocks = (m_nLength - 1) / czQuadsPerBlock;
+
+	m_nMeshes = cxBlocks * czBlocks;
+	m_ppMeshes = new CMesh * [m_nMeshes];
+	for (int i = 0; i < m_nMeshes; i++)	m_ppMeshes[i] = NULL;
+
+	CGridMesh* pGridMesh = NULL;
+	for (int z = 0, zStart = 0; z < czBlocks; z++)
+	{
+		for (int x = 0, xStart = 0; x < cxBlocks; x++)
+		{
+			xStart = x * (nBlockWidth - 1);
+			zStart = z * (nBlockLength - 1);
+			pGridMesh = new CGridMesh(pd3dDevice, pd3dCommandList, xStart, zStart, nBlockWidth, nBlockLength, xmf3Scale, xmf4Color, NULL);
+			SetMesh(x + (z * cxBlocks), pGridMesh);
+		}
+	}
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	CRippleWaterShader* pRippleWaterShader = new CRippleWaterShader();
+	pRippleWaterShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pRippleWaterShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 3);
+	pRippleWaterShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	CTexture* pWaterTexture = new CTexture(3, RESOURCE_TEXTURE2D, 0, 1);
+	pWaterTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Water_Base_Texture_0.dds", RESOURCE_TEXTURE2D, 0);
+	pWaterTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Water_Detail_Texture_0.dds", RESOURCE_TEXTURE2D, 1);
+	pWaterTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Lava(Diffuse).dds", RESOURCE_TEXTURE2D, 2);
+	pRippleWaterShader->CreateShaderResourceViews(pd3dDevice, pWaterTexture, 0, 5);
+
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256ÀÇ ¹è¼ö
+
+
+	//D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle = pRippleWaterShader->CreateConstantBufferView(pd3dDevice, m_pd3dcbGameObject, ncbElementBytes);
+	//SetCbvGPUDescriptorHandle(d3dCbvGPUDescriptorHandle);
+	SetCbvGPUDescriptorHandle(pRippleWaterShader->GetGPUCbvDescriptorStartHandle());
+
+	CMaterial* pWaterMaterial = new CMaterial();
+	pWaterMaterial->SetTexture(pWaterTexture);
+	SetMaterial(0,pWaterMaterial);
+	SetShader(0,pRippleWaterShader);
+}
+
+CRippleWater::~CRippleWater()
+{
 }
 
 

@@ -549,6 +549,7 @@ void CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 				m_ppObjects[nObjects] = new CSuperCobraObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 				m_ppObjects[nObjects]->SetChild(pSuperCobraModel);
 				pSuperCobraModel->AddRef();
+				
 			}
 			else
 			{
@@ -559,7 +560,10 @@ void CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 			XMFLOAT3 xmf3RandomPosition = RandomPositionInSphere(XMFLOAT3(920.0f, 0.0f, 1200.0f), Random(20.0f, 150.0f), h - int(floor(nColumnSize / 2.0f)), nColumnSpace);
 			m_ppObjects[nObjects]->SetPosition(xmf3RandomPosition.x, xmf3RandomPosition.y + 750.0f, xmf3RandomPosition.z);
 			m_ppObjects[nObjects]->Rotate(0.0f, 90.0f, 0.0f);
+			obj.push_back(m_ppObjects[nObjects]);
 			m_ppObjects[nObjects++]->PrepareAnimate();
+
+			
 		}
 	}
 
@@ -631,23 +635,38 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 	if (2 == m_nObjects)
 		UpdateShaderVariables(pd3dCommandList);
 	//
-
-	for (int j = 0; j < m_nObjects; j++)
+	if (!obj.empty())
 	{
-		if (m_ppObjects[j])
+		for (const auto& o : obj)
 		{
-			if (120 == m_nObjects)
-			{
-				//CShader::Render(pd3dCommandList, pCamera);
-				m_ppObjects[j]->Animate(0.16f);
-				m_ppObjects[j]->UpdateTransform(NULL);
+			//CShader::Render(pd3dCommandList, pCamera);
+			o->Animate(0.16f);
+			o->UpdateTransform(NULL);
 
-				m_ppObjects[j]->Render2(pd3dCommandList, pCamera);//여기 렌더 구조를 어떡할지
-			}
-			else
-				m_ppObjects[j]->Render(pd3dCommandList, pCamera);//여기 렌더 구조를 어떡할지
+			o->Render2(pd3dCommandList, pCamera);//여기 렌더 구조를 어떡할지
 		}
 	}
+	else
+	{
+		for (int j = 0; j < m_nObjects; j++)
+		{
+			if (m_ppObjects[j])
+			{
+				if (120 == m_nObjects)
+				{
+					//CShader::Render(pd3dCommandList, pCamera);
+					m_ppObjects[j]->Animate(0.16f);
+					m_ppObjects[j]->UpdateTransform(NULL);
+
+					m_ppObjects[j]->Render2(pd3dCommandList, pCamera);//여기 렌더 구조를 어떡할지
+				}
+				else
+					m_ppObjects[j]->Render(pd3dCommandList, pCamera);//여기 렌더 구조를 어떡할지
+			}
+		}
+	}
+
+	
 }
 
 
@@ -1168,7 +1187,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 
 	
 
-		for (int j{}; j < m_nObjects; ++j)
+		for (int j{}; j < 3; ++j)
 		{
 			if (m_ppObjects[j])
 			{
@@ -1201,6 +1220,8 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 					//m_ppObjects[j]->m_ppMaterials[0]->SetTexture(m_ppObjects[score]->m_ppMaterials[0]->m_pTexture);
 					m_ppObjects[j]->m_ppMaterials[0]->SetTexture(ppSpriteTextures[score]);
 
+					
+
 				}
 
 
@@ -1218,7 +1239,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 
 
 
-		for (int j{}; j < m_nObjects; ++j)
+		for (int j{}; j < 3; ++j)
 		{
 			if (m_ppObjects[j])
 			{
@@ -1226,11 +1247,16 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 				/*m_ppObjects[j]->Animate(0.16f);
 				m_ppObjects[j]->UpdateTransform(NULL);*/
 				m_ppObjects[j]->Render(pd3dCommandList, pCamera);//여기 렌더 구조를 어떡할지
+
+
 			}
 		}
 	}
 	else
+	{
 		hit = XMFLOAT3(0, 0, 0);
+		
+	}
 }
 
 
@@ -1381,6 +1407,67 @@ void CTerrainShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
 
 	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
+}
+
+//==================================================================================================================================
+
+CRippleWaterShader::CRippleWaterShader()
+{
+}
+
+CRippleWaterShader::~CRippleWaterShader()
+{
+}
+
+D3D12_INPUT_LAYOUT_DESC CRippleWaterShader::CreateInputLayout()
+{
+	UINT nInputElementDescs = 3;
+	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
+	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[2] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	//	pd3dInputElementDescs[3] = { "TEXCOORD", 1, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
+	return(d3dInputLayoutDesc);
+}
+
+D3D12_SHADER_BYTECODE CRippleWaterShader::CreateVertexShader()
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSRippleWater", "vs_5_1", &m_pd3dVertexShaderBlob));
+}
+
+D3D12_SHADER_BYTECODE CRippleWaterShader::CreatePixelShader()
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSRippleWater", "ps_5_1", &m_pd3dPixelShaderBlob));
+}
+
+void CRippleWaterShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	CShader::CreateShader(pd3dDevice,  pd3dCommandList, pd3dGraphicsRootSignature);
+}
+
+D3D12_RASTERIZER_DESC CRippleWaterShader::CreateRasterizerState()
+{
+	D3D12_RASTERIZER_DESC d3dRasterizerDesc;
+	::ZeroMemory(&d3dRasterizerDesc, sizeof(D3D12_RASTERIZER_DESC));
+	d3dRasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
+	d3dRasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
+	d3dRasterizerDesc.FrontCounterClockwise = FALSE;
+	d3dRasterizerDesc.DepthBias = 0;
+	d3dRasterizerDesc.DepthBiasClamp = 0.0f;
+	d3dRasterizerDesc.SlopeScaledDepthBias = 0.0f;
+	d3dRasterizerDesc.DepthClipEnable = TRUE;
+	d3dRasterizerDesc.MultisampleEnable = FALSE;
+	d3dRasterizerDesc.AntialiasedLineEnable = FALSE;
+	d3dRasterizerDesc.ForcedSampleCount = 0;
+	d3dRasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+
+	return(d3dRasterizerDesc);
 }
 
 

@@ -314,6 +314,8 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		break;
 	case WM_RBUTTONUP:
 		m_pPlayer->attack = false;
+		/*if (-1 != m_pScene->pMultiSpriteObjectShader->index)
+			m_pScene->pMultiSpriteObjectShader->obj.erase(m_pScene->pMultiSpriteObjectShader->obj.begin() + m_pScene->pMultiSpriteObjectShader->index);*/
 		break;
 	case WM_MOUSEMOVE:
 		break;

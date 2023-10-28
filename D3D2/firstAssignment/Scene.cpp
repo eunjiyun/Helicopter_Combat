@@ -74,7 +74,8 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Image/HeightMap.raw"), 257, 257, 257, 257, xmf3Scale, xmf4Color);
 
-
+	m_pTerrainWater = new CRippleWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 257, 257, 17, 17, xmf3Scale, xmf4Color);
+	m_pTerrainWater->SetPosition(+(257 * 0.5f), 155.0f, +(257 * 0.5f));
 
 	
 	m_nShaders = 2;
@@ -468,12 +469,13 @@ void CScene::AnimateObjects(float fTimeElapsed)
 
 		for (int i{}; i < pObjectsShader->m_nObjects; ++i)
 		{
-			float bullet_monster_distance = Vector3::Length(Vector3::Subtract(pObjectsShader->m_ppObjects[i]->aabb.Center, Cur_Pos));
-			if (pObjectsShader->m_ppObjects[i]->aabb.Intersects(Bullet_Origin, Bullet_Direction, bullet_monster_distance))
+			float bullet_monster_distance = Vector3::Length(Vector3::Subtract(pObjectsShader->obj[i]->aabb.Center, Cur_Pos));
+			if (pObjectsShader->obj[i]->aabb.Intersects(Bullet_Origin, Bullet_Direction, bullet_monster_distance))
 			{
 				//monstersInRange.push_back(monster);
 				cout <<i<< "¸íÁß" << endl;
-				pMultiSpriteObjectShader->hit = pObjectsShader->m_ppObjects[i]->GetPosition();
+				pMultiSpriteObjectShader->hit = pObjectsShader->obj[i]->GetPosition();
+				pObjectsShader->obj.erase(pObjectsShader->obj.begin() + i);
 			
 				m_pPlayer->attack = false;
 			}
@@ -513,7 +515,7 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 
 
 	m_pShaders[0]->Render(pd3dCommandList, pCamera);//Ç®
-	m_ppShaders[1]->Render(pd3dCommandList, pCamera);//ºÒ²É
+	pMultiSpriteObjectShader->Render(pd3dCommandList, pCamera);//ºÒ²É
 
 	pObjectsShader->Render(pd3dCommandList, pCamera);//Çï±â
 

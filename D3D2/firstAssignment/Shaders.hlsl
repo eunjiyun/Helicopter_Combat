@@ -23,6 +23,12 @@ cbuffer cbGameObjectInfo : register(b2)
 	MATERIAL	gMaterial : packoffset(c4);
 };
 
+cbuffer cbFrameworkInfo : register(b3)
+{
+	float 		gfCurrentTime;
+	float		gfElapsedTime;
+	float2		gf2CursorPos;
+};
 
 #include "Light.hlsl"
 
@@ -51,6 +57,10 @@ Texture2D gtxtDetailNormalTexture : register(t12);
 #else
 Texture2D gtxtStandardTextures[7] : register(t6);
 #endif
+
+Texture2D<float4> gtxtWaterBaseTexture : register(t3);
+Texture2D<float4> gtxtWaterDetail0Texture : register(t4);
+Texture2D<float4> gtxtWaterDetail1Texture : register(t5);
 
 SamplerState gssWrap : register(s0);
 
@@ -261,6 +271,77 @@ float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 
 	float4 cColor = cBaseTexColor * 0.5f + cDetailTexColor * 0.5f;
 	//	float4 cColor = saturate(lerp(cBaseTexColor, cDetailTexColor, fAlpha));
+
+	return(cColor);
+}
+
+
+//=====================================================================================
+
+struct VS_RIPPLE_WATER_INPUT
+{
+	float3 position : POSITION;
+	float4 color : COLOR;
+	float2 uv0 : TEXCOORD0;
+};
+
+struct VS_RIPPLE_WATER_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float4 color : COLOR;
+	float2 uv0 : TEXCOORD0;
+};
+
+VS_RIPPLE_WATER_OUTPUT VSRippleWater(VS_RIPPLE_WATER_INPUT input)
+{
+	VS_RIPPLE_WATER_OUTPUT output;
+
+	//	input.position.y += sin(gfCurrentTime * 0.5f + input.position.x * 0.01f + input.position.z * 0.01f) * 35.0f;
+	//	input.position.y += sin(input.position.x * 0.01f) * 45.0f + cos(input.position.z * 0.01f) * 35.0f;
+	//	input.position.y += sin(gfCurrentTime * 0.5f + input.position.x * 0.01f) * 45.0f + cos(gfCurrentTime * 1.0f + input.position.z * 0.01f) * 35.0f;
+	//	input.position.y += sin(gfCurrentTime * 0.5f + ((input.position.x * input.position.x) + (input.position.z * input.position.z)) * 0.01f) * 35.0f;
+	//	input.position.y += sin(gfCurrentTime * 1.0f + (((input.position.x * input.position.x) + (input.position.z * input.position.z)) - (1000 * 1000) * 2) * 0.0001f) * 10.0f;
+
+	//	input.position.y += sin(gfCurrentTime * 1.0f + (((input.position.x * input.position.x) + (input.position.z * input.position.z))) * 0.0001f) * 10.0f;
+	input.position.y += sin(gfCurrentTime * 0.35f + input.position.x * 0.35f) * 2.95f + cos(gfCurrentTime * 0.30f + input.position.z * 0.35f) * 2.05f;
+	output.position = mul(float4(input.position, 1.0f), gmtxGameObject);
+	if (155.0f < output.position.y) output.position.y = 155.0f;
+	output.position = mul(mul(output.position, gmtxView), gmtxProjection);
+
+	//	output.color = input.color;
+	output.color = (input.position.y / 200.0f) + 0.55f;
+	output.uv0 = input.uv0;
+	//	output.uv1 = input.uv1;
+
+	return(output);
+}
+
+float4 PSRippleWater(VS_RIPPLE_WATER_OUTPUT input) : SV_TARGET
+{
+	float2 uv = input.uv0;
+
+#ifdef _WITH_STATIC_MATRIX
+	sf3x3TextureAnimation._m21 = gfCurrentTime * 0.00125f;
+	uv = mul(float3(input.uv0, 1.0f), sf3x3TextureAnimation).xy;
+#else
+#ifdef _WITH_CONSTANT_BUFFER_MATRIX
+	uv = mul(float3(input.uv0, 1.0f), (float3x3)gf4x4TextureAnimation).xy;
+	//	uv = mul(float4(uv, 1.0f, 0.0f), gf4x4TextureAnimation).xy;
+#else
+	uv.y += gfCurrentTime * 0.00125f;
+#endif
+#endif
+	//gssWrap
+	//float4 cBaseTexColor = gtxtWaterBaseTexture.SampleLevel(gSamplerState, uv, 0);
+	//float4 cDetail0TexColor = gtxtWaterDetail0Texture.SampleLevel(gSamplerState, uv * 10.0f, 0);
+	//float4 cDetail1TexColor = gtxtWaterDetail1Texture.SampleLevel(gSamplerState, uv * 5.0f, 0);
+
+	float4 cBaseTexColor = gtxtWaterBaseTexture.SampleLevel(gssWrap, uv, 0);
+	float4 cDetail0TexColor = gtxtWaterDetail0Texture.SampleLevel(gssWrap, uv * 10.0f, 0);
+	float4 cDetail1TexColor = gtxtWaterDetail1Texture.SampleLevel(gssWrap, uv * 5.0f, 0);
+
+	float4 cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	cColor = lerp(cBaseTexColor * cDetail0TexColor, cDetail1TexColor.r * 0.5f, 0.35f);
 
 	return(cColor);
 }
