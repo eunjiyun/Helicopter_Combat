@@ -7,9 +7,12 @@ struct MATERIAL
 	//float4					m_cSpecular; //a = power
 	//float4					m_cEmissive;
 	float3					texMat;
-	uint gnTexturesMask;
 
+	uint gnTexturesMask;
 	float 		gfCurrentTime;
+	
+
+	
 	float		gfElapsedTime;
 	float2		gf2CursorPos;
 };
@@ -67,6 +70,8 @@ Texture2D gtxtStandardTextures[7] : register(t6);
 Texture2D<float4> gtxtWaterBaseTexture : register(t3);
 Texture2D<float4> gtxtWaterDetail0Texture : register(t4);
 Texture2D<float4> gtxtWaterDetail1Texture : register(t5);
+
+static matrix<float, 3, 3> sf3x3TextureAnimation = { { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };
 
 SamplerState gssWrap : register(s0);
 
@@ -334,7 +339,8 @@ float4 PSRippleWater(VS_RIPPLE_WATER_OUTPUT input) : SV_TARGET
 	uv = mul(float3(input.uv0, 1.0f), (float3x3)gf4x4TextureAnimation).xy;
 	//	uv = mul(float4(uv, 1.0f, 0.0f), gf4x4TextureAnimation).xy;
 #else
-	uv.y += gMaterial.gfCurrentTime * 0.00125f;
+	uv.y += gMaterial.gfCurrentTime * 0.0825f /*0.00125f*/;
+	uv.x += gMaterial.gfCurrentTime * 0.00125f;
 #endif
 #endif
 	//gssWrap

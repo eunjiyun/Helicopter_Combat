@@ -472,6 +472,8 @@ void CScene::AnimateObjects(float fTimeElapsed)
 
 	m_pShaders[0]->AnimateObjects(fTimeElapsed);
 
+
+
 	if (m_pPlayer->attack)
 	{
 		XMFLOAT3 Cur_LookVector = m_pPlayer->GetLookVector();
@@ -513,10 +515,7 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
 
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, cuT, 28);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, elT, 29);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, x, 30);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, y, 31);
+	
 
 	//cout << "cuT : " << *cuT << endl;
 
@@ -524,6 +523,11 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
 	
 	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
+
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, cuT, 28);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, elT, 29);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, x, 30);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, y, 31);
 
 	m_pTerrainWater->m_nMaterials = 1;
 	if(m_pTerrainWater)m_pTerrainWater->Render(pd3dCommandList, pCamera);
