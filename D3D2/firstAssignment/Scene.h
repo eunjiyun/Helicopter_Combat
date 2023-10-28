@@ -87,8 +87,7 @@ public:
 	ID3D12Resource* m_pd3dcbLights = NULL;
 	LIGHTS* m_pcbMappedLights = NULL;
 
-	CShader** m_pShaders = NULL;
-	int							nShaders = 0;
+
 	CRippleWater* m_pTerrainWater = NULL;
 
 	float* cuT{ nullptr };

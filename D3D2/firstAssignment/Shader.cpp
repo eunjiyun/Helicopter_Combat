@@ -446,7 +446,6 @@ void CStandardShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-//22.11.09
 CTexturedShader::CTexturedShader()
 {
 }
@@ -549,7 +548,7 @@ void CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 				m_ppObjects[nObjects] = new CSuperCobraObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 				m_ppObjects[nObjects]->SetChild(pSuperCobraModel);
 				pSuperCobraModel->AddRef();
-				
+
 			}
 			else
 			{
@@ -563,7 +562,7 @@ void CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 			obj.push_back(m_ppObjects[nObjects]);
 			m_ppObjects[nObjects++]->PrepareAnimate();
 
-			
+
 		}
 	}
 
@@ -639,11 +638,10 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 	{
 		for (const auto& o : obj)
 		{
-			//CShader::Render(pd3dCommandList, pCamera);
 			o->Animate(0.16f);
 			o->UpdateTransform(NULL);
 
-			o->Render2(pd3dCommandList, pCamera);//여기 렌더 구조를 어떡할지
+			o->Render2(pd3dCommandList, pCamera);
 		}
 	}
 	else
@@ -654,19 +652,18 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 			{
 				if (120 == m_nObjects)
 				{
-					//CShader::Render(pd3dCommandList, pCamera);
 					m_ppObjects[j]->Animate(0.16f);
 					m_ppObjects[j]->UpdateTransform(NULL);
 
-					m_ppObjects[j]->Render2(pd3dCommandList, pCamera);//여기 렌더 구조를 어떡할지
+					m_ppObjects[j]->Render2(pd3dCommandList, pCamera);
 				}
 				else
-					m_ppObjects[j]->Render(pd3dCommandList, pCamera);//여기 렌더 구조를 어떡할지
+					m_ppObjects[j]->Render(pd3dCommandList, pCamera);
 			}
 		}
 	}
 
-	
+
 }
 
 
@@ -701,9 +698,6 @@ void CObjectsShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dComman
 		CB_GRASSOBJECT_INFO* pbMappedcbGameObject2 = (CB_GRASSOBJECT_INFO*)((UINT8*)grassMappedObj + (j * ncbElementBytes2));
 		if (m_ppObjects[j]->m_ppMaterials[0] && m_ppObjects[j]->m_ppMaterials[0]->m_pTexture)
 		{
-			//XMStoreFloat4x4(&pbMappedcbGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&(m_ppObjects[j]->m_ppMaterials[0]->m_pTexture->m_xmf4x4Texture))));
-
-
 
 
 			XMStoreFloat3(&pbMappedcbGameObject2->texMat, XMLoadFloat3(&m_ppObjects[j]->m_ppMaterials[0]->m_pTexture->texMat));
@@ -715,7 +709,6 @@ void CObjectsShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dComman
 }
 
 
-//22.11.07
 CBillboardObjectsShader::CBillboardObjectsShader()
 {
 }
@@ -1185,7 +1178,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 		XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
 		XMFLOAT3 xmf3MonPos, xmf3MonLook;
 
-	
+
 
 		for (int j{}; j < 3; ++j)
 		{
@@ -1200,27 +1193,17 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 				else if (2 == j)
 				{
 					xmf3MonPos = hit;
-					//xmf3MonLook = hit->GetLook();
-					//xmf3MonPos.y += 50.0f;
 
-				/*	xmf3MonPos.x = (xmf3MonPos.x + 1.f * xmf3PlayerPosition.x) / 2;
-					xmf3MonPos.y = (xmf3MonPos.y + 1.f * xmf3PlayerPosition.y) / 2;
-					xmf3MonPos.z = (xmf3MonPos.z + 1.f * xmf3PlayerPosition.z) / 2;*/
 
 					xmf3Position = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
-					//xmf3PlayerPosition = hitPos;
-					//xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
+
+
 					m_ppObjects[j]->SetPosition(xmf3Position);
 					m_ppObjects[j]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
-					//m_ppObjects[j]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 
-					//if(2!=score)
-						//m_ppObjects[j]->m_ppMaterials[0]->m_pTexture = m_ppObjects[score]->m_ppMaterials[0]->m_pTexture;
-
-					//m_ppObjects[j]->m_ppMaterials[0]->SetTexture(m_ppObjects[score]->m_ppMaterials[0]->m_pTexture);
 					m_ppObjects[j]->m_ppMaterials[0]->SetTexture(ppSpriteTextures[score]);
 
-					
+
 
 				}
 
@@ -1243,7 +1226,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 		{
 			if (m_ppObjects[j])
 			{
-				//pd3dCommandList->SetGraphicsRoot32BitConstants(12, 3, &m_ppObjects[j]->m_ppMaterials[0]->m_pTexture->texMat, 1);//조명 관련
+
 				/*m_ppObjects[j]->Animate(0.16f);
 				m_ppObjects[j]->UpdateTransform(NULL);*/
 				m_ppObjects[j]->Render(pd3dCommandList, pCamera);//여기 렌더 구조를 어떡할지
@@ -1255,7 +1238,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 	else
 	{
 		hit = XMFLOAT3(0, 0, 0);
-		
+
 	}
 }
 
@@ -1312,7 +1295,7 @@ CPlayerShader::~CPlayerShader()
 
 D3D12_INPUT_LAYOUT_DESC CPlayerShader::CreateInputLayout()
 {
-	//22.11.09
+
 	UINT nInputElementDescs = 5;
 	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
@@ -1368,7 +1351,7 @@ CTerrainShader::~CTerrainShader()
 
 D3D12_INPUT_LAYOUT_DESC CTerrainShader::CreateInputLayout()
 {
-	//22.11.09
+
 	UINT nInputElementDescs = 4;
 	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
@@ -1451,7 +1434,7 @@ void CRippleWaterShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_nPipelineStates = 1;
 	m_ppd3dPipelineStates = new ID3D12PipelineState * [m_nPipelineStates];
 
-	CShader::CreateShader(pd3dDevice,  pd3dCommandList, pd3dGraphicsRootSignature);
+	CShader::CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 }
 
 D3D12_RASTERIZER_DESC CRippleWaterShader::CreateRasterizerState()

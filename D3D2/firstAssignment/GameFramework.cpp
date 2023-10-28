@@ -298,14 +298,14 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		::GetCursorPos(&m_ptOldCursorPos);
 		break;
 	case WM_RBUTTONDOWN:
-		
+
 		m_pScene->pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
 		m_pPlayer->attack = true;
-		
+
 
 		m_pScene->pMultiSpriteObjectShader->score = dist(gen);
 		cout << m_pScene->pMultiSpriteObjectShader->score << endl;
-		
+
 
 		break;
 
@@ -621,12 +621,7 @@ void CGameFramework::UpdateShaderVariables()
 	float fCurrentTime = m_GameTimer.GetTotalTime();
 	float fElapsedTime = m_GameTimer.GetTimeElapsed();
 
-	/*pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_nType, 28);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_nType, 29);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 2, &m_nType,30);*/
 
-	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &fCurrentTime, 28);
-	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &fElapsedTime, 29);
 	m_pScene->cuT = &fCurrentTime;
 	m_pScene->elT = &fElapsedTime;
 
@@ -635,9 +630,6 @@ void CGameFramework::UpdateShaderVariables()
 	::ScreenToClient(m_hWnd, &ptCursorPos);
 	float fxCursorPos = (ptCursorPos.x < 0) ? 0.0f : float(ptCursorPos.x);
 	float fyCursorPos = (ptCursorPos.y < 0) ? 0.0f : float(ptCursorPos.y);
-
-	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &fxCursorPos, 30);
-	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &fyCursorPos, 31);
 
 	m_pScene->x = &fxCursorPos;
 	m_pScene->y = &fyCursorPos;

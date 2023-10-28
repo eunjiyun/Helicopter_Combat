@@ -80,31 +80,22 @@ void CTexture::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 		for (int i = 0; i < m_nRootParameters; i++)
 		{
 
-		/*	if (3 == m_pnRootParameterIndices[i])
-				cout << "3번1" << endl;
-			else if(13== m_pnRootParameterIndices[i])
-				cout << "13번1" << endl;*/
+
 			if (m_pd3dSrvGpuDescriptorHandles[i].ptr && (m_pnRootParameterIndices[i] != -1))
 				pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[i], m_pd3dSrvGpuDescriptorHandles[i]);
 		}
 
 	}
-	else//1028
+	else
 	{
-		/*if (3 == m_pnRootParameterIndices[0])
-			cout << "3번2" << endl;
-		else if (13 == m_pnRootParameterIndices[0])
-			cout << "13번2" << endl;*/
+
 		if (m_pd3dSrvGpuDescriptorHandles[0].ptr) pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[0], m_pd3dSrvGpuDescriptorHandles[0]);
 	}
 }
 
 void CTexture::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, int nParameterIndex, int nTextureIndex)
 {
-	/*if (3 == m_pnRootParameterIndices[0])
-		cout << "3번3" << endl;
-	else if (13 == m_pnRootParameterIndices[0])
-		cout << "13번3" << endl;*/
+
 	pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[nParameterIndex], m_pd3dSrvGpuDescriptorHandles[nTextureIndex]);
 }
 
@@ -166,7 +157,6 @@ int CTexture::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 		strcpy_s(pstrFilePath + 15, 64 - 15, (bDuplicated) ? (pstrTextureName + 1) : pstrTextureName);
 		strcpy_s(pstrFilePath + 15 + ((bDuplicated) ? (nStrLength - 1) : nStrLength), 64 - 15 - ((bDuplicated) ? (nStrLength - 1) : nStrLength), ".dds");
 
-		//cout << pstrTextureName << endl;
 
 		size_t nConverted = 0;
 		mbstowcs_s(&nConverted, m_ppstrTextureNames[nIndex], 64, pstrFilePath, _TRUNCATE);
@@ -298,27 +288,9 @@ void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 {
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AmbientColor, 16);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AlbedoColor, 20);
-	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4SpecularColor, 24);
-
-
-	//if (m_xmf4AmbientColor.x == 0 && m_xmf4AmbientColor.y == 0 && m_xmf4AmbientColor.z == 0)
-		//cout << "m_xmf4AmbientColor" << endl;
-
-	//if (m_xmf4AlbedoColor.x == 0 && m_xmf4AlbedoColor.y == 0 && m_xmf4AlbedoColor.z == 0)
-	//	cout << "m_xmf4AlbedoColor" << endl;
-
-	/*if (m_xmf4SpecularColor.x == 0 && m_xmf4SpecularColor.y == 0 && m_xmf4SpecularColor.z == 0)
-		cout << "m_xmf4SpecularColor" << endl;
-
-	if (m_xmf4EmissiveColor.x == 0 && m_xmf4EmissiveColor.y == 0 && m_xmf4EmissiveColor.z == 0)
-		cout << "m_xmf4EmissiveColor" << endl;*/
 
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_nType, 27);
 
-	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &fCurrentTime, 28);
-	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &fElapsedTime, 29);
-	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &fxCursorPos, 30);
-	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &fyCursorPos, 31);
 
 	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
 }
@@ -355,7 +327,7 @@ CGameObject::CGameObject(int nMeshes, int nMaterials) : CGameObject()
 	if (m_nMaterials > 0)
 	{
 		m_ppMaterials = new CMaterial * [m_nMaterials];
-		for (int i = 0; i < m_nMaterials; i++) m_ppMaterials[i] = NULL;
+		for (int i{}; i < m_nMaterials; ++i) m_ppMaterials[i] = NULL;
 	}
 }
 
@@ -439,16 +411,12 @@ void CGameObject::SetShader(int nMaterial, CShader* pShader)
 
 void CGameObject::SetMaterial(int nMaterial, CMaterial* pMaterial)
 {
-	//22.11.09
-	//릴리스를 안 해주면 어떤 문제가 생길까요
-	// 헬리콥터가 까매져요
 
 	if (!m_ppMaterials)
 	{
 		m_ppMaterials = new CMaterial * [1];
 	}
-	/*if (m_ppMaterials[nMaterial])
-		m_ppMaterials[nMaterial]->Release();*/
+
 
 	m_ppMaterials[nMaterial] = pMaterial;
 
@@ -479,55 +447,28 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 
 	UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
 
-	/*if (m_nMaterials > 1)
-	{
-		for (int i = 0; i < m_nMaterials; i++)
-		{
-			if (m_ppMaterials[i])
-			{
-				if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
-				m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
-			}
 
-			if (m_nMeshes == 1)
-			{
-				if (m_ppMeshes[0]) m_ppMeshes[0]->Render(pd3dCommandList, i);
-			}
-		}
-	}*/
-	//else
-	//{
 	if ((m_nMaterials == 1) && (m_ppMaterials[0]))
 	{
 		if (m_ppMaterials[0]->m_pShader) m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
 		m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
 	}
-	////22.11.16
+
 	if (m_ppMaterials)
 	{
-		//if(!m_ppMeshes || 0 != strcmp("Body_Instance", m_ppMeshes[0]->m_pstrMeshName))
+
 		if (!(m_ppMaterials[0]->m_pShader) && m_ppMaterials[0]->m_pTexture
-			||3== m_ppMaterials[0]->m_pTexture->m_nTextures)//다른 건 여기 이 부분
+			|| 3 == m_ppMaterials[0]->m_pTexture->m_nTextures)
 		{
 			pd3dCommandList->SetGraphicsRoot32BitConstants(1, 3, &m_ppMaterials[0]->m_pTexture->texMat, 24);
 
-			//cout << "texMat.z : " << m_ppMaterials[0]->m_pTexture->texMat.z << endl;
+
 
 			m_ppMaterials[0]->m_pTexture->UpdateShaderVariables(pd3dCommandList);
 
-			//pd3dCommandList->SetGraphicsRoot32BitConstants(14, 4, &m_xmf4AmbientColor, 0);//조명 관련
-			//pd3dCommandList->SetGraphicsRoot32BitConstants(14, 4, &m_xmf4AlbedoColor, 4);
-			//pd3dCommandList->SetGraphicsRoot32BitConstants(14, 4, &m_xmf4SpecularColor, 8);
-			//pd3dCommandList->SetGraphicsRoot32BitConstants(14, 4, &m_xmf4EmissiveColor, 12);
-
-			//pd3dCommandList->SetGraphicsRoot32BitConstants(14, 1, &m_nType, 16);
-
-			//if (m_pcbMappedGameObject)
-				//XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_ppMaterials[0]->m_pTexture->m_xmf4x4Texture)));
 
 		}
 	}
-	////
 
 
 	if (m_ppMeshes)
@@ -538,36 +479,6 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 				m_ppMeshes[i]->Render(pd3dCommandList, 0);
 		}
 	}
-	//}
-
-	//22.11.15
-	//빌보드 렌더
-	/*if (m_pMaterial)
-	{
-		if (m_pMaterial->m_pShader)
-		{
-			m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
-			m_pMaterial->m_pShader->UpdateShaderVariables(pd3dCommandList);
-
-			UpdateShaderVariables(pd3dCommandList);
-		}
-		if (m_pMaterial->m_pTexture)//다른 건 여기 이 부분
-		{
-			m_pMaterial->m_pTexture->UpdateShaderVariables(pd3dCommandList);
-			if (m_pcbMappedGameObject) XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_pMaterial->m_pTexture->m_xmf4x4Texture)));
-		}
-	}
-
-	pd3dCommandList->SetGraphicsRootDescriptorTable(2, m_d3dCbvGPUDescriptorHandle);
-
-	if (m_pMeshes)
-	{
-		for (int i = 0; i < nMeshes; i++)
-		{
-			if (m_pMeshes[i]) m_pMeshes[i]->Render(pd3dCommandList,0);
-		}
-	}*/
-	//
 
 	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
 	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
@@ -580,24 +491,7 @@ void CGameObject::Render2(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 	UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
 
 
-	/*if (m_nMaterials > 1)
-	{
-		for (int i = 0; i < m_nMaterials; i++)
-		{
-			if (m_ppMaterials[i])
-			{
-				if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
-				m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
-			}
 
-			if (m_nMeshes == 1)
-			{
-				if (m_ppMeshes[0]) m_ppMeshes[0]->Render(pd3dCommandList, i);
-			}
-		}
-	}*/
-	//else
-	//{
 	if ((m_nMaterials == 1) && (m_ppMaterials[0]))
 	{
 		if (m_ppMaterials[0]->m_pShader) m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
@@ -616,36 +510,7 @@ void CGameObject::Render2(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 			}
 		}
 	}
-	//}
 
-	//22.11.15
-	//빌보드 렌더
-	/*if (m_pMaterial)
-	{
-		if (m_pMaterial->m_pShader)
-		{
-			m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
-			m_pMaterial->m_pShader->UpdateShaderVariables(pd3dCommandList);
-
-			UpdateShaderVariables(pd3dCommandList);
-		}
-		if (m_pMaterial->m_pTexture)//다른 건 여기 이 부분
-		{
-			m_pMaterial->m_pTexture->UpdateShaderVariables(pd3dCommandList);
-			if (m_pcbMappedGameObject) XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_pMaterial->m_pTexture->m_xmf4x4Texture)));
-		}
-	}
-
-	pd3dCommandList->SetGraphicsRootDescriptorTable(2, m_d3dCbvGPUDescriptorHandle);
-
-	if (m_pMeshes)
-	{
-		for (int i = 0; i < nMeshes; i++)
-		{
-			if (m_pMeshes[i]) m_pMeshes[i]->Render(pd3dCommandList,0);
-		}
-	}*/
-	//
 
 	if (m_pSibling) m_pSibling->Render2(pd3dCommandList, pCamera);
 	if (m_pChild) m_pChild->Render2(pd3dCommandList, pCamera);
@@ -654,12 +519,12 @@ void CGameObject::Render2(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 
 void CGameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	//22.11.16
+
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
 	m_pd3dcbGameObject = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbGameObject->Map(0, NULL, (void**)&m_pcbMappedGameObject);
-	//
+
 }
 
 void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
@@ -679,14 +544,14 @@ void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandLis
 
 void CGameObject::ReleaseShaderVariables()
 {
-	//22.11.16
+
 	if (m_pd3dcbGameObject)
 	{
 		m_pd3dcbGameObject->Unmap(0, NULL);
 		m_pd3dcbGameObject->Release();
 	}
 	if (m_ppMaterials) m_ppMaterials[0]->ReleaseShaderVariables();
-	//
+
 }
 
 void CGameObject::ReleaseUploadBuffers()
@@ -803,7 +668,7 @@ void CGameObject::Rotate(XMFLOAT4* pxmf4Quaternion)
 	UpdateTransform(NULL);
 }
 
-//22.11.07
+
 void CGameObject::SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up)
 {
 	XMFLOAT3 xmf3Position(m_xmf4x4World._41, m_xmf4x4World._42, m_xmf4x4World._43);
@@ -953,8 +818,8 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 		{
 			break;
 		}
+		}
 	}
-}
 
 CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
 	ID3D12RootSignature* pd3dGraphicsRootSignature, CGameObject* pParent, FILE* pInFile, CShader* pShader)
@@ -1269,21 +1134,17 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	CTerrainShader* pTerrainShader = new CTerrainShader();
 	pTerrainShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	//22.11.16
+
 	pTerrainShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 3);
 	pTerrainShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	//pTerrainShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 3);
-	//UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-	//pTerrainShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObject, ncbElementBytes);
-	//
+
 	pTerrainShader->CreateShaderResourceViews(pd3dDevice, pTerrainTexture, 0, 11);
 
 	CMaterial* pTerrainMaterial = new CMaterial();
 	pTerrainMaterial->SetTexture(pTerrainTexture);
 
-	//22.12.06
 	SetCbvGPUDescriptorHandle(pTerrainShader->GetGPUCbvDescriptorStartHandle());
-	//
+
 
 	pTerrainMaterial->SetShader(pTerrainShader);
 
@@ -1347,7 +1208,7 @@ CRippleWater::CRippleWater(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	
+
 
 
 	CTexture* pWaterTexture = new CTexture(3, RESOURCE_TEXTURE2D, 0, 1);
@@ -1356,28 +1217,25 @@ CRippleWater::CRippleWater(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	pWaterTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Lava(Diffuse).dds", RESOURCE_TEXTURE2D, 2);
 	CRippleWaterShader* pRippleWaterShader = new CRippleWaterShader();
 	pRippleWaterShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 3);
-	//SetSbvCPUDescriptorHandle(pRippleWaterShader->GetGPUCbvDescriptorStartHandle());
+
 	pRippleWaterShader->CreateShaderResourceViews(pd3dDevice, pWaterTexture, 0, 13);
 
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
 
-	
+
 	pRippleWaterShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	
+
 	pRippleWaterShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	
-
-	
 
 
-	//D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle = pRippleWaterShader->CreateConstantBufferView(pd3dDevice, m_pd3dcbGameObject, ncbElementBytes);
-	//SetCbvGPUDescriptorHandle(d3dCbvGPUDescriptorHandle);
+
+
 	SetCbvGPUDescriptorHandle(pRippleWaterShader->GetGPUCbvDescriptorStartHandle());
 
 	CMaterial* pWaterMaterial = new CMaterial();
 	pWaterMaterial->SetTexture(pWaterTexture);
-	SetMaterial(0,pWaterMaterial);
-	SetShader(0,pRippleWaterShader);
+	SetMaterial(0, pWaterMaterial);
+	SetShader(0, pRippleWaterShader);
 }
 
 CRippleWater::~CRippleWater()

@@ -58,7 +58,7 @@ class CTexture
 public:
 
 	CTexture(int nTextureResources, UINT nResourceType, int nSamplers, int nRootParameters, int nRows = 1, int nCols = 1);
-	
+
 	virtual ~CTexture();
 
 private:
@@ -66,7 +66,7 @@ private:
 
 	UINT							m_nTextureType;
 
-	
+
 	_TCHAR(*m_ppstrTextureNames)[64] = NULL;
 	ID3D12Resource** m_ppd3dTextures = NULL;
 	ID3D12Resource** m_ppd3dTextureUploadBuffers;
@@ -118,7 +118,7 @@ public:
 
 	void ReleaseUploadBuffers();
 
-    int 							m_nRows = 1;
+	int 							m_nRows = 1;
 	int 							m_nCols = 1;
 	int 							m_nRow = 0;
 	int 							m_nCol = 0;
@@ -173,7 +173,7 @@ public:
 	void SetMaterialType(UINT nType) { m_nType |= nType; }
 	void SetTexture(CTexture* pTexture);
 
-	
+
 
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
@@ -204,11 +204,11 @@ public:
 	void Release();
 
 
-	void SetCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr){
+	void SetCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) {
 		m_d3dCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr;
 	}
 
-	void SetLookAt(XMFLOAT3& xmf3Target,XMFLOAT3& xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f));
+	void SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 	D3D12_GPU_DESCRIPTOR_HANDLE getGPUDescriptorHandle() { return m_d3dCbvGPUDescriptorHandle; }
 	void SetCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }

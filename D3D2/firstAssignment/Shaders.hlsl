@@ -10,9 +10,9 @@ struct MATERIAL
 
 	uint gnTexturesMask;
 	float 		gfCurrentTime;
-	
 
-	
+
+
 	float		gfElapsedTime;
 	float2		gf2CursorPos;
 };
@@ -32,12 +32,7 @@ cbuffer cbGameObjectInfo : register(b2)
 	MATERIAL	gMaterial : packoffset(c4);
 };
 
-//cbuffer cbFrameworkInfo : register(b3)
-//{
-//	float 		gfCurrentTime;
-//	float		gfElapsedTime;
-//	float2		gf2CursorPos;
-//};
+
 
 #include "Light.hlsl"
 
@@ -215,7 +210,7 @@ VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
 		output.uv.x = (input.uv.x) / gMaterial.texMat.z + gMaterial.texMat.x;
 		output.uv.y = input.uv.y / gMaterial.texMat.z + gMaterial.texMat.y;
 	}
-	else if (gMaterial.texMat.z == 8)//로딩 파티클
+	else if (gMaterial.texMat.z == 8)//불꽃
 	{
 		output.uv.x = (input.uv.x) / gMaterial.texMat.z + gMaterial.texMat.x;
 		output.uv.y = input.uv.y / (gMaterial.texMat.z * 0.75f) + gMaterial.texMat.y;
@@ -313,7 +308,7 @@ VS_RIPPLE_WATER_OUTPUT VSRippleWater(VS_RIPPLE_WATER_INPUT input)
 	//	input.position.y += sin(gfCurrentTime * 0.5f + ((input.position.x * input.position.x) + (input.position.z * input.position.z)) * 0.01f) * 35.0f;
 	//	input.position.y += sin(gfCurrentTime * 1.0f + (((input.position.x * input.position.x) + (input.position.z * input.position.z)) - (1000 * 1000) * 2) * 0.0001f) * 10.0f;
 
-		input.position.y += sin(gMaterial.gfCurrentTime * 1.0f + (((input.position.x * input.position.x) + (input.position.z * input.position.z))) * 0.0001f) * 10.0f;
+	input.position.y += sin(gMaterial.gfCurrentTime * 1.0f + (((input.position.x * input.position.x) + (input.position.z * input.position.z))) * 0.0001f) * 10.0f;
 	//input.position.y += sin(gMaterial.gfCurrentTime * 0.35f + input.position.x * 0.35f) * 2.95f + cos(gMaterial.gfCurrentTime * 0.30f + input.position.z * 0.35f) * 2.05f;
 	output.position = mul(float4(input.position, 1.0f), gmtxGameObject);
 	if (610.0f < output.position.y) output.position.y = 610.0f;
