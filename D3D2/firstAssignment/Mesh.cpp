@@ -11,12 +11,10 @@ CMesh::CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandLis
 
 CMesh::~CMesh()
 {
-
-
 	if (m_pd3dVertexBuffer)
 		m_pd3dVertexBuffer->Release();
 
-	if (m_nSubMeshes > 0)
+	/*if (m_nSubMeshes > 0)
 	{
 		for (int i = 0; i < m_nSubMeshes; i++)
 		{
@@ -30,7 +28,7 @@ CMesh::~CMesh()
 		if (m_ppnSubSetIndices) delete[] m_ppnSubSetIndices;
 	}
 
-	if (m_pxmf3Positions) delete[] m_pxmf3Positions;
+	if (m_pxmf3Positions) delete[] m_pxmf3Positions;*/
 }
 
 void CMesh::ReleaseUploadBuffers()
@@ -38,9 +36,9 @@ void CMesh::ReleaseUploadBuffers()
 	if (m_pd3dVertexUploadBuffer) m_pd3dVertexUploadBuffer->Release();
 	m_pd3dVertexUploadBuffer = NULL;
 
-	if ((m_nSubMeshes > 0) && m_ppd3dSubSetIndexUploadBuffers)
+	if ((0<m_nSubMeshes ) && m_ppd3dSubSetIndexUploadBuffers)
 	{
-		for (int i = 0; i < m_nSubMeshes; i++)
+		for (int i{}; i < m_nSubMeshes; ++i)
 		{
 			if (m_ppd3dSubSetIndexUploadBuffers[i]) m_ppd3dSubSetIndexUploadBuffers[i]->Release();
 		}
@@ -54,7 +52,7 @@ void CMesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet)
 	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
 	pd3dCommandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dVertexBufferView);
 
-	if ((m_nSubMeshes > 0) && (nSubSet < m_nSubMeshes))//스카이 박스가 사용
+	if (( 0 <m_nSubMeshes ) && (nSubSet < m_nSubMeshes))//스카이 박스가 사용
 	{
 		pd3dCommandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
 		pd3dCommandList->DrawIndexedInstanced(m_pnSubSetIndices[nSubSet], 1, 0, 0, 0);
@@ -78,11 +76,11 @@ CTexturedRectMesh::CTexturedRectMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	m_pxmf2TextureCoords0 = new XMFLOAT2[m_nVertices];
 	CTexturedVertex pVertices[6];
 
-	float fx = (fWidth * 0.5f) + fxPosition, fy = (fHeight * 0.5f) + fyPosition, fz = (fDepth * 0.5f) + fzPosition;
+	float fx{ (fWidth * 0.5f) + fxPosition }, fy{ (fHeight * 0.5f) + fyPosition }, fz{ (fDepth * 0.5f) + fzPosition };
 
-	if (fWidth == 0.0f)
+	if (0.0f  == fWidth )
 	{
-		if (fxPosition > 0.0f)
+		if ( 0.0f < fxPosition )
 		{
 			m_pxmf3Positions[0] = XMFLOAT3(fx, +fy, -fz); m_pxmf2TextureCoords0[0] = XMFLOAT2(1.0f, 0.0f);
 			m_pxmf3Positions[1] = XMFLOAT3(fx, -fy, -fz); m_pxmf2TextureCoords0[1] = XMFLOAT2(1.0f, 1.0f);
@@ -115,9 +113,9 @@ CTexturedRectMesh::CTexturedRectMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 			pVertices[5] = CTexturedVertex(XMFLOAT3(fx, +fy, +fz), XMFLOAT2(1.0f, 0.0f));
 		}
 	}
-	else if (fHeight == 0.0f)
+	else if (0.0f==fHeight )
 	{
-		if (fyPosition > 0.0f)
+		if ( 0.0f  < fyPosition  )
 		{
 			m_pxmf3Positions[0] = XMFLOAT3(+fx, fy, -fz); m_pxmf2TextureCoords0[0] = XMFLOAT2(1.0f, 0.0f);
 			m_pxmf3Positions[1] = XMFLOAT3(+fx, fy, +fz); m_pxmf2TextureCoords0[1] = XMFLOAT2(1.0f, 1.0f);
@@ -152,9 +150,9 @@ CTexturedRectMesh::CTexturedRectMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 			pVertices[5] = CTexturedVertex(XMFLOAT3(+fx, fy, +fz), XMFLOAT2(1.0f, 0.0f));
 		}
 	}
-	else if (fDepth == 0.0f)
+	else if ( 0.0f == fDepth  )
 	{
-		if (fzPosition > 0.0f)
+		if ( 0.0f<fzPosition  )
 		{
 			m_pxmf3Positions[0] = XMFLOAT3(+fx, +fy, fz); m_pxmf2TextureCoords0[0] = XMFLOAT2(1.0f, 0.0f);
 			m_pxmf3Positions[1] = XMFLOAT3(+fx, -fy, fz); m_pxmf2TextureCoords0[1] = XMFLOAT2(1.0f, 1.0f);
@@ -468,7 +466,7 @@ void CStandardMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 		else if (!strcmp(pstrToken, "<SubMeshes>:"))
 		{
 			nReads = (UINT)::fread(&(m_nSubMeshes), sizeof(int), 1, pInFile);
-			if (m_nSubMeshes > 0)
+			if ( 0 <m_nSubMeshes )
 			{
 				m_pnSubSetIndices = new int[m_nSubMeshes];
 				m_ppnSubSetIndices = new UINT * [m_nSubMeshes];
@@ -477,14 +475,14 @@ void CStandardMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 				m_ppd3dSubSetIndexUploadBuffers = new ID3D12Resource * [m_nSubMeshes];
 				m_pd3dSubSetIndexBufferViews = new D3D12_INDEX_BUFFER_VIEW[m_nSubMeshes];
 
-				for (int i = 0; i < m_nSubMeshes; i++)
+				for (int i{}; i < m_nSubMeshes; ++i)
 				{
 					nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
 					nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile);
 					pstrToken[nStrLength] = '\0';
 					if (!strcmp(pstrToken, "<SubMesh>:"))
 					{
-						int nIndex = 0;
+						int nIndex{};
 						nReads = (UINT)::fread(&nIndex, sizeof(int), 1, pInFile);
 						nReads = (UINT)::fread(&(m_pnSubSetIndices[i]), sizeof(int), 1, pInFile);
 						if (m_pnSubSetIndices[i] > 0)
@@ -546,9 +544,9 @@ CRawFormatImage::CRawFormatImage(LPCTSTR pFileName, int nWidth, int nLength, boo
 	if (bFlipY)
 	{
 		m_pRawImagePixels = new BYTE[m_nWidth * m_nLength];
-		for (int z = 0; z < m_nLength; z++)
+		for (int z{}; z < m_nLength; ++z)
 		{
-			for (int x = 0; x < m_nWidth; x++)
+			for (int x{}; x < m_nWidth; ++x)
 			{
 				m_pRawImagePixels[x + ((m_nLength - 1 - z) * m_nWidth)] = pRawImagePixels[x + (z * m_nWidth)];
 			}
@@ -657,9 +655,9 @@ CHeightMapGridMesh::CHeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	m_pxmf2TextureCoords1 = new XMFLOAT2[m_nVertices];
 
 	float fHeight = 0.0f, fMinHeight = +FLT_MAX, fMaxHeight = -FLT_MAX;
-	for (int i = 0, z = zStart; z < (zStart + nLength); z++)
+	for (int i{}, z = zStart; z < (zStart + nLength); ++z)
 	{
-		for (int x = xStart; x < (xStart + nWidth); x++, i++)
+		for (int x{ xStart }; x < (xStart + nWidth); ++x, ++i)
 		{
 			fHeight = OnGetHeight(x, z, pContext);
 			m_pxmf3Positions[i] = XMFLOAT3((x * m_xmf3Scale.x), fHeight, (z * m_xmf3Scale.z));
@@ -679,7 +677,6 @@ CHeightMapGridMesh::CHeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
 	m_d3dVertexBufferView.StrideInBytes = sizeof(XMFLOAT3);
 	m_d3dVertexBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
-	//
 
 	m_pd3dColorBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf4Colors, sizeof(XMFLOAT4) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dColorUploadBuffer);
 	m_d3dColorBufferView.BufferLocation = m_pd3dColorBuffer->GetGPUVirtualAddress();
@@ -707,22 +704,22 @@ CHeightMapGridMesh::CHeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	m_pnSubSetIndices[0] = ((nWidth * 2) * (nLength - 1)) + ((nLength - 1) - 1);
 	m_ppnSubSetIndices[0] = new UINT[m_pnSubSetIndices[0]];
 
-	for (int j = 0, z = 0; z < nLength - 1; z++)
+	for (int j{}, z{}; z < nLength - 1; ++z)
 	{
-		if ((z % 2) == 0)
+		if (0==(z % 2) )
 		{
-			for (int x = 0; x < nWidth; x++)
+			for (int x{}; x < nWidth; ++x)
 			{
-				if ((x == 0) && (z > 0)) m_ppnSubSetIndices[0][j++] = (UINT)(x + (z * nWidth));
+				if ((0==x ) && (z > 0)) m_ppnSubSetIndices[0][j++] = (UINT)(x + (z * nWidth));
 				m_ppnSubSetIndices[0][j++] = (UINT)(x + (z * nWidth));
 				m_ppnSubSetIndices[0][j++] = (UINT)((x + (z * nWidth)) + nWidth);
 			}
 		}
 		else
 		{
-			for (int x = nWidth - 1; x >= 0; x--)
+			for (int x{ nWidth - 1 }; x >= 0; --x)
 			{
-				if (x == (nWidth - 1)) m_ppnSubSetIndices[0][j++] = (UINT)(x + (z * nWidth));
+				if ( (nWidth - 1) == x ) m_ppnSubSetIndices[0][j++] = (UINT)(x + (z * nWidth));
 				m_ppnSubSetIndices[0][j++] = (UINT)(x + (z * nWidth));
 				m_ppnSubSetIndices[0][j++] = (UINT)((x + (z * nWidth)) + nWidth);
 			}
@@ -832,10 +829,10 @@ CGridMesh::CGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 		czHeightMap = pHeightMapImage->GetHeightMapLength();
 	}
 
-	float fHeight = 0.0f, fMinHeight = +FLT_MAX, fMaxHeight = -FLT_MAX;
-	for (int i = 0, z = zStart; z < (zStart + nLength); z++)
+	float fHeight{ 0.0f }, fMinHeight{ +FLT_MAX }, fMaxHeight{ -FLT_MAX };
+	for (int i{}, z = zStart; z < (zStart + nLength); ++z)
 	{
-		for (int x = xStart; x < (xStart + nWidth); x++, i++)
+		for (int x{ xStart }; x < (xStart + nWidth); ++x, ++i)
 		{
 			fHeight = OnGetHeight(x, z, pContext);
 			pVertices[i].m_xmf3Position = XMFLOAT3((x * m_xmf3Scale.x), fHeight, (z * m_xmf3Scale.z));
@@ -858,11 +855,11 @@ CGridMesh::CGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 	m_nIndices = ((nWidth * 2) * (nLength - 1)) + ((nLength - 1) - 1);
 	UINT* pnIndices = new UINT[m_nIndices];
 
-	for (int j = 0, z = 0; z < nLength - 1; z++)
+	for (int j{}, z{}; z < nLength - 1; ++z)
 	{
-		if ((z % 2) == 0)
+		if (0==(z % 2) )
 		{
-			for (int x = 0; x < nWidth; x++)
+			for (int x{}; x < nWidth; ++x)
 			{
 				if ((x == 0) && (z > 0)) pnIndices[j++] = (UINT)(x + (z * nWidth));
 				pnIndices[j++] = (UINT)(x + (z * nWidth));
@@ -871,7 +868,7 @@ CGridMesh::CGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 		}
 		else
 		{
-			for (int x = nWidth - 1; x >= 0; x--)
+			for (int x{ nWidth - 1 }; x >= 0; --x)
 			{
 				if (x == (nWidth - 1)) pnIndices[j++] = (UINT)(x + (z * nWidth));
 				pnIndices[j++] = (UINT)(x + (z * nWidth));
@@ -882,7 +879,7 @@ CGridMesh::CGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 
 
 
-	m_nSubMeshes = 1;
+	m_nSubMeshes=1;
 	m_pnSubSetIndices = new int[m_nSubMeshes];
 	m_ppnSubSetIndices = new UINT * [m_nSubMeshes];
 

@@ -13,25 +13,25 @@ CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootPar
 	m_nTextureType = nTextureType;
 
 	m_nTextures = nTextures;
-	if (m_nTextures > 0)
+	if ( 0 <m_nTextures )
 	{
 		m_ppd3dTextureUploadBuffers = new ID3D12Resource * [m_nTextures];
 		m_ppd3dTextures = new ID3D12Resource * [m_nTextures];
-		for (int i = 0; i < m_nTextures; i++) m_ppd3dTextureUploadBuffers[i] = m_ppd3dTextures[i] = NULL;
+		for (int i{}; i < m_nTextures; ++i) m_ppd3dTextureUploadBuffers[i] = m_ppd3dTextures[i] = NULL;
 
 		m_ppstrTextureNames = new _TCHAR[m_nTextures][64];
-		for (int i = 0; i < m_nTextures; i++) m_ppstrTextureNames[i][0] = '\0';
+		for (int i{}; i < m_nTextures; ++i) m_ppstrTextureNames[i][0] = '\0';
 
 		m_pd3dSrvGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nTextures];
-		for (int i = 0; i < m_nTextures; i++) m_pd3dSrvGpuDescriptorHandles[i].ptr = NULL;
+		for (int i{}; i < m_nTextures; ++i) m_pd3dSrvGpuDescriptorHandles[i].ptr = NULL;
 
 		m_pnResourceTypes = new UINT[m_nTextures];
 		m_pdxgiBufferFormats = new DXGI_FORMAT[m_nTextures];
 		m_pnBufferElements = new int[m_nTextures];
 	}
 	m_nRootParameters = nRootParameters;
-	if (nRootParameters > 0) m_pnRootParameterIndices = new int[nRootParameters];
-	for (int i = 0; i < m_nRootParameters; i++) m_pnRootParameterIndices[i] = -1;
+	if ( 0 <nRootParameters ) m_pnRootParameterIndices = new int[nRootParameters];
+	for (int i{}; i < m_nRootParameters;++i) m_pnRootParameterIndices[i] = -1;
 
 	m_nSamplers = nSamplers;
 	if (m_nSamplers > 0) m_pd3dSamplerGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nSamplers];
@@ -41,7 +41,7 @@ CTexture::~CTexture()
 {
 	if (m_ppd3dTextures)
 	{
-		for (int i = 0; i < m_nTextures; i++) if (m_ppd3dTextures[i]) m_ppd3dTextures[i]->Release();
+		for (int i{}; i < m_nTextures; ++i) if (m_ppd3dTextures[i]) m_ppd3dTextures[i]->Release();
 		delete[] m_ppd3dTextures;
 	}
 
@@ -72,12 +72,12 @@ void CTexture::SetSampler(int nIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSamplerGpuD
 	m_pd3dSamplerGpuDescriptorHandles[nIndex] = d3dSamplerGpuDescriptorHandle;
 }
 
-void CTexture::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)//1016
+void CTexture::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	if (m_nRootParameters == m_nTextures)
 	{
 
-		for (int i = 0; i < m_nRootParameters; i++)
+		for (int i{}; i < m_nRootParameters; ++i)
 		{
 
 
@@ -107,7 +107,7 @@ void CTexture::ReleaseUploadBuffers()
 {
 	if (m_ppd3dTextureUploadBuffers)
 	{
-		for (int i = 0; i < m_nTextures; i++) if (m_ppd3dTextureUploadBuffers[i]) m_ppd3dTextureUploadBuffers[i]->Release();
+		for (int i{}; i < m_nTextures; ++i) if (m_ppd3dTextureUploadBuffers[i]) m_ppd3dTextureUploadBuffers[i]->Release();
 		delete[] m_ppd3dTextureUploadBuffers;
 		m_ppd3dTextureUploadBuffers = NULL;
 	}
@@ -281,7 +281,7 @@ void CMaterial::SetTexture(CTexture* pTexture)
 void CMaterial::ReleaseUploadBuffers()
 {
 	if (m_pShader) m_pShader->ReleaseUploadBuffers();
-	if (m_pTexture) m_pTexture->ReleaseUploadBuffers();
+	//if (m_pTexture) m_pTexture->ReleaseUploadBuffers();
 }
 
 void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
@@ -317,14 +317,14 @@ CGameObject::CGameObject(int nMeshes, int nMaterials) : CGameObject()
 {
 	m_nMeshes = nMeshes;
 	m_ppMeshes = NULL;
-	if (m_nMeshes > 0)
+	if ( 0 <m_nMeshes )
 	{
 		m_ppMeshes = new CMesh * [m_nMeshes];
-		for (int i = 0; i < m_nMeshes; i++)	m_ppMeshes[i] = NULL;
+		for (int i{}; i < m_nMeshes; ++i)	m_ppMeshes[i] = NULL;
 	}
 
 	m_nMaterials = nMaterials;
-	if (m_nMaterials > 0)
+	if ( 0<m_nMaterials )
 	{
 		m_ppMaterials = new CMaterial * [m_nMaterials];
 		for (int i{}; i < m_nMaterials; ++i) m_ppMaterials[i] = NULL;
@@ -333,26 +333,26 @@ CGameObject::CGameObject(int nMeshes, int nMaterials) : CGameObject()
 
 CGameObject::~CGameObject()
 {
-	ReleaseShaderVariables();
+	//ReleaseShaderVariables();
 
 	if (m_ppMeshes)
 	{
-		for (int i = 0; i < m_nMeshes; i++)
+		for (int i{}; i < m_nMeshes; ++i)
 		{
 			if (m_ppMeshes[i]) m_ppMeshes[i]->Release();
 			m_ppMeshes[i] = NULL;
 		}
-		delete[] m_ppMeshes;
+		//delete[] m_ppMeshes;
 	}
 
-	if (m_nMaterials > 0)
+	/*if (m_nMaterials > 0)
 	{
 		for (int i = 0; i < m_nMaterials; i++)
 		{
 			if (m_ppMaterials[i]) m_ppMaterials[i]->Release();
 		}
 	}
-	if (m_ppMaterials) delete[] m_ppMaterials;
+	if (m_ppMaterials) delete[] m_ppMaterials;*/
 }
 
 void CGameObject::AddRef()
@@ -473,7 +473,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 
 	if (m_ppMeshes)
 	{
-		for (int i = 0; i < m_nMeshes; i++)
+		for (int i{}; i < m_nMeshes; ++i)
 		{
 			if (m_ppMeshes[i])
 				m_ppMeshes[i]->Render(pd3dCommandList, 0);
@@ -501,7 +501,7 @@ void CGameObject::Render2(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 
 	if (m_ppMeshes)
 	{
-		for (int i = 0; i < m_nMeshes; i++)
+		for (int i{}; i < m_nMeshes; ++i)
 		{
 			if (m_ppMeshes[i])
 			{
@@ -561,7 +561,7 @@ void CGameObject::ReleaseUploadBuffers()
 		if (m_ppMeshes[i]) m_ppMeshes[i]->ReleaseUploadBuffers();
 	}*/
 
-	for (int i = 0; i < m_nMaterials; i++)
+	for (int i{}; i < m_nMaterials; ++i)
 	{
 		if (m_ppMaterials[i]) m_ppMaterials[i]->ReleaseUploadBuffers();
 	}
@@ -691,14 +691,14 @@ void CGameObject::SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up)
 
 int CGameObject::FindReplicatedTexture(_TCHAR* pstrTextureName, D3D12_GPU_DESCRIPTOR_HANDLE* pd3dSrvGpuDescriptorHandle)
 {
-	int nParameterIndex = -1;
+	int nParameterIndex{ -1 };
 
-	for (int i = 0; i < m_nMaterials; i++)
+	for (int i{}; i < m_nMaterials; ++i)
 	{
 		if (m_ppMaterials[i] && m_ppMaterials[i]->m_pTexture)
 		{
 			int nTextures = m_ppMaterials[i]->m_pTexture->GetTextures();
-			for (int j = 0; j < nTextures; j++)
+			for (int j{}; j < nTextures; ++j)
 			{
 				if (!_tcsncmp(m_ppMaterials[i]->m_pTexture->GetTextureName(j), pstrTextureName, _tcslen(pstrTextureName)))
 				{
@@ -725,10 +725,10 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 	UINT nReads = (UINT)::fread(&m_nMaterials, sizeof(int), 1, pInFile);
 
 	m_ppMaterials = new CMaterial * [m_nMaterials];
-	for (int i = 0; i < m_nMaterials; i++) m_ppMaterials[i] = NULL;
+	for (int i{}; i < m_nMaterials; ++i) m_ppMaterials[i] = NULL;
 
-	CMaterial* pMaterial = NULL;
-	CTexture* pTexture = NULL;
+	CMaterial* pMaterial{ NULL };
+	CTexture* pTexture{ NULL };
 
 	for (; ; )
 	{
@@ -831,7 +831,7 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, I
 
 	int nFrame = 0, nTextures = 0;
 
-	CGameObject* pGameObject = NULL;
+	CGameObject* pGameObject{ NULL };
 
 	for (; ; )
 	{
@@ -879,7 +879,7 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, I
 			nReads = (UINT)::fread(&nChilds, sizeof(int), 1, pInFile);
 			if (nChilds > 0)
 			{
-				for (int i = 0; i < nChilds; i++)
+				for (int i{}; i < nChilds; ++i)
 				{
 					CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader);
 					if (pChild) pGameObject->SetChild(pChild);
@@ -913,7 +913,7 @@ void CGameObject::PrintFrameInfo(CGameObject* pGameObject, CGameObject* pParent)
 CGameObject* CGameObject::LoadGeometryFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
 	ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, CShader* pShader)
 {
-	FILE* pInFile = NULL;
+	FILE* pInFile{ NULL };
 	::fopen_s(&pInFile, pstrFileName, "rb");
 	::rewind(pInFile);
 
@@ -1110,12 +1110,12 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 	m_nMeshes = cxBlocks * czBlocks;
 	m_ppMeshes = new CMesh * [m_nMeshes];
-	for (int i = 0; i < m_nMeshes; i++)	m_ppMeshes[i] = NULL;
+	for (int i{}; i < m_nMeshes; ++i)	m_ppMeshes[i] = NULL;
 
-	CHeightMapGridMesh* pHeightMapGridMesh = NULL;
-	for (int z = 0, zStart = 0; z < czBlocks; z++)
+	CHeightMapGridMesh* pHeightMapGridMesh{ NULL };
+	for (int z{}, zStart{}; z < czBlocks; ++z)
 	{
-		for (int x = 0, xStart = 0; x < cxBlocks; x++)
+		for (int x{}, xStart{}; x < cxBlocks; ++x)
 		{
 			xStart = x * (nBlockWidth - 1);
 			zStart = z * (nBlockLength - 1);
@@ -1187,17 +1187,17 @@ CRippleWater::CRippleWater(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 
 	m_xmf3Scale = xmf3Scale;
 
-	long cxBlocks = (m_nWidth - 1) / cxQuadsPerBlock;
-	long czBlocks = (m_nLength - 1) / czQuadsPerBlock;
+	long cxBlocks{ (m_nWidth - 1) / cxQuadsPerBlock };
+	long czBlocks{ (m_nLength - 1) / czQuadsPerBlock };
 
 	m_nMeshes = cxBlocks * czBlocks;
 	m_ppMeshes = new CMesh * [m_nMeshes];
-	for (int i = 0; i < m_nMeshes; i++)	m_ppMeshes[i] = NULL;
+	for (int i{}; i < m_nMeshes; ++i)	m_ppMeshes[i] = NULL;
 
-	CGridMesh* pGridMesh = NULL;
-	for (int z = 0, zStart = 0; z < czBlocks; z++)
+	CGridMesh* pGridMesh{ NULL };
+	for (int z{}, zStart{}; z < czBlocks; ++z)
 	{
-		for (int x = 0, xStart = 0; x < cxBlocks; x++)
+		for (int x{}, xStart{}; x < cxBlocks; ++x)
 		{
 			xStart = x * (nBlockWidth - 1);
 			zStart = z * (nBlockLength - 1);
@@ -1220,7 +1220,7 @@ CRippleWater::CRippleWater(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 
 	pRippleWaterShader->CreateShaderResourceViews(pd3dDevice, pWaterTexture, 0, 13);
 
-	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+	UINT ncbElementBytes{ ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255) }; //256의 배수
 
 
 	pRippleWaterShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);

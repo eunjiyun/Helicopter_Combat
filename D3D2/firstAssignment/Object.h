@@ -13,6 +13,7 @@
 #define DIR_RIGHT					0x08
 #define DIR_UP						0x10
 #define DIR_DOWN					0x20
+#define DIR_RUN						0x40
 
 class CShader;
 class CStandardShader;
@@ -47,8 +48,8 @@ struct CB_GAMEOBJECT_INFO
 
 struct CB_GRASSOBJECT_INFO//GrassObjectInfo
 {
-	UINT							m_nType = 0x00;
-	XMFLOAT3						texMat = XMFLOAT3(0.f, 0.f, 0.f);
+	UINT							m_nType{ 0x00 };
+	XMFLOAT3						texMat{ XMFLOAT3(0.f, 0.f, 0.f) };
 };
 
 //============================================================
@@ -62,30 +63,30 @@ public:
 	virtual ~CTexture();
 
 private:
-	int								m_nReferences = 0;
+	int								m_nReferences{};
 
 	UINT							m_nTextureType;
 
 
-	_TCHAR(*m_ppstrTextureNames)[64] = NULL;
-	ID3D12Resource** m_ppd3dTextures = NULL;
+	_TCHAR(*m_ppstrTextureNames)[64] {NULL};
+	ID3D12Resource** m_ppd3dTextures{ NULL };
 	ID3D12Resource** m_ppd3dTextureUploadBuffers;
 
-	UINT* m_pnResourceTypes = NULL;
+	UINT* m_pnResourceTypes{ NULL };
 
-	DXGI_FORMAT* m_pdxgiBufferFormats = NULL;
-	int* m_pnBufferElements = NULL;
+	DXGI_FORMAT* m_pdxgiBufferFormats{ NULL };
+	int* m_pnBufferElements{ NULL };
 
-	int								m_nRootParameters = 0;
-	int* m_pnRootParameterIndices = NULL;
-	D3D12_GPU_DESCRIPTOR_HANDLE* m_pd3dSrvGpuDescriptorHandles = NULL;
+	int								m_nRootParameters{};
+	int* m_pnRootParameterIndices{ NULL };
+	D3D12_GPU_DESCRIPTOR_HANDLE* m_pd3dSrvGpuDescriptorHandles{ NULL };
 
-	int								m_nSamplers = 0;
-	D3D12_GPU_DESCRIPTOR_HANDLE* m_pd3dSamplerGpuDescriptorHandles = NULL;
+	int								m_nSamplers{};
+	D3D12_GPU_DESCRIPTOR_HANDLE* m_pd3dSamplerGpuDescriptorHandles{ NULL };
 
 public:
 	void AddRef() { m_nReferences++; }
-	void Release() { if (--m_nReferences <= 0) delete this; }
+	void Release() { if ( 0>= --m_nReferences ) delete this; }
 
 	void SetSampler(int nIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSamplerGpuDescriptorHandle);
 
@@ -118,17 +119,17 @@ public:
 
 	void ReleaseUploadBuffers();
 
-	int 							m_nRows = 1;
-	int 							m_nCols = 1;
-	int 							m_nRow = 0;
-	int 							m_nCol = 0;
+	int 							m_nRows{ 1 };
+	int 							m_nCols{ 1 };
+	int 							m_nRow{};
+	int 							m_nCol{};
 	XMFLOAT4X4						m_xmf4x4Texture;
 	void AnimateRowColumn(float fTime = 0.0f);
 
 
 	XMFLOAT3 texMat = { 0.0f,0.0f,0.0f };
-	bool							m_bActive = false;
-	int								m_nTextures = 0;
+	bool							m_bActive{ false };
+	int								m_nTextures{};
 };
 
 
@@ -152,22 +153,22 @@ public:
 	virtual ~CMaterial();
 
 private:
-	int								m_nReferences = 0;
+	int								m_nReferences{};
 
 public:
 	void AddRef() { m_nReferences++; }
-	void Release() { if (--m_nReferences <= 0) delete this; }
+	void Release() { if ( 0 >=--m_nReferences ) delete this; }
 
 public:
-	CShader* m_pShader = NULL;
-	CTexture* m_pTexture = NULL;
+	CShader* m_pShader{ NULL };
+	CTexture* m_pTexture{ NULL };
 
 
 
-	XMFLOAT4						m_xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	XMFLOAT4						m_xmf4EmissiveColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-	XMFLOAT4						m_xmf4SpecularColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-	XMFLOAT4						m_xmf4AmbientColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	XMFLOAT4						m_xmf4AlbedoColor{ XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) };
+	XMFLOAT4						m_xmf4EmissiveColor{ XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	XMFLOAT4						m_xmf4SpecularColor{ XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	XMFLOAT4						m_xmf4AmbientColor{ XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
 
 	void SetShader(CShader* pShader);
 	void SetMaterialType(UINT nType) { m_nType |= nType; }
@@ -181,13 +182,13 @@ public:
 	virtual void ReleaseUploadBuffers();
 
 public:
-	UINT							m_nType = 0x00;
+	UINT							m_nType{ 0x00 };
 
-	float							m_fGlossiness = 0.0f;
-	float							m_fSmoothness = 0.0f;
-	float							m_fSpecularHighlight = 0.0f;
-	float							m_fMetallic = 0.0f;
-	float							m_fGlossyReflection = 0.0f;
+	float							m_fGlossiness{ 0.0f };
+	float							m_fSmoothness{ 0.0f };
+	float							m_fSpecularHighlight{ 0.0f };
+	float							m_fMetallic{ 0.0f };
+	float							m_fGlossyReflection{ 0.0f };
 };
 
 
@@ -272,31 +273,31 @@ public:
 	void	Boundingbox_Transform();
 
 private:
-	int								m_nReferences = 0;
+	int								m_nReferences{};
 public:
-	CB_GAMEOBJECT_INFO* m_pcbMappedGameObject = NULL;
-	CB_GRASSOBJECT_INFO* grassObj = NULL;
+	CB_GAMEOBJECT_INFO* m_pcbMappedGameObject{ NULL };
+	CB_GRASSOBJECT_INFO* grassObj{ NULL };
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
 	BoundingBox aabb;
 
 	char							m_pstrFrameName[64];
 
-	int								m_nMeshes = 0;
-	CMesh** m_ppMeshes = nullptr;
+	int								m_nMeshes{};
+	CMesh** m_ppMeshes{ NULL };
 
-	int								m_nMaterials = 0;
-	CMaterial** m_ppMaterials = NULL;
+	int								m_nMaterials{};
+	CMaterial** m_ppMaterials{};
 
 
-	ID3D12Resource* m_pd3dcbGameObject = NULL;
+	ID3D12Resource* m_pd3dcbGameObject{ NULL };
 
 
 	XMFLOAT4X4						m_xmf4x4Transform;
 	XMFLOAT4X4						m_xmf4x4World;
 
-	CGameObject* m_pParent = NULL;
-	CGameObject* m_pChild = NULL;
-	CGameObject* m_pSibling = NULL;
+	CGameObject* m_pParent{ NULL };
+	CGameObject* m_pChild{ NULL };
+	CGameObject* m_pSibling{ NULL };
 
 };
 
@@ -311,8 +312,8 @@ public:
 	virtual ~CSuperCobraObject();
 
 private:
-	CGameObject* m_pMainRotorFrame = NULL;
-	CGameObject* m_pTailRotorFrame = NULL;
+	CGameObject* m_pMainRotorFrame{ NULL };
+	CGameObject* m_pTailRotorFrame{ NULL };
 
 public:
 	virtual void PrepareAnimate();
@@ -326,8 +327,8 @@ public:
 	virtual ~CGunshipObject();
 
 private:
-	CGameObject* m_pMainRotorFrame = NULL;
-	CGameObject* m_pTailRotorFrame = NULL;
+	CGameObject* m_pMainRotorFrame{ NULL };
+	CGameObject* m_pTailRotorFrame{ NULL };
 
 public:
 	virtual void PrepareAnimate();
@@ -341,8 +342,8 @@ public:
 	virtual ~CMi24Object();
 
 private:
-	CGameObject* m_pMainRotorFrame = NULL;
-	CGameObject* m_pTailRotorFrame = NULL;
+	CGameObject* m_pMainRotorFrame{ NULL };
+	CGameObject* m_pTailRotorFrame{ NULL };
 
 public:
 	virtual void PrepareAnimate();
@@ -369,8 +370,8 @@ public:
 
 	virtual void Animate(float fTimeElapsed);
 
-	float m_fRotationAngle = 0.0f;
-	float m_fRotationDelta = 1.0f;
+	float m_fRotationAngle{ 0.0f };
+	float m_fRotationDelta{ 1.0f };
 
 
 };
@@ -410,8 +411,8 @@ public:
 	CMultiSpriteObject();
 	virtual ~CMultiSpriteObject();
 
-	float m_fSpeed = 0.1f;
-	float m_fTime = 0.0f;
+	float m_fSpeed{ 0.1f };
+	float m_fTime{ 0.0f };
 
 	virtual void Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent = NULL);
 };

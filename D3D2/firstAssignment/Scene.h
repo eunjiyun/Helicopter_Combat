@@ -63,32 +63,32 @@ public:
 
 	void ReleaseUploadBuffers();
 
-	CPlayer* m_pPlayer = NULL;
+	CPlayer* m_pPlayer{ NULL };
 
 public:
-	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
+	ID3D12RootSignature* m_pd3dGraphicsRootSignature{ NULL };
 
-	int									m_nGameObjects = 0;
-	CGameObject** m_ppGameObjects = NULL;
+	int									m_nGameObjects{};
+	CGameObject** m_ppGameObjects{ NULL };
 
-	int									m_nShaders = 0;
-	CShader** m_ppShaders = NULL;
-	CObjectsShader* pObjectsShader = nullptr;
-	CMultiSpriteObjectsShader* pMultiSpriteObjectShader = nullptr;
+	int									m_nShaders{};
+	CShader** m_ppShaders{ NULL };
+	CObjectsShader* pObjectsShader{ NULL };
+	CMultiSpriteObjectsShader* pMultiSpriteObjectShader{ NULL };
 
-	CSkyBox* m_pSkyBox = NULL;
-	CHeightMapTerrain* m_pTerrain = NULL;
+	CSkyBox* m_pSkyBox{ NULL };
+	CHeightMapTerrain* m_pTerrain{ NULL };
 
-	LIGHT* m_pLights = NULL;
-	int									m_nLights = 0;
+	LIGHT* m_pLights{ NULL };
+	int									m_nLights{};
 
 	XMFLOAT4							m_xmf4GlobalAmbient;
 
-	ID3D12Resource* m_pd3dcbLights = NULL;
-	LIGHTS* m_pcbMappedLights = NULL;
+	ID3D12Resource* m_pd3dcbLights{ NULL };
+	LIGHTS* m_pcbMappedLights{ NULL };
 
 
-	CRippleWater* m_pTerrainWater = NULL;
+	CRippleWater* m_pTerrainWater{ NULL };
 
 	float* cuT{ nullptr };
 	float* elT{ nullptr };

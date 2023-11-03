@@ -31,14 +31,15 @@ protected:
 	LPVOID						m_pPlayerUpdatedContext;
 	LPVOID						m_pCameraUpdatedContext;
 
-	CCamera* m_pCamera = NULL;
+	CCamera* m_pCamera{ NULL };
 
-	CShader* m_pShader = NULL;
+	CShader* m_pShader{ NULL };
 public:
-	XMFLOAT3 MagicPos = { 5000, 5000, 5000 };
+	XMFLOAT3 MagicPos { 5000, 5000, 5000 };
 	BoundingBox aabb;
 	XMFLOAT3					m_xmf3Position;
-	bool attack = false;
+	bool attack{ false };
+	DWORD direction{};
 public:
 	CPlayer();
 	virtual ~CPlayer();
@@ -95,8 +96,8 @@ public:
 	CAirplanePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~CAirplanePlayer();
 
-	CGameObject* m_pMainRotorFrame = NULL;
-	CGameObject* m_pTailRotorFrame = NULL;
+	CGameObject* m_pMainRotorFrame{ NULL };
+	CGameObject* m_pTailRotorFrame{ NULL };
 
 private:
 	virtual void PrepareAnimate();

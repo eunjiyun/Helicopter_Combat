@@ -14,11 +14,11 @@ public:
 	virtual ~CShader();
 
 private:
-	int									m_nReferences = 0;
+	int									m_nReferences{};
 
 protected:
-	ID3DBlob* m_pd3dVertexShaderBlob = NULL;
-	ID3DBlob* m_pd3dPixelShaderBlob = NULL;
+	ID3DBlob* m_pd3dVertexShaderBlob{ NULL };
+	ID3DBlob* m_pd3dPixelShaderBlob{ NULL };
 
 
 
@@ -36,18 +36,18 @@ protected:
 
 public:
 
-	int									m_nPipelineStates = 0;
-	ID3D12PipelineState** m_ppd3dPipelineStates = NULL;
+	int									m_nPipelineStates{};
+	ID3D12PipelineState** m_ppd3dPipelineStates{ NULL };
 
-	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;
+	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap{ NULL };
 
 
-	bool							m_bActive = true;
+	bool							m_bActive{ true };
 
 
 
 	void AddRef() { m_nReferences++; }
-	void Release() { if (--m_nReferences <= 0) delete this; }
+	void Release() { if ( 0>=--m_nReferences ) delete this; }
 	void SetActive(bool bActive) { m_bActive = bActive; }
 	bool GetActive() { return(m_bActive); }
 
@@ -81,9 +81,9 @@ public:
 
 
 
-	CGameObject** m_ppObjects = 0;
-	int								m_nObjects = 0;
-	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
+	CGameObject** m_ppObjects{};
+	int								m_nObjects{};
+	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects{ NULL };
 
 
 	ID3D12GraphicsCommandList* pd3dCommandList;
@@ -184,13 +184,13 @@ public:
 
 
 public:
-	CGameObject** m_ppObjects = 0;
-	int								m_nObjects = 0;
-	ID3D12Resource* m_pd3dcbGameObjects = NULL;
-	ID3D12Resource* grassObj = NULL;
+	CGameObject** m_ppObjects{};
+	int								m_nObjects{};
+	ID3D12Resource* m_pd3dcbGameObjects{ NULL };
+	ID3D12Resource* grassObj{ NULL };
 
-	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
-	CB_GRASSOBJECT_INFO* grassMappedObj = NULL;
+	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects{ NULL };
+	CB_GRASSOBJECT_INFO* grassMappedObj{ NULL };
 	vector<CGameObject*>obj;
 };
 

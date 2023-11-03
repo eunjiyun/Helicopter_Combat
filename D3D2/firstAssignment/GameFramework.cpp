@@ -467,13 +467,16 @@ void CGameFramework::ProcessInput()
 	if (GetKeyboardState(pKeysBuffer) && m_pScene) bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
 	if (!bProcessedByScene)
 	{
-		DWORD dwDirection = 0;
+		DWORD dwDirection{};
 		if (pKeysBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;//W
 		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//S
 		if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//A
 		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//D
 		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_UP;//X
 		if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_DOWN;//C
+		if (pKeysBuffer[0x10] & 0xF0 && dwDirection) dwDirection |= DIR_RUN;// Shift run
+
+		m_pPlayer->direction = dwDirection;
 
 		float cxDelta = 0.0f, cyDelta = 0.0f;
 		POINT ptCursorPos;

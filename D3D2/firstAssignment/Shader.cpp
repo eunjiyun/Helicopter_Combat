@@ -21,7 +21,7 @@ CShader::~CShader()
 
 	if (m_ppd3dPipelineStates)
 	{
-		for (int i = 0; i < m_nPipelineStates; i++) if (m_ppd3dPipelineStates[i]) m_ppd3dPipelineStates[i]->Release();
+		for (int i{}; i < m_nPipelineStates; ++i) if (m_ppd3dPipelineStates[i]) m_ppd3dPipelineStates[i]->Release();
 		delete[] m_ppd3dPipelineStates;
 	}
 
@@ -236,7 +236,7 @@ void CShader::CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantB
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = pd3dConstantBuffers->GetGPUVirtualAddress();
 	D3D12_CONSTANT_BUFFER_VIEW_DESC d3dCBVDesc;
 	d3dCBVDesc.SizeInBytes = nStride;
-	for (int j = 0; j < nConstantBufferViews; j++)
+	for (int j{}; j < nConstantBufferViews; ++j)
 	{
 		d3dCBVDesc.BufferLocation = d3dGpuVirtualAddress + (nStride * j);
 		D3D12_CPU_DESCRIPTOR_HANDLE d3dCbvCPUDescriptorHandle;
@@ -252,7 +252,7 @@ void CShader::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTex
 
 	int nTextures = pTexture->GetTextures();
 	UINT nTextureType = pTexture->GetTextureType();
-	for (int i = 0; i < nTextures; i++)
+	for (int i{}; i < nTextures; ++i)
 	{
 		ID3D12Resource* pShaderResource = pTexture->GetResource(i);
 		D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc = pTexture->GetShaderResourceViewDesc(i);
@@ -262,7 +262,7 @@ void CShader::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTex
 		m_d3dSrvGPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
 	}
 	int nRootParameters = pTexture->GetRootParameters();
-	for (int i = 0; i < nRootParameters; i++) pTexture->SetRootParameterIndex(i, nRootParameterStartIndex + i);
+	for (int i{}; i < nRootParameters; ++i) pTexture->SetRootParameterIndex(i, nRootParameterStartIndex + i);
 }
 
 
@@ -568,7 +568,7 @@ void CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 
 	if (nFirstPassColumnSize != nColumnSize)
 	{
-		for (int i = 0; i < m_nObjects - int(floor(float(m_nObjects) / float(nColumnSize)) * nFirstPassColumnSize); i++)
+		for (int i{}; i < m_nObjects - int(floor(float(m_nObjects) / float(nColumnSize)) * nFirstPassColumnSize); ++i)
 		{
 			if (nObjects % 2)
 			{
@@ -597,14 +597,14 @@ void CObjectsShader::ReleaseObjects()
 {
 	if (m_ppObjects)
 	{
-		for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j]) m_ppObjects[j]->Release();
+		for (int j{}; j < m_nObjects; ++j) if (m_ppObjects[j]) m_ppObjects[j]->Release();
 		delete[] m_ppObjects;
 	}
 }
 
 void CObjectsShader::AnimateObjects(float fTimeElapsed)
 {
-	for (int j = 0; j < m_nObjects; j++)
+	for (int j{}; j < m_nObjects; ++j)
 	{
 
 		m_ppObjects[j]->Animate(fTimeElapsed);
@@ -615,7 +615,7 @@ void CObjectsShader::AnimateObjects(float fTimeElapsed)
 
 void CObjectsShader::ReleaseUploadBuffers()
 {
-	for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j]) m_ppObjects[j]->ReleaseUploadBuffers();
+	for (int j{}; j < m_nObjects; ++j) if (m_ppObjects[j]) m_ppObjects[j]->ReleaseUploadBuffers();
 }
 
 void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
@@ -633,7 +633,7 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 
 	if (2 == m_nObjects)
 		UpdateShaderVariables(pd3dCommandList);
-	//
+	
 	if (!obj.empty())
 	{
 		for (const auto& o : obj)
@@ -646,7 +646,7 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 	}
 	else
 	{
-		for (int j = 0; j < m_nObjects; j++)
+		for (int j{}; j < m_nObjects; ++j)
 		{
 			if (m_ppObjects[j])
 			{
@@ -808,9 +808,9 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 	CRawFormatImage* pRawFormatImage = new CRawFormatImage(L"Image/ObjectsMap.raw", 257, 257, true);
 
 	int nGrassObjects = 0, nFlowerObjects = 0, nBlacks = 0, nOthers = 0, nTreeObjects[3] = { 0, 0, 0 };
-	for (int z = 2; z <= 254; z++)
+	for (int z{ 2 }; z <= 254; ++z)
 	{
-		for (int x = 2; x <= 254; x++)
+		for (int x{ 2 }; x <= 254; ++x)
 		{
 			BYTE nPixel = pRawFormatImage->GetRawImagePixel(x, z);
 			switch (nPixel)
@@ -854,9 +854,9 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 	m_ppObjects = new CGameObject * [m_nObjects];
 
 	CGrassObject* pBillboardObject = NULL;
-	for (int nObjects = 0, z = 2; z <= 254; z++)
+	for (int nObjects{}, z{ 2 }; z <= 254; ++z)
 	{
-		for (int x = 2; x <= 254; x++)
+		for (int x{ 2 }; x <= 254; ++x)
 		{
 			BYTE nPixel = pRawFormatImage->GetRawImagePixel(x, z);
 
@@ -965,7 +965,7 @@ D3D12_INPUT_LAYOUT_DESC CBillboardObjectsShader::CreateInputLayout()
 void CBillboardObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)//1207
 {
 	XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
-	for (int j = 0; j < m_nObjects; j++)
+	for (int j{}; j < m_nObjects; ++j)
 	{
 
 		if (m_ppObjects[j]) m_ppObjects[j]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
@@ -978,7 +978,7 @@ void CBillboardObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList,
 
 	CObjectsShader::UpdateShaderVariables(pd3dCommandList);
 
-	for (int j = 0; j < m_nObjects; j++)
+	for (int j{}; j < m_nObjects; ++j)
 	{
 		if (m_ppObjects[j]) m_ppObjects[j]->Render(pd3dCommandList, pCamera);
 	}
@@ -1101,7 +1101,7 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 	ppSpriteMaterials[5]->SetTexture(ppSpriteTextures[5]);
 
 
-	CTexturedRectMesh* pSpriteMesh = nullptr;
+	CTexturedRectMesh* pSpriteMesh{ NULL };
 
 	m_nObjects = 6;
 
@@ -1176,7 +1176,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 		XMFLOAT3 xmf3PlayerLook = pPlayer->GetLookVector();
 		xmf3PlayerPosition.y += 5.0f;
 		XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
-		XMFLOAT3 xmf3MonPos, xmf3MonLook;
+		XMFLOAT3 xmf3MonPos/*, xmf3MonLook*/;
 
 
 

@@ -145,6 +145,10 @@ void CPlayer::Rotate(float x, float y, float z)
 
 void CPlayer::Update(float fTimeElapsed)
 {
+	//if (onAttack || onCollect || onDie) SetMaxVelocityXZ(0.0f);
+	if (direction & DIR_RUN) SetMaxVelocityXZ(100.0f);
+	else SetMaxVelocityXZ(25.5f);
+
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Gravity);
 	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 	float fMaxVelocityXZ = m_fMaxVelocityXZ;
@@ -329,7 +333,7 @@ CCamera* CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 	case THIRD_PERSON_CAMERA:
 		SetFriction(20.5f);
 		SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
-		SetMaxVelocityXZ(25.5f);
+		//SetMaxVelocityXZ(25.5f);
 		SetMaxVelocityY(20.0f);
 		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.25f);
