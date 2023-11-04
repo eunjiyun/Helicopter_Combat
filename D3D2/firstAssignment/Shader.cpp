@@ -287,7 +287,7 @@ void CShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, int nP
 	if (m_ppd3dPipelineStates)
 		pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[nPipelineState]);
 
-	if (m_pd3dCbvSrvDescriptorHeap) //1202오류
+	if (m_pd3dCbvSrvDescriptorHeap) 
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
 
@@ -476,7 +476,6 @@ D3D12_SHADER_BYTECODE CTexturedShader::CreateVertexShader(ID3DBlob** ppd3dShader
 
 D3D12_SHADER_BYTECODE CTexturedShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
 {
-	//1202
 	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSTextured", "ps_5_1", ppd3dShaderBlob));
 }
 
@@ -627,7 +626,7 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 		if (CStandardShader::m_ppd3dPipelineStates)
 			pd3dCommandList->SetPipelineState(CStandardShader::m_ppd3dPipelineStates[0]);
 
-		if (CStandardShader::m_pd3dCbvSrvDescriptorHeap) //1202오류
+		if (CStandardShader::m_pd3dCbvSrvDescriptorHeap)
 			pd3dCommandList->SetDescriptorHeaps(1, &(CStandardShader::m_pd3dCbvSrvDescriptorHeap));
 	}
 
@@ -962,7 +961,7 @@ D3D12_INPUT_LAYOUT_DESC CBillboardObjectsShader::CreateInputLayout()
 
 	return(d3dInputLayoutDesc);
 }
-void CBillboardObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)//1207
+void CBillboardObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
 	for (int j{}; j < m_nObjects; ++j)
@@ -1034,7 +1033,7 @@ D3D12_BLEND_DESC CMultiSpriteObjectsShader::CreateBlendState()
 
 D3D12_SHADER_BYTECODE CMultiSpriteObjectsShader::CreateVertexShader()
 {
-	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSSpriteAnimation", "vs_5_1", &m_pd3dVertexShaderBlob));//VSTextured
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSSpriteAnimation", "vs_5_1", &m_pd3dVertexShaderBlob));
 
 }
 D3D12_SHADER_BYTECODE CMultiSpriteObjectsShader::CreatePixelShader()
@@ -1069,21 +1068,21 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 {
 
 	ppSpriteTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1, 8, 8);
-	ppSpriteTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Explode_8x8.dds", RESOURCE_TEXTURE2D, 0);//Explode_8x8
+	ppSpriteTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Explode_8x8.dds", RESOURCE_TEXTURE2D, 0);
 	ppSpriteTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1, 6, 6);
-	ppSpriteTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Explosion_6x6.dds", RESOURCE_TEXTURE2D, 0);//Explosion_6x6
+	ppSpriteTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Explosion_6x6.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppSpriteTextures[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	ppSpriteTextures[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/a.dds", RESOURCE_TEXTURE2D, 0);//Explosion_6x6
+	ppSpriteTextures[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/a.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppSpriteTextures[3] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	ppSpriteTextures[3]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/b.dds", RESOURCE_TEXTURE2D, 0);//Explosion_6x6
+	ppSpriteTextures[3]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/b.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppSpriteTextures[4] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	ppSpriteTextures[4]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/c.dds", RESOURCE_TEXTURE2D, 0);//Explosion_6x6
+	ppSpriteTextures[4]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/c.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppSpriteTextures[5] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	ppSpriteTextures[5]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/a.dds", RESOURCE_TEXTURE2D, 0);//Explosion_6x6
+	ppSpriteTextures[5]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/a.dds", RESOURCE_TEXTURE2D, 0);
 
 	CMaterial* ppSpriteMaterials[6];
 	ppSpriteMaterials[0] = new CMaterial();
@@ -1229,7 +1228,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 
 				/*m_ppObjects[j]->Animate(0.16f);
 				m_ppObjects[j]->UpdateTransform(NULL);*/
-				m_ppObjects[j]->Render(pd3dCommandList, pCamera);//여기 렌더 구조를 어떡할지
+				m_ppObjects[j]->Render(pd3dCommandList, pCamera);
 
 
 			}

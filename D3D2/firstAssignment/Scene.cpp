@@ -540,13 +540,17 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 
 	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
 
+	
+
+	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 3, &m_pTerrainWater->m_ppMaterials[0]->m_pTexture->texMat, 24);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, cuT, 28);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, elT, 29);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, x, 30);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, y, 31);
-
+	
 	m_pTerrainWater->m_nMaterials = 1;
-	if (m_pTerrainWater)m_pTerrainWater->Render(pd3dCommandList, pCamera);
+	if (m_pTerrainWater)
+		m_pTerrainWater->Render(pd3dCommandList, pCamera);
 
 
 

@@ -57,7 +57,7 @@ CTexture::~CTexture()
 	if (m_pd3dSamplerGpuDescriptorHandles) delete[] m_pd3dSamplerGpuDescriptorHandles;
 }
 
-void CTexture::SetRootParameterIndex(int nIndex, UINT nRootParameterIndex)//1016
+void CTexture::SetRootParameterIndex(int nIndex, UINT nRootParameterIndex)
 {
 	m_pnRootParameterIndices[nIndex] = nRootParameterIndex;
 }
@@ -456,17 +456,11 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 
 	if (m_ppMaterials)
 	{
-
 		if (!(m_ppMaterials[0]->m_pShader) && m_ppMaterials[0]->m_pTexture
 			|| 3 == m_ppMaterials[0]->m_pTexture->m_nTextures)
 		{
 			pd3dCommandList->SetGraphicsRoot32BitConstants(1, 3, &m_ppMaterials[0]->m_pTexture->texMat, 24);
-
-
-
 			m_ppMaterials[0]->m_pTexture->UpdateShaderVariables(pd3dCommandList);
-
-
 		}
 	}
 
