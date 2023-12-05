@@ -132,6 +132,17 @@ void CScene::ReleaseObjects()
 		delete[] m_ppShaders;
 	}
 
+	if (m_ppEnvironmentMappingShaders)
+	{
+		for (int i = 0; i < m_nEnvironmentMappingShaders; i++)
+		{
+			m_ppEnvironmentMappingShaders[i]->ReleaseShaderVariables();
+			m_ppEnvironmentMappingShaders[i]->ReleaseObjects();
+			m_ppEnvironmentMappingShaders[i]->Release();
+		}
+		delete[] m_ppEnvironmentMappingShaders;
+	}
+
 	if (m_pTerrain) delete m_pTerrain;
 	if (m_pSkyBox) delete m_pSkyBox;
 	if (m_pTerrainWater) delete m_pTerrainWater;
@@ -549,6 +560,15 @@ void CScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 		pd3dCommandList->SetGraphicsRootConstantBufferView(3, d3dcbMaterialsGpuVirtualAddress); //Materials
 	}
 }
+
+void CScene::OnPreRender(ID3D12Device* pd3dDevice, ID3D12CommandQueue* pd3dCommandQueue, ID3D12Fence* pd3dFence, HANDLE hFenceEvent)
+{
+	for (int i = 0; i < m_nEnvironmentMappingShaders; i++)
+	{
+		m_ppEnvironmentMappingShaders[i]->OnPreRender(pd3dDevice, pd3dCommandQueue, pd3dFence, hFenceEvent, this);
+	}
+}
+
 void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
@@ -567,10 +587,10 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
 
 
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, cuT, 28);
+	/*pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, cuT, 28);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, elT, 29);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, x, 30);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, y, 31);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, y, 31);*/
 	
 	m_pTerrainWater->m_nMaterials = 1;
 	if (m_pTerrainWater)
