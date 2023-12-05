@@ -602,6 +602,8 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 
 	pObjectsShader->Render(pd3dCommandList, pCamera);//Çï±â
 
+	m_pPlayer->Render(pd3dCommandList, pCamera);
+
 	for (int i{}; i < m_nEnvironmentMappingShaders; ++i) {
 		m_ppEnvironmentMappingShaders[i]->Render(pd3dCommandList, pCamera);
 	}
