@@ -59,6 +59,7 @@ public:
 
 	bool ProcessInput(UCHAR* pKeysBuffer);
 	void AnimateObjects(float fTimeElapsed);
+	void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList);
 	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
 
 	void ReleaseUploadBuffers();
@@ -94,4 +95,9 @@ public:
 	float* elT{ nullptr };
 	float* x{ nullptr };
 	float* y{ nullptr };
+
+	int							m_nEnvironmentMappingShaders{};
+	CDynamicCubeMappingShader** m_ppEnvironmentMappingShaders{ NULL };
+
+	ID3D12Resource* m_pd3dcbMaterials{ NULL };
 };

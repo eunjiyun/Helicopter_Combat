@@ -90,13 +90,10 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 	pMultiSpriteObjectShader = new CMultiSpriteObjectsShader();
-
 	pMultiSpriteObjectShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	pMultiSpriteObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain);
 	pMultiSpriteObjectShader->SetActive(false);
 	m_ppShaders[1] = pMultiSpriteObjectShader;
-
-
 
 	CBillboardObjectsShader* pBillboardObjectShader = new CBillboardObjectsShader();
 	pBillboardObjectShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
@@ -106,6 +103,14 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 	//---------------------------------------------------------------------
+
+	m_nEnvironmentMappingShaders = 1;
+	m_ppEnvironmentMappingShaders = new CDynamicCubeMappingShader * [m_nEnvironmentMappingShaders];
+
+	m_ppEnvironmentMappingShaders[0] = new CDynamicCubeMappingShader(256);
+	m_ppEnvironmentMappingShaders[0]->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	m_ppEnvironmentMappingShaders[0]->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain);
+
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -218,7 +223,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 
 
 	D3D12_ROOT_PARAMETER pd3dRootParameters[14];
-	//
+	
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1; //Camera
@@ -453,10 +458,8 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	m_ppShaders[0]->AnimateObjects(fTimeElapsed);
 	m_ppShaders[2]->AnimateObjects(fTimeElapsed);
 
-	if (pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive)
-	{
+	if (pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive){
 		pMultiSpriteObjectShader->AnimateObjects(fTimeElapsed);
-
 	}
 
 	if (m_pLights)
@@ -497,8 +500,6 @@ void CScene::AnimateObjects(float fTimeElapsed)
 
 		for (int i{}; i < pObjectsShader->m_nObjects; ++i)
 		{
-			
-
 			float bullet_monster_distance = Vector3::Length(Vector3::Subtract(pObjectsShader->obj[i]->aabb.Center, Cur_Pos));
 			if (pObjectsShader->obj[i]->aabb.Intersects(Bullet_Origin, Bullet_Direction, bullet_monster_distance))
 			{
@@ -509,9 +510,6 @@ void CScene::AnimateObjects(float fTimeElapsed)
 
 				m_pPlayer->attack = false;
 
-				
-
-
 			}
 		}
 
@@ -520,8 +518,28 @@ void CScene::AnimateObjects(float fTimeElapsed)
 		MagicLook = Vector3::Normalize(distanceVector);*/
 	}
 
+	for (int i{}; i < m_nEnvironmentMappingShaders; ++i)
+		m_ppEnvironmentMappingShaders[i]->AnimateObjects(fTimeElapsed);
+
 }
 
+void CScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+
+	UpdateShaderVariables(pd3dCommandList);
+
+	if (m_pd3dcbLights)
+	{
+		D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
+		pd3dCommandList->SetGraphicsRootConstantBufferView(4, d3dcbLightsGpuVirtualAddress); //Lights
+	}
+	if (m_pd3dcbMaterials)
+	{
+		D3D12_GPU_VIRTUAL_ADDRESS d3dcbMaterialsGpuVirtualAddress = m_pd3dcbMaterials->GetGPUVirtualAddress();
+		pd3dCommandList->SetGraphicsRootConstantBufferView(3, d3dcbMaterialsGpuVirtualAddress); //Materials
+	}
+}
 void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
@@ -537,12 +555,9 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 
 
 	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
-
 	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
 
-	
 
-	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 3, &m_pTerrainWater->m_ppMaterials[0]->m_pTexture->texMat, 24);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, cuT, 28);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, elT, 29);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, x, 30);
@@ -553,11 +568,13 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 		m_pTerrainWater->Render(pd3dCommandList, pCamera);
 
 
-
-
 	m_ppShaders[2]->Render(pd3dCommandList, pCamera);//Ç®
 	pMultiSpriteObjectShader->Render(pd3dCommandList, pCamera);//ºÒ²É
 
 	pObjectsShader->Render(pd3dCommandList, pCamera);//Çï±â
+
+	for (int i{}; i < m_nEnvironmentMappingShaders; ++i) {
+		m_ppEnvironmentMappingShaders[i]->Render(pd3dCommandList, pCamera);
+	}
 }
 

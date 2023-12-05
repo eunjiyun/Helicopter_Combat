@@ -207,7 +207,6 @@ void CShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	m_d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
 	HRESULT hResult = pd3dDevice->CreateGraphicsPipelineState(&m_d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void**)&m_ppd3dPipelineStates[0]);
-	int pipe = 0;
 }
 
 
@@ -1165,8 +1164,6 @@ void CMultiSpriteObjectsShader::ReleaseObjects()
 
 void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
-
-
 	if (m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive)
 	{
 		XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
@@ -1177,8 +1174,6 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 		XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
 		XMFLOAT3 xmf3MonPos/*, xmf3MonLook*/;
 
-
-
 		for (int j{}; j < 3; ++j)
 		{
 			if (m_ppObjects[j])
@@ -1187,30 +1182,20 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 				{
 					m_ppObjects[j]->SetPosition(xmf3Position);
 					m_ppObjects[j]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
-
 				}
 				else if (2 == j)
 				{
 					xmf3MonPos = hit;
 
-
 					xmf3Position = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
-
 
 					m_ppObjects[j]->SetPosition(xmf3Position);
 					m_ppObjects[j]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 					m_ppObjects[j]->m_ppMaterials[0]->SetTexture(ppSpriteTextures[score]);
-
-
-
 				}
-
-
 			}
 		}
-
-
 
 		if (m_ppd3dPipelineStates)
 			pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);
@@ -1218,34 +1203,24 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 
 		CObjectsShader::UpdateShaderVariables(pd3dCommandList);
 
-
-
-
 		for (int j{}; j < 3; ++j)
 		{
 			if (m_ppObjects[j])
 			{
-
 				/*m_ppObjects[j]->Animate(0.16f);
 				m_ppObjects[j]->UpdateTransform(NULL);*/
 				m_ppObjects[j]->Render(pd3dCommandList, pCamera);
-
-
 			}
 		}
 	}
 	else
-	{
 		hit = XMFLOAT3(0, 0, 0);
-
-	}
 }
 
 
 
 void CTexture::AnimateRowColumn(float fTime)
 {
-
 	texMat.x = float(m_nRow) / texMat.z;//가로
 
 	if (4 != texMat.z)
@@ -1257,15 +1232,11 @@ void CTexture::AnimateRowColumn(float fTime)
 	{
 		if (++m_nCol == texMat.z)
 		{
-
 			++m_nRow;//가로 증가
 			m_nCol = 0; //세로 0
 
-
 			m_bActive = false;
-
 		}
-
 		if (4 != texMat.z)
 		{
 			if (m_nRow == texMat.z)
@@ -1277,7 +1248,6 @@ void CTexture::AnimateRowColumn(float fTime)
 				m_nRow = 0;//가로 0
 		}
 	}
-
 }
 
 //------------------------------------------------------------------------------------------------
@@ -1455,6 +1425,166 @@ D3D12_RASTERIZER_DESC CRippleWaterShader::CreateRasterizerState()
 	return(d3dRasterizerDesc);
 }
 
+//================================================================================
+CDynamicCubeMappingShader::CDynamicCubeMappingShader(UINT nCubeMapSize)
+{
+	m_nCubeMapSize = nCubeMapSize;
+}
+
+CDynamicCubeMappingShader::~CDynamicCubeMappingShader()
+{
+}
+
+D3D12_INPUT_LAYOUT_DESC CDynamicCubeMappingShader::CreateInputLayout()
+{
+	UINT nInputElementDescs = 2;
+	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
+	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
+	return(d3dInputLayoutDesc);
+}
+
+D3D12_SHADER_BYTECODE CDynamicCubeMappingShader::CreateVertexShader()
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSCubeMapping", "vs_5_1", &m_pd3dVertexShaderBlob));
+}
+
+D3D12_SHADER_BYTECODE CDynamicCubeMappingShader::CreatePixelShader()
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSCubeMapping", "ps_5_1", &m_pd3dPixelShaderBlob));
+}
+void CDynamicCubeMappingShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes * m_nObjects, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
+}
+
+void CDynamicCubeMappingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)
+{
+	pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void**)&m_pd3dCommandAllocator);
+	pd3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pd3dCommandAllocator, NULL, __uuidof(ID3D12GraphicsCommandList), (void**)&m_pd3dCommandList);
+	m_pd3dCommandList->Close();
+
+	m_nObjects = 2;
+	m_ppObjects = new CGameObject * [m_nObjects];
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, m_nObjects, m_nObjects);
+	CreateConstantBufferViews(pd3dDevice, m_nObjects, m_pd3dcbGameObjects, ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255));
+
+	D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorStartHandle = m_d3dCbvGPUDescriptorStartHandle;
+
+	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
+	d3dDescriptorHeapDesc.NumDescriptors = m_nObjects;
+	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	d3dDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	d3dDescriptorHeapDesc.NodeMask = 0;
+	HRESULT hResult = pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_pd3dDsvDescriptorHeap);
+
+	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+
+	d3dDescriptorHeapDesc.NumDescriptors = m_nObjects * 6;
+	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_pd3dRtvDescriptorHeap);
+
+	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+
+	CMesh* pMeshIlluminated = new CSphereMeshIlluminated(pd3dDevice, pd3dCommandList, 100.0f, 20, 20);
+
+	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)pContext;
+	XMFLOAT2 xmf2TerrainCenter = XMFLOAT2(pTerrain->GetWidth() * 0.5f, pTerrain->GetLength() * 0.5f);
+
+	for (int i = 0; i < m_nObjects; i++)
+	{
+		m_ppObjects[i] = new CDynamicCubeMappingObject(pd3dDevice, pd3dCommandList, m_nCubeMapSize, d3dDsvCPUDescriptorHandle, d3dRtvCPUDescriptorHandle, this);
+
+		m_ppObjects[i]->SetMesh(0, pMeshIlluminated);
+
+		float xPosition = xmf2TerrainCenter.x + ((i + 1) * 150.0f) * ((i % 2) ? +1.0f : -1.0f);
+		float zPosition = xmf2TerrainCenter.y + ((i + 1) * 150.0f) * ((i % 2) ? +1.0f : -1.0f);
+		float fHeight = pTerrain->GetHeight(xPosition, zPosition);
+		m_ppObjects[i]->SetPosition(xPosition, fHeight + 150.0f, zPosition);
+
+		m_ppObjects[i]->SetCbvGPUDescriptorHandlePtr(d3dCbvGPUDescriptorStartHandle.ptr);
+
+		d3dCbvGPUDescriptorStartHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+		d3dDsvCPUDescriptorHandle.ptr += ::gnDsvDescriptorIncrementSize;
+		d3dRtvCPUDescriptorHandle.ptr += (::gnRtvDescriptorIncrementSize * 6);
+	}
+}
+
+void CDynamicCubeMappingShader::ReleaseObjects()
+{
+	if (m_ppObjects)
+	{
+		for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j]) delete m_ppObjects[j];
+		delete[] m_ppObjects;
+	}
+
+#ifdef _WITH_BATCH_MATERIAL
+	if (m_pMaterial) delete m_pMaterial;
+#endif
+
+	if (m_pd3dDsvDescriptorHeap) m_pd3dDsvDescriptorHeap->Release();
+	if (m_pd3dRtvDescriptorHeap) m_pd3dRtvDescriptorHeap->Release();
+
+	if (m_pd3dCommandAllocator) m_pd3dCommandAllocator->Release();
+	if (m_pd3dCommandList) m_pd3dCommandList->Release();
+}
+
+void CDynamicCubeMappingShader::ReleaseUploadBuffers()
+{
+	if (m_ppObjects)
+	{
+		for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j]) m_ppObjects[j]->ReleaseUploadBuffers();
+	}
+
+#ifdef _WITH_BATCH_MATERIAL
+	if (m_pMaterial) m_pMaterial->ReleaseUploadBuffers();
+#endif
+}
+
+void CDynamicCubeMappingShader::OnPreRender(ID3D12Device* pd3dDevice, ID3D12CommandQueue* pd3dCommandQueue, ID3D12Fence* pd3dFence, HANDLE hFenceEvent, CScene* pScene)
+{
+	for (int i = 0; i < m_nObjects; i++)
+	{
+		m_pd3dCommandAllocator->Reset();
+		m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
+
+		m_ppObjects[i]->OnPreRender(m_pd3dCommandList, pScene);
+
+		m_pd3dCommandList->Close();
+
+		ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
+		pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+
+		UINT64 nFenceValue = pd3dFence->GetCompletedValue();
+		::WaitForGpuComplete(pd3dCommandQueue, pd3dFence, nFenceValue + 1, hFenceEvent);
+	}
+}
+
+void CDynamicCubeMappingShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+{
+	CTexturedShader::Render(pd3dCommandList, pCamera);
+
+#ifdef _WITH_BATCH_MATERIAL
+	if (m_pMaterial) m_pMaterial->UpdateShaderVariables(pd3dCommandList);
+#endif
+
+	for (int j = 0; j < m_nObjects; j++)
+	{
+		if (m_ppObjects[j]) m_ppObjects[j]->Render(pd3dCommandList, pCamera);
+	}
+}
 
 
 

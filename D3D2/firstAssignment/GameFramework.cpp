@@ -34,7 +34,7 @@ CGameFramework::CGameFramework()
 	m_pScene = NULL;
 	m_pPlayer = NULL;
 
-	_tcscpy_s(m_pszFrameRate, _T("LabProject ("));
+	_tcscpy_s(m_pszFrameRate, _T("first ("));
 }
 
 CGameFramework::~CGameFramework()
@@ -302,10 +302,8 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		m_pScene->pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
 		m_pPlayer->attack = true;
 
-
 		m_pScene->pMultiSpriteObjectShader->score = dist(gen);
 		cout << m_pScene->pMultiSpriteObjectShader->score << endl;
-
 
 		break;
 
@@ -350,7 +348,6 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				onFullScreen = false;
 			else
 				onFullScreen = true;
-
 			ChangeSwapChainState();
 			break;
 		case VK_F5:
