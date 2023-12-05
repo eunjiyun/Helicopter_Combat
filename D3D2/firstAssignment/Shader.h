@@ -160,6 +160,7 @@ public:
 
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
+	void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 
 	ID3D12Resource* m_pd3dcbGameObjects{ NULL };
 };

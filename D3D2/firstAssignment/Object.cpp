@@ -1264,7 +1264,7 @@ CDynamicCubeMappingObject::CDynamicCubeMappingObject(ID3D12Device* pd3dDevice, I
 		0, RESOURCE_TEXTURE_CUBE, nCubeMapSize, nCubeMapSize, 6,
 		1, DXGI_FORMAT_R8G8B8A8_UNORM 
 		, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &d3dRtbClearValue);
-	pShader->CreateShaderResourceViews(pd3dDevice, pTexture, 0, 11);
+	pShader->CreateShaderResourceViews(pd3dDevice, pTexture, 0, 14);
 
 	D3D12_RENDER_TARGET_VIEW_DESC d3dRTVDesc;
 	d3dRTVDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;

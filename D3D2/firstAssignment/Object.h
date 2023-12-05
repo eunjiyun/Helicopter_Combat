@@ -41,7 +41,7 @@ struct MATERIAL
 struct CB_GAMEOBJECT_INFO
 {
 	XMFLOAT4X4						m_xmf4x4World;
-	MATERIAL						m_material;
+	UINT							m_nMaterial;
 };
 
 
@@ -190,6 +190,7 @@ public:
 	float							m_fSpecularHighlight{ 0.0f };
 	float							m_fMetallic{ 0.0f };
 	float							m_fGlossyReflection{ 0.0f };
+	UINT							m_nReflection{};
 };
 
 

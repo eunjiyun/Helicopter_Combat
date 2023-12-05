@@ -378,7 +378,7 @@ VS_LIGHTING_OUTPUT VSCubeMapping(VS_LIGHTING_INPUT input)
 	return(output);
 }
 //gssWrap
-TextureCube gtxtCubeMap : register(t14);
+TextureCube gtxtCubeMap : register(t1);
 
 float4 PSCubeMapping(VS_LIGHTING_OUTPUT input) : SV_Target
 {
