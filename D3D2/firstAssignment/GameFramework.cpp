@@ -34,7 +34,7 @@ CGameFramework::CGameFramework()
 	m_pScene = NULL;
 	m_pPlayer = NULL;
 
-	_tcscpy_s(m_pszFrameRate, _T("first ("));
+	_tcscpy_s(m_pszFrameRate, _T("second ("));
 }
 
 CGameFramework::~CGameFramework()

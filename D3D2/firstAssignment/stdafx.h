@@ -69,6 +69,14 @@ using Microsoft::WRL::ComPtr;
 #define PARAMETER_SKYBOX_CUBE_TEXTURE	4
 #endif
 
+#define _WITH_TERRAIN_TESSELATION
+
+#ifdef _WITH_TERRAIN_TESSELATION
+#define _WITH_TERRAIN_PARTITION
+#else
+#define _WITH_VERTICES_AS_SCALING
+#endif
+
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
