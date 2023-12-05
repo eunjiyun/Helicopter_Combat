@@ -817,9 +817,9 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 	CRawFormatImage* pRawFormatImage = new CRawFormatImage(L"Image/ObjectsMap.raw", 257, 257, true);
 
 	int nGrassObjects = 0, nFlowerObjects = 0, nBlacks = 0, nOthers = 0, nTreeObjects[3] = { 0, 0, 0 };
-	for (int z{ 2 }; z <= 254; ++z)
+	for (int z{ 2 }; z <=254/3; ++z)
 	{
-		for (int x{ 2 }; x <= 254; ++x)
+		for (int x{ 2 }; x <= 254/3; ++x)
 		{
 			BYTE nPixel = pRawFormatImage->GetRawImagePixel(x, z);
 			switch (nPixel)
@@ -863,9 +863,9 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 	m_ppObjects = new CGameObject * [m_nObjects];
 
 	CGrassObject* pBillboardObject = NULL;
-	for (int nObjects{}, z{ 2 }; z <= 254; ++z)
+	for (int nObjects{}, z{ 2 }; z <= 254/3; ++z)
 	{
-		for (int x{ 2 }; x <= 254; ++x)
+		for (int x{ 2 }; x <= 254/3; ++x)
 		{
 			BYTE nPixel = pRawFormatImage->GetRawImagePixel(x, z);
 
@@ -1175,56 +1175,61 @@ void CMultiSpriteObjectsShader::ReleaseObjects()
 
 void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
+	CPlayer* pPlayer = pCamera->GetPlayer();
+	
 	if (m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive)
 	{
 		XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
-		CPlayer* pPlayer = pCamera->GetPlayer();
-		XMFLOAT3 xmf3PlayerPosition = pPlayer->GetPosition();
-		XMFLOAT3 xmf3PlayerLook = pPlayer->GetLookVector();
-		xmf3PlayerPosition.y += 5.0f;
-		XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
-		XMFLOAT3 xmf3MonPos/*, xmf3MonLook*/;
+		
 
-		for (int j{}; j < 3; ++j)
-		{
-			if (m_ppObjects[j])
+		if (pPlayer) {
+			XMFLOAT3 xmf3PlayerPosition = pPlayer->GetPosition();
+			XMFLOAT3 xmf3PlayerLook = pPlayer->GetLookVector();
+			xmf3PlayerPosition.y += 5.0f;
+			XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
+			XMFLOAT3 xmf3MonPos/*, xmf3MonLook*/;
+
+			for (int j{}; j < 3; ++j)
 			{
-				if (0 == j || 1 == j)
+				if (m_ppObjects[j])
 				{
-					m_ppObjects[j]->SetPosition(xmf3Position);
-					m_ppObjects[j]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
-				}
-				else if (2 == j)
-				{
-					xmf3MonPos = hit;
+					if (0 == j || 1 == j)
+					{
+						m_ppObjects[j]->SetPosition(xmf3Position);
+						m_ppObjects[j]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+					}
+					else if (2 == j)
+					{
+						xmf3MonPos = hit;
 
-					xmf3Position = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
+						xmf3Position = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
 
-					m_ppObjects[j]->SetPosition(xmf3Position);
-					m_ppObjects[j]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+						m_ppObjects[j]->SetPosition(xmf3Position);
+						m_ppObjects[j]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 
-					m_ppObjects[j]->m_ppMaterials[0]->SetTexture(ppSpriteTextures[score]);
+						m_ppObjects[j]->m_ppMaterials[0]->SetTexture(ppSpriteTextures[score]);
+					}
 				}
 			}
-		}
 
-		if (m_ppd3dPipelineStates)
-			pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);
-		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+			if (m_ppd3dPipelineStates)
+				pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);
+			pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
-		CObjectsShader::UpdateShaderVariables(pd3dCommandList);
+			CObjectsShader::UpdateShaderVariables(pd3dCommandList);
 
-		for (int j{}; j < 3; ++j)
-		{
-			if (m_ppObjects[j])
+			for (int j{}; j < 3; ++j)
 			{
-				/*m_ppObjects[j]->Animate(0.16f);
-				m_ppObjects[j]->UpdateTransform(NULL);*/
-				m_ppObjects[j]->Render(pd3dCommandList, pCamera);
+				if (m_ppObjects[j])
+				{
+					/*m_ppObjects[j]->Animate(0.16f);
+					m_ppObjects[j]->UpdateTransform(NULL);*/
+					m_ppObjects[j]->Render(pd3dCommandList, pCamera);
+				}
 			}
 		}
 	}
-	else
+	else if(pPlayer)
 		hit = XMFLOAT3(0, 0, 0);
 }
 
