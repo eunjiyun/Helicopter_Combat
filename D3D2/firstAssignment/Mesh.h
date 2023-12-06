@@ -201,10 +201,13 @@ protected:
 
 public:
 	CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale);
+	CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength);
 	~CHeightMapImage(void);
 
 	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
 	float GetHeight(float x, float z, bool bReverseQuad = false);
+	float GetHeight(float fx, float fz, XMFLOAT3 xmf3Scale);
+	float GetInterpolatedHeight(int x, int y, float fxFractional, float fzFractional, bool bReverseQuad = false);
 	XMFLOAT3 GetHeightMapNormal(int x, int z);
 	int GetHeightMapWidth() { return(m_nWidth); }
 	int GetHeightMapLength() { return(m_nLength); }
@@ -238,7 +241,7 @@ public:
 	virtual ~CHeightMapGridMesh();
 
 	virtual void ReleaseUploadBuffers();
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet);
+	//virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet);
 
 	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
 	int GetWidth() { return(m_nWidth); }
@@ -319,6 +322,21 @@ public:
 };
 
 //====================================================================================
+
+class CDiffused2TexturedVertex : public CDiffusedVertex
+{
+public:
+	XMFLOAT2						m_xmf2TexCoord0;
+	XMFLOAT2						m_xmf2TexCoord1;
+
+public:
+	CDiffused2TexturedVertex() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); m_xmf4Diffuse = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f); m_xmf2TexCoord0 = m_xmf2TexCoord1 = XMFLOAT2(0.0f, 0.0f); }
+	CDiffused2TexturedVertex(float x, float y, float z, XMFLOAT4 xmf4Diffuse, XMFLOAT2 xmf2TexCoord0, XMFLOAT2 xmf2TexCoord1) { m_xmf3Position = XMFLOAT3(x, y, z); m_xmf4Diffuse = xmf4Diffuse; m_xmf2TexCoord0 = xmf2TexCoord0; m_xmf2TexCoord1 = xmf2TexCoord1; }
+	CDiffused2TexturedVertex(XMFLOAT3 xmf3Position, XMFLOAT4 xmf4Diffuse = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f), XMFLOAT2 xmf2TexCoord0 = XMFLOAT2(0.0f, 0.0f), XMFLOAT2 xmf2TexCoord1 = XMFLOAT2(0.0f, 0.0f)) { m_xmf3Position = xmf3Position; m_xmf4Diffuse = xmf4Diffuse; m_xmf2TexCoord0 = xmf2TexCoord0; m_xmf2TexCoord1 = xmf2TexCoord1; }
+	~CDiffused2TexturedVertex() { }
+};
+
+//=======================================================================================
 class CMeshIlluminated : public CMesh
 {
 public:

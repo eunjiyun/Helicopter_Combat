@@ -332,6 +332,20 @@ CGameObject::CGameObject(int nMeshes, int nMaterials) : CGameObject()
 	}
 }
 
+CGameObject::CGameObject(int nMeshes) : CGameObject()
+{
+
+	m_xmf4x4World = Matrix4x4::Identity();
+
+	m_nMeshes = nMeshes;
+	m_ppMeshes = NULL;
+	if (0 < m_nMeshes)
+	{
+		m_ppMeshes = new CMesh * [m_nMeshes];
+		for (int i{}; i < m_nMeshes; ++i)	m_ppMeshes[i] = NULL;
+	}
+}
+
 CGameObject::~CGameObject()
 {
 	//ReleaseShaderVariables();
@@ -1088,9 +1102,9 @@ void CMi24Object::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-CHeightMapTerrain::CHeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength, int nBlockWidth, int nBlockLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color) : CGameObject(0, 1)
+CHeightMapTerrain::CHeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength, int nBlockWidth, int nBlockLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color) : CGameObject(0,1)
 {
-	m_nWidth = nWidth;
+	/*m_nWidth = nWidth;
 	m_nLength = nLength;
 
 	int cxQuadsPerBlock = nBlockWidth - 1;
@@ -1143,7 +1157,73 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 	pTerrainMaterial->SetShader(pTerrainShader);
 
-	SetMaterial(0, pTerrainMaterial);
+	SetMaterial(0, pTerrainMaterial);*/
+
+	m_pHeightMapImage = new CHeightMapImage(pFileName, nWidth, nLength);
+
+	int cxQuadsPerBlock = nBlockWidth - 1;
+	int czQuadsPerBlock = nBlockLength - 1;
+
+	long cxBlocks = (nWidth - 1) / cxQuadsPerBlock;
+	long czBlocks = (nLength - 1) / czQuadsPerBlock;
+
+#ifdef _WITH_VERTICES_AS_SCALING
+	nWidth = int(nWidth * xmf3Scale.x);
+	nLength = int(nLength * xmf3Scale.z);
+	nBlockWidth = int(nBlockWidth * xmf3Scale.x);
+	nBlockLength = int(nBlockLength * xmf3Scale.z);
+#endif
+
+	m_nWidth = nWidth;
+	m_nLength = nLength;
+
+	m_xmf3Scale = xmf3Scale;
+
+	m_nMeshes = cxBlocks * czBlocks;
+	m_ppMeshes = new CMesh * [m_nMeshes];
+	for (int i = 0; i < m_nMeshes; i++)	m_ppMeshes[i] = NULL;
+
+	CHeightMapGridMesh* pHeightMapGridMesh = NULL;
+	for (int z = 0, zStart = 0; z < czBlocks; z++)
+	{
+		for (int x = 0, xStart = 0; x < cxBlocks; x++)
+		{
+			xStart = x * (nBlockWidth - 1);
+			zStart = z * (nBlockLength - 1);
+			pHeightMapGridMesh = new CHeightMapGridMesh(pd3dDevice, pd3dCommandList, xStart, zStart, nBlockWidth, nBlockLength, xmf3Scale, xmf4Color, m_pHeightMapImage);
+			SetMesh(x + (z * cxBlocks), pHeightMapGridMesh);
+		}
+	}
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	CTexture* pTerrainTexture = new CTexture(3, RESOURCE_TEXTURE2D, 0, 3);
+
+	pTerrainTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Base_Texture.dds", RESOURCE_TEXTURE2D, 0);
+	pTerrainTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Detail_Texture_7.dds", RESOURCE_TEXTURE2D, 1);
+	pTerrainTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/HeightMap(Alpha).dds", RESOURCE_TEXTURE2D, 2);
+
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256ÀÇ ¹è¼ö
+
+#ifdef _WITH_TERRAIN_TESSELATION
+	CTerrainTessellationShader* pTerrainShader = new CTerrainTessellationShader();
+#else
+	CTerrainShader* pTerrainShader = new CTerrainShader();
+#endif
+	pTerrainShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
+	pTerrainShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	pTerrainShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 3);
+	pTerrainShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObject, ncbElementBytes);
+	pTerrainShader->CreateShaderResourceViews(pd3dDevice, pTerrainTexture, 0, 11);
+
+	CMaterial* pTerrainMaterial = new CMaterial();
+	pTerrainMaterial->SetTexture(pTerrainTexture);
+
+	SetMaterial(0,pTerrainMaterial);
+
+	SetCbvGPUDescriptorHandle(pTerrainShader->GetGPUCbvDescriptorStartHandle());
+
+	SetShader(0,pTerrainShader);
 }
 
 CHeightMapTerrain::~CHeightMapTerrain(void)

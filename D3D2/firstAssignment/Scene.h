@@ -94,8 +94,8 @@ public:
 
 	float* cuT{ nullptr };
 	float* elT{ nullptr };
-	float* x{ nullptr };
-	float* y{ nullptr };
+	UINT* x{ nullptr };
+	//float* y{ nullptr };
 
 	int							m_nEnvironmentMappingShaders{};
 	CDynamicCubeMappingShader** m_ppEnvironmentMappingShaders{ NULL };

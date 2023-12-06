@@ -7,6 +7,16 @@
 #include "Player.h"
 #include "Scene.h"
 
+struct CB_FRAMEWORK_INFO
+{
+	float					m_fCurrentTime;
+	float					m_fElapsedTime;
+	UINT					m_nRenderMode;
+};
+
+#define DYNAMIC_TESSELLATION		0x10
+#define DEBUG_TESSELLATION			0x20
+
 class CGameFramework
 {
 public:
@@ -41,6 +51,8 @@ public:
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void UpdateShaderVariables();
+
+	void CreateShaderVariables();
 	bool onFullScreen = false;
 
 private:
@@ -87,5 +99,9 @@ private:
 	POINT						m_ptOldCursorPos;
 
 	_TCHAR						m_pszFrameRate[70];
+
+public:
+	ID3D12Resource* m_pd3dcbFrameworkInfo = NULL;
+	CB_FRAMEWORK_INFO* m_pcbMappedFrameworkInfo = NULL;
 };
 

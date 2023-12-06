@@ -352,6 +352,19 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		case VK_F5:
 			break;
+
+		case '1':
+			m_pcbMappedFrameworkInfo->m_nRenderMode = 0x00;
+			break;
+		case '2':
+			m_pcbMappedFrameworkInfo->m_nRenderMode |= DYNAMIC_TESSELLATION;
+			break;
+		case '3':
+			m_pcbMappedFrameworkInfo->m_nRenderMode |= (DYNAMIC_TESSELLATION | DEBUG_TESSELLATION);
+			break;
+		case '4':
+			::gbTerrainTessellationWireframe = !::gbTerrainTessellationWireframe;
+			break;
 		default:
 			break;
 		}
@@ -436,6 +449,8 @@ void CGameFramework::BuildObjects()
 	m_pScene->m_pPlayer = m_pPlayer = pAirplanePlayer;
 
 	m_pCamera = m_pPlayer->GetCamera();
+
+	CreateShaderVariables();
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -575,6 +590,7 @@ void CGameFramework::FrameAdvance()
 
 	UpdateShaderVariables();
 	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
+	
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
@@ -620,19 +636,38 @@ void CGameFramework::FrameAdvance()
 
 void CGameFramework::UpdateShaderVariables()
 {
-	float fCurrentTime = m_GameTimer.GetTotalTime();
-	float fElapsedTime = m_GameTimer.GetTimeElapsed();
+	
+
+	m_pcbMappedFrameworkInfo->m_fCurrentTime = m_GameTimer.GetTotalTime();
+	m_pcbMappedFrameworkInfo->m_fElapsedTime = m_GameTimer.GetTimeElapsed();
+
+	
 
 
-	m_pScene->cuT = &fCurrentTime;
-	m_pScene->elT = &fElapsedTime;
+	m_pScene->cuT = &m_pcbMappedFrameworkInfo->m_fCurrentTime;
+	m_pScene->elT = &m_pcbMappedFrameworkInfo->m_fElapsedTime;
 
-	POINT ptCursorPos;
+	/*POINT ptCursorPos;
 	::GetCursorPos(&ptCursorPos);
 	::ScreenToClient(m_hWnd, &ptCursorPos);
 	float fxCursorPos = (ptCursorPos.x < 0) ? 0.0f : float(ptCursorPos.x);
-	float fyCursorPos = (ptCursorPos.y < 0) ? 0.0f : float(ptCursorPos.y);
+	float fyCursorPos = (ptCursorPos.y < 0) ? 0.0f : float(ptCursorPos.y);*/
 
-	m_pScene->x = &fxCursorPos;
-	m_pScene->y = &fyCursorPos;
+	m_pScene->x = &m_pcbMappedFrameworkInfo->m_nRenderMode;
+	//m_pScene->y = &fyCursorPos;
+
+	//D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbFrameworkInfo->GetGPUVirtualAddress();
+	//m_pd3dCommandList->SetGraphicsRootConstantBufferView(5, d3dGpuVirtualAddress);
+
+	/*m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, m_pScene->cuT, 28);
+	m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, m_pScene->elT, 29);
+	m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, m_pScene->x, 30);*/
+}
+
+void CGameFramework::CreateShaderVariables()
+{
+	UINT ncbElementBytes = ((sizeof(CB_FRAMEWORK_INFO) + 255) & ~255); //256ÀÇ ¹è¼ö
+	m_pd3dcbFrameworkInfo = ::CreateBufferResource(m_pd3dDevice, m_pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	m_pd3dcbFrameworkInfo->Map(0, NULL, (void**)&m_pcbMappedFrameworkInfo);
 }

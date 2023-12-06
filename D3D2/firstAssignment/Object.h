@@ -200,6 +200,7 @@ class CGameObject
 public:
 	CGameObject();
 	CGameObject(int nMeshes, int nMaterials);
+	CGameObject(int nMeshes);
 	virtual ~CGameObject();
 
 public:
