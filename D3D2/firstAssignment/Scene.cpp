@@ -248,7 +248,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	pd3dRootParameters[1].Constants.Num32BitValues = 30;
+	pd3dRootParameters[1].Constants.Num32BitValues = 29;
 	pd3dRootParameters[1].Constants.ShaderRegister = 2; //GameObject
 	pd3dRootParameters[1].Constants.RegisterSpace = 0;
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
@@ -384,6 +384,7 @@ void CScene::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	::memcpy(m_pcbMappedLights->m_pLights, m_pLights, sizeof(LIGHT) * m_nLights);
 	::memcpy(&m_pcbMappedLights->m_xmf4GlobalAmbient, &m_xmf4GlobalAmbient, sizeof(XMFLOAT4));
 	::memcpy(&m_pcbMappedLights->m_nLights, &m_nLights, sizeof(int));
+	::memcpy(&m_pcbMappedLights->renderMode, x, sizeof(UINT));
 }
 
 void CScene::ReleaseShaderVariables()
@@ -589,8 +590,11 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 
 	if (pCamera->GetPlayer()) {
 		pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, cuT, 28);
+		//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, x, 29);
+		
 		//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, elT, 29);
-		pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, x, 29);
+		
+		//cout << "x : " << *x << endl;
 	}
 		//cout << "mode : " << *x << endl;
 		//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, y, 31);

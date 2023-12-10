@@ -358,11 +358,9 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		case '2':
 			m_pcbMappedFrameworkInfo->m_nRenderMode |= DYNAMIC_TESSELLATION;
-			cout << "tes : " << m_pcbMappedFrameworkInfo->m_nRenderMode << endl;
 			break;
 		case '3':
 			m_pcbMappedFrameworkInfo->m_nRenderMode  |= (DYNAMIC_TESSELLATION | DEBUG_TESSELLATION);
-			cout << "tes3 : " << m_pcbMappedFrameworkInfo->m_nRenderMode << endl;
 			break;
 		case '4':
 			::gbTerrainTessellationWireframe = !::gbTerrainTessellationWireframe;
@@ -559,11 +557,12 @@ void CGameFramework::MoveToNextFrame()
 void CGameFramework::FrameAdvance()
 {
 	m_GameTimer.Tick(0.0f);
+	ShowCursor(false);
 
 	ProcessInput();
 
 	AnimateObjects();
-
+	m_pScene->x = &m_pcbMappedFrameworkInfo->m_nRenderMode;
 	m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandQueue, m_pd3dFence, m_hFenceEvent);
 
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
@@ -639,16 +638,19 @@ void CGameFramework::FrameAdvance()
 void CGameFramework::UpdateShaderVariables()
 {
 	
-
-	m_pcbMappedFrameworkInfo->m_fCurrentTime = m_GameTimer.GetTotalTime();
+	//if (m_pScene->m_pd3dGraphicsRootSignature) m_pd3dCommandList->SetGraphicsRootSignature(m_pScene->m_pd3dGraphicsRootSignature);
+	
 	//m_pcbMappedFrameworkInfo->m_fElapsedTime = m_GameTimer.GetTimeElapsed();
 
 	
 
-
+	m_pcbMappedFrameworkInfo->m_fCurrentTime = m_GameTimer.GetTotalTime();
 	m_pScene->cuT = &m_pcbMappedFrameworkInfo->m_fCurrentTime;
-	m_pScene->x = &m_pcbMappedFrameworkInfo->m_nRenderMode;
+
+	//m_pScene->x = &m_pcbMappedFrameworkInfo->m_nRenderMode;
 	//m_pScene->elT = &m_pcbMappedFrameworkInfo->m_fElapsedTime;
+
+	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_pcbMappedFrameworkInfo->m_nRenderMode, 0);
 
 	/*POINT ptCursorPos;
 	::GetCursorPos(&ptCursorPos);

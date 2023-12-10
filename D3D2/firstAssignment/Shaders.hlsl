@@ -1,20 +1,16 @@
 struct MATERIAL
 {
+	
 	float4					m_cAmbient;
 	float4					m_cDiffuse;
-
-
 	//float4					m_cSpecular; //a = power
 	//float4					m_cEmissive;
-	float3					texMat;
 
+	float3					texMat;
 	uint gnTexturesMask;
 
-
-	float 		gfCurrentTime;
 	//float		gfElapsedTime;
-	
-
+	float 		gfCurrentTime; 
 };
 
 #define DYNAMIC_TESSELLATION		0x60
@@ -33,7 +29,8 @@ cbuffer cbGameObjectInfo : register(b2)
 {
 	matrix		gmtxGameObject : packoffset(c0);
 	MATERIAL	gMaterial : packoffset(c4);
-	uint gnRenderMode: packoffset(c8);
+	
+	
 };
 
 
@@ -479,8 +476,7 @@ HS_TERRAIN_TESSELLATION_CONSTANT HSTerrainTessellationConstant(InputPatch<VS_TER
 {
 	HS_TERRAIN_TESSELLATION_CONSTANT output;
 
-	if (/*gnRenderMode &*/ DYNAMIC_TESSELLATION)
-	//if (gMaterial.gnRenderMode==1)
+	if (gnRenderMode & DYNAMIC_TESSELLATION)
 	{
 		float3 e0 = 0.5f * (input[0].positionW + input[4].positionW);
 		float3 e1 = 0.5f * (input[0].positionW + input[20].positionW);
@@ -559,8 +555,7 @@ float4 PSTerrainTessellation(DS_TERRAIN_TESSELLATION_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
-	if (/*gnRenderMode &*/ (DEBUG_TESSELLATION | DYNAMIC_TESSELLATION))
-	//if (gMaterial.gnRenderMode == 2)
+	if (gnRenderMode& (DEBUG_TESSELLATION | DYNAMIC_TESSELLATION))
 	{
 		if (input.tessellation.w <= 5.0f) cColor = float4(1.0f, 0.0f, 0.0f, 1.0f);
 		else if (input.tessellation.w <= 10.0f) cColor = float4(0.0f, 1.0f, 0.0f, 1.0f);
