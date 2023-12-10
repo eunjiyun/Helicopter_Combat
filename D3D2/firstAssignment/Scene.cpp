@@ -77,7 +77,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Image/HeightMap.raw"), 257, 257, 13, 13, xmf3Scale, xmf4Color);
 
 	m_pTerrainWater = new CRippleWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 257, 257, 13, 13, xmf3Scale, xmf4Color);
-	m_pTerrainWater->SetPosition(+(257 * 0.5f), 610 /*667*/ /*m_pTerrain->GetHeight(257 * 0.5f, 257 * 0.5f)*/, +(257 * 0.5f));
+	m_pTerrainWater->SetPosition(+(257 * 0.5f), 225 /*667*/ /*m_pTerrain->GetHeight(257 * 0.5f, 257 * 0.5f)*/, +(257 * 0.5f));
 	//m_pTerrainWater->SetPosition(+(257 * 0.5f), 155.0f, +(257 * 0.5f));
 
 	m_nShaders = 3;
@@ -248,7 +248,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	pd3dRootParameters[1].Constants.Num32BitValues = 31;
+	pd3dRootParameters[1].Constants.Num32BitValues = 30;
 	pd3dRootParameters[1].Constants.ShaderRegister = 2; //GameObject
 	pd3dRootParameters[1].Constants.RegisterSpace = 0;
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
@@ -589,8 +589,8 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 
 	if (pCamera->GetPlayer()) {
 		pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, cuT, 28);
-		pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, elT, 29);
-		pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, x, 30);
+		//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, elT, 29);
+		pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, x, 29);
 	}
 		//cout << "mode : " << *x << endl;
 		//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, y, 31);

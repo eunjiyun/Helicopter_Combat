@@ -10,12 +10,12 @@
 struct CB_FRAMEWORK_INFO
 {
 	float					m_fCurrentTime;
-	float					m_fElapsedTime;
+	//float					m_fElapsedTime;
 	UINT					m_nRenderMode;
 };
 
-#define DYNAMIC_TESSELLATION		0x10
-#define DEBUG_TESSELLATION			0x20
+#define DYNAMIC_TESSELLATION		0x60
+#define DEBUG_TESSELLATION			0x80
 
 class CGameFramework
 {

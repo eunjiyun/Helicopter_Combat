@@ -859,7 +859,7 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 	int nTerrainLength = int(pTerrain->GetLength());
 
 	XMFLOAT3 xmf3Scale = pTerrain->GetScale();
-
+	
 	m_ppObjects = new CGameObject * [m_nObjects];
 
 	CGrassObject* pBillboardObject = NULL;
@@ -926,7 +926,7 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 				float xPosition = x * xmf3Scale.x;
 				float zPosition = z * xmf3Scale.z;
 				float fHeight = pTerrain->GetHeight(xPosition, zPosition);
-				pBillboardObject->SetPosition(xPosition, fHeight + fyOffset, zPosition);
+				pBillboardObject->SetPosition(xPosition, fHeight + fyOffset+330, zPosition);
 				pBillboardObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr
 					+ (::gnCbvSrvDescriptorIncrementSize * nObjects));
 
@@ -1528,7 +1528,11 @@ void CDynamicCubeMappingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 		float xPosition = xmf2TerrainCenter.x + ((i + 1) * 150.0f) * ((i % 2) ? +1.0f : -1.0f);
 		float zPosition = xmf2TerrainCenter.y + ((i + 1) * 150.0f) * ((i % 2) ? +1.0f : -1.0f);
 		float fHeight = pTerrain->GetHeight(xPosition, zPosition);
-		m_ppObjects[i]->SetPosition(xPosition, fHeight + 150.0f, zPosition);
+
+		if(0==i)
+			m_ppObjects[i]->SetPosition(xPosition, fHeight + 150.0f+180, zPosition);
+		else
+			m_ppObjects[i]->SetPosition(xPosition, fHeight + 150.0f + 280, zPosition);
 
 		m_ppObjects[i]->SetCbvGPUDescriptorHandlePtr(d3dCbvGPUDescriptorStartHandle.ptr);
 

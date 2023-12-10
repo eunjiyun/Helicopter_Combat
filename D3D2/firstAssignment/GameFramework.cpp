@@ -358,9 +358,11 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		case '2':
 			m_pcbMappedFrameworkInfo->m_nRenderMode |= DYNAMIC_TESSELLATION;
+			cout << "tes : " << m_pcbMappedFrameworkInfo->m_nRenderMode << endl;
 			break;
 		case '3':
-			m_pcbMappedFrameworkInfo->m_nRenderMode |= (DYNAMIC_TESSELLATION | DEBUG_TESSELLATION);
+			m_pcbMappedFrameworkInfo->m_nRenderMode  |= (DYNAMIC_TESSELLATION | DEBUG_TESSELLATION);
+			cout << "tes3 : " << m_pcbMappedFrameworkInfo->m_nRenderMode << endl;
 			break;
 		case '4':
 			::gbTerrainTessellationWireframe = !::gbTerrainTessellationWireframe;
@@ -639,13 +641,14 @@ void CGameFramework::UpdateShaderVariables()
 	
 
 	m_pcbMappedFrameworkInfo->m_fCurrentTime = m_GameTimer.GetTotalTime();
-	m_pcbMappedFrameworkInfo->m_fElapsedTime = m_GameTimer.GetTimeElapsed();
+	//m_pcbMappedFrameworkInfo->m_fElapsedTime = m_GameTimer.GetTimeElapsed();
 
 	
 
 
 	m_pScene->cuT = &m_pcbMappedFrameworkInfo->m_fCurrentTime;
-	m_pScene->elT = &m_pcbMappedFrameworkInfo->m_fElapsedTime;
+	m_pScene->x = &m_pcbMappedFrameworkInfo->m_nRenderMode;
+	//m_pScene->elT = &m_pcbMappedFrameworkInfo->m_fElapsedTime;
 
 	/*POINT ptCursorPos;
 	::GetCursorPos(&ptCursorPos);
@@ -653,7 +656,9 @@ void CGameFramework::UpdateShaderVariables()
 	float fxCursorPos = (ptCursorPos.x < 0) ? 0.0f : float(ptCursorPos.x);
 	float fyCursorPos = (ptCursorPos.y < 0) ? 0.0f : float(ptCursorPos.y);*/
 
-	m_pScene->x = &m_pcbMappedFrameworkInfo->m_nRenderMode;
+	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_pcbMappedFrameworkInfo->m_nRenderMode, 30);
+	//cout << "rendermode : " << &m_pcbMappedFrameworkInfo->m_nRenderMode << endl;
+	
 	//m_pScene->y = &fyCursorPos;
 
 	//D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbFrameworkInfo->GetGPUVirtualAddress();

@@ -12,13 +12,13 @@ struct MATERIAL
 
 
 	float 		gfCurrentTime;
-	float		gfElapsedTime;
-	uint gnRenderMode;
+	//float		gfElapsedTime;
+	
 
 };
 
-#define DYNAMIC_TESSELLATION		0x10
-#define DEBUG_TESSELLATION			0x20
+#define DYNAMIC_TESSELLATION		0x60
+#define DEBUG_TESSELLATION			0x80
 
 cbuffer cbCameraInfo : register(b1)
 {
@@ -33,6 +33,7 @@ cbuffer cbGameObjectInfo : register(b2)
 {
 	matrix		gmtxGameObject : packoffset(c0);
 	MATERIAL	gMaterial : packoffset(c4);
+	uint gnRenderMode: packoffset(c8);
 };
 
 
@@ -314,7 +315,7 @@ VS_RIPPLE_WATER_OUTPUT VSRippleWater(VS_RIPPLE_WATER_INPUT input)
 	input.position.y += sin(gMaterial.gfCurrentTime * 1.0f + (((input.position.x * input.position.x) + (input.position.z * input.position.z))) * 0.0001f) * 10.0f;
 	//input.position.y += sin(gMaterial.gfCurrentTime * 0.35f + input.position.x * 0.35f) * 2.95f + cos(gMaterial.gfCurrentTime * 0.30f + input.position.z * 0.35f) * 2.05f;
 	output.position = mul(float4(input.position, 1.0f), gmtxGameObject);
-	if (610.0f < output.position.y) output.position.y = 610.0f;
+	if (225.0f < output.position.y) output.position.y = 225.0f;
 	output.position = mul(mul(output.position, gmtxView), gmtxProjection);
 
 	//	output.color = input.color;
@@ -478,7 +479,8 @@ HS_TERRAIN_TESSELLATION_CONSTANT HSTerrainTessellationConstant(InputPatch<VS_TER
 {
 	HS_TERRAIN_TESSELLATION_CONSTANT output;
 
-	if (/*gMaterial.gnRenderMode &*/ DYNAMIC_TESSELLATION)
+	if (/*gnRenderMode &*/ DYNAMIC_TESSELLATION)
+	//if (gMaterial.gnRenderMode==1)
 	{
 		float3 e0 = 0.5f * (input[0].positionW + input[4].positionW);
 		float3 e1 = 0.5f * (input[0].positionW + input[20].positionW);
@@ -557,7 +559,8 @@ float4 PSTerrainTessellation(DS_TERRAIN_TESSELLATION_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
-	if (/*gMaterial.gnRenderMode &*/ (DEBUG_TESSELLATION | DYNAMIC_TESSELLATION))
+	if (/*gnRenderMode &*/ (DEBUG_TESSELLATION | DYNAMIC_TESSELLATION))
+	//if (gMaterial.gnRenderMode == 2)
 	{
 		if (input.tessellation.w <= 5.0f) cColor = float4(1.0f, 0.0f, 0.0f, 1.0f);
 		else if (input.tessellation.w <= 10.0f) cColor = float4(0.0f, 1.0f, 0.0f, 1.0f);
