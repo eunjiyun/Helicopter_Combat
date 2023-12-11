@@ -312,8 +312,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		break;
 	case WM_RBUTTONUP:
 		m_pPlayer->attack = false;
-		/*if (-1 != m_pScene->pMultiSpriteObjectShader->index)
-			m_pScene->pMultiSpriteObjectShader->obj.erase(m_pScene->pMultiSpriteObjectShader->obj.begin() + m_pScene->pMultiSpriteObjectShader->index);*/
+		
 		break;
 	case WM_MOUSEMOVE:
 		break;
@@ -562,7 +561,11 @@ void CGameFramework::FrameAdvance()
 	ProcessInput();
 
 	AnimateObjects();
+
 	m_pScene->x = &m_pcbMappedFrameworkInfo->m_nRenderMode;
+	m_pcbMappedFrameworkInfo->m_fCurrentTime = m_GameTimer.GetTotalTime();
+	m_pScene->cuT = &m_pcbMappedFrameworkInfo->m_fCurrentTime;
+
 	m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandQueue, m_pd3dFence, m_hFenceEvent);
 
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
@@ -589,7 +592,6 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
-	UpdateShaderVariables();
 	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
 	
 
@@ -635,41 +637,7 @@ void CGameFramework::FrameAdvance()
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
 
-void CGameFramework::UpdateShaderVariables()
-{
-	
-	//if (m_pScene->m_pd3dGraphicsRootSignature) m_pd3dCommandList->SetGraphicsRootSignature(m_pScene->m_pd3dGraphicsRootSignature);
-	
-	//m_pcbMappedFrameworkInfo->m_fElapsedTime = m_GameTimer.GetTimeElapsed();
 
-	
-
-	m_pcbMappedFrameworkInfo->m_fCurrentTime = m_GameTimer.GetTotalTime();
-	m_pScene->cuT = &m_pcbMappedFrameworkInfo->m_fCurrentTime;
-
-	//m_pScene->x = &m_pcbMappedFrameworkInfo->m_nRenderMode;
-	//m_pScene->elT = &m_pcbMappedFrameworkInfo->m_fElapsedTime;
-
-	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_pcbMappedFrameworkInfo->m_nRenderMode, 0);
-
-	/*POINT ptCursorPos;
-	::GetCursorPos(&ptCursorPos);
-	::ScreenToClient(m_hWnd, &ptCursorPos);
-	float fxCursorPos = (ptCursorPos.x < 0) ? 0.0f : float(ptCursorPos.x);
-	float fyCursorPos = (ptCursorPos.y < 0) ? 0.0f : float(ptCursorPos.y);*/
-
-	//m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_pcbMappedFrameworkInfo->m_nRenderMode, 30);
-	//cout << "rendermode : " << &m_pcbMappedFrameworkInfo->m_nRenderMode << endl;
-	
-	//m_pScene->y = &fyCursorPos;
-
-	//D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbFrameworkInfo->GetGPUVirtualAddress();
-	//m_pd3dCommandList->SetGraphicsRootConstantBufferView(5, d3dGpuVirtualAddress);
-
-	/*m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, m_pScene->cuT, 28);
-	m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, m_pScene->elT, 29);
-	m_pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, m_pScene->x, 30);*/
-}
 
 void CGameFramework::CreateShaderVariables()
 {
