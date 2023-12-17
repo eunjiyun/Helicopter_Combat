@@ -116,9 +116,14 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pBillboardObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain);
 	m_ppShaders[2] = pBillboardObjectShader;
 
-	m_pShadowMapToViewport = new CTextureToViewportShader();
-	m_pShadowMapToViewport->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	m_pShadowMapToViewport = new CTextureToViewportShader * [2];
+	m_pShadowMapToViewport[0] = new CTextureToViewportShader();
+	m_pShadowMapToViewport[0]->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
+	m_pShadowMapToViewport[1] = new CTextureToViewportShader();
+	m_pShadowMapToViewport[1]->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	m_pShadowMapToViewport[1]->color = 1;
+	
 
 
 	//---------------------------------------------------------------------
@@ -152,6 +157,16 @@ void CScene::ReleaseObjects()
 		}
 		delete[] m_ppShaders;
 	}
+
+	if (m_pShadowMapToViewport) {
+		for (int i{}; i < 2; ++i) {
+			m_pShadowMapToViewport[i]->ReleaseShaderVariables();
+			m_pShadowMapToViewport[i]->ReleaseObjects();
+			m_pShadowMapToViewport[i]->Release();
+		}
+		delete[]m_pShadowMapToViewport;
+	}
+
 
 	if (m_ppEnvironmentMappingShaders)
 	{
@@ -267,7 +282,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	pd3dRootParameters[1].Constants.Num32BitValues = 29;
+	pd3dRootParameters[1].Constants.Num32BitValues = 30;
 	pd3dRootParameters[1].Constants.ShaderRegister = 2; //GameObject
 	pd3dRootParameters[1].Constants.RegisterSpace = 0;
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
@@ -637,8 +652,11 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 
 	
 	
-	if (pCamera->GetPlayer() && start)
-		m_pShadowMapToViewport->Render(pd3dCommandList, pCamera, m_pPlayer->HP / 25.f, XMFLOAT2(38, 27));
+	if (pCamera->GetPlayer() && start) {
+		m_pShadowMapToViewport[1]->Render(pd3dCommandList, pCamera, 5400 / 25.f, XMFLOAT2(30, 21));
+		m_pShadowMapToViewport[0]->Render(pd3dCommandList, pCamera, m_pPlayer->HP / 25.f, XMFLOAT2(38, 27));
+		
+	}
 
 	
 }

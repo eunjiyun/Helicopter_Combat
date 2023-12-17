@@ -145,7 +145,7 @@ public:
 
 	int							m_nEnvironmentMappingShaders{};
 	CDynamicCubeMappingShader** m_ppEnvironmentMappingShaders{ NULL };
-	CTextureToViewportShader* m_pShadowMapToViewport{ NULL };
+	CTextureToViewportShader** m_pShadowMapToViewport{ NULL };
 
 	ID3D12Resource* m_pd3dcbMaterials{ NULL };
 

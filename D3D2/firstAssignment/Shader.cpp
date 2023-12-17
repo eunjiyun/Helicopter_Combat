@@ -1866,10 +1866,14 @@ void CTextureToViewportShader::Render(ID3D12GraphicsCommandList* pd3dCommandList
 
 	D3D12_RECT d3dScissorRect = { pos.x,pos.y, pos.x + plHp, pos.y + 15.f };
 
+	if (5400/25.f == plHp)
+		d3dScissorRect.bottom += 12;
 
 	pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
 
 	CShader::Render(pd3dCommandList, pCamera);
+
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &color, 29);
 
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);

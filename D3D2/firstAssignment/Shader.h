@@ -379,6 +379,7 @@ protected:
 public:
 	bool init = true;
 	XMFLOAT2 test = XMFLOAT2(0, 0);
+	float color{};
 
 };
 

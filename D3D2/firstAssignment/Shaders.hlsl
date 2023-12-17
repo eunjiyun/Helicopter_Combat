@@ -11,6 +11,7 @@ struct MATERIAL
 
 	//float		gfElapsedTime;
 	float 		gfCurrentTime; 
+	float hpColor;
 };
 
 #define DYNAMIC_TESSELLATION		0x60
@@ -597,5 +598,8 @@ VS_TEXTURED_OUTPUT VSTextureToViewport(uint nVertexID : SV_VertexID)
 
 float4 PSTextureToViewport(VS_TEXTURED_OUTPUT input) : SV_Target
 {
-	return float4(1.f,0.f,0.f,0.f);
+	if(gMaterial.hpColor==0)
+		return float4(1.f,0.f,0.f,0.f);
+	else
+		return float4(0.f,1.f,1.f,0.f);
 }
