@@ -289,6 +289,12 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	random_device rd;
 	mt19937 gen(rd());
 	uniform_int_distribution<> dist(3, 5);
+	RECT rcWindow;
+	GetWindowRect(Get_HWND(), &rcWindow);
+
+	// rcWindow ???????? ?????? a?? ????? ??? ???????.
+	int windowX = rcWindow.left;
+	int windowY = rcWindow.top;
 
 	if (m_pScene) m_pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 	switch (nMessageID)
@@ -296,6 +302,11 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	case WM_LBUTTONDOWN:
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
+		// hWnd?? ???? a?? ?????? ???????.
+		
+
+		//cout << "x : " << m_ptOldCursorPos.x - windowX << endl;
+		//cout << "y : " << m_ptOldCursorPos.y - windowY << endl;
 		break;
 	case WM_RBUTTONDOWN:
 
@@ -556,7 +567,67 @@ void CGameFramework::MoveToNextFrame()
 void CGameFramework::FrameAdvance()
 {
 	m_GameTimer.Tick(0.0f);
-	ShowCursor(false);
+
+	// hWnd?? ???? a?? ?????? ???????.
+	RECT rcWindow;
+	GetWindowRect(Get_HWND(), &rcWindow);
+
+	// rcWindow ???????? ?????? a?? ????? ??? ???????.
+	int windowX = rcWindow.left;
+	int windowY = rcWindow.top;
+
+
+	if (false == onFullScreen)
+	{
+		if (446 <= m_ptOldCursorPos.x - windowX && 513 >= m_ptOldCursorPos.x - windowX
+			&& 359 <= m_ptOldCursorPos.y - windowY && 393 >= m_ptOldCursorPos.y - windowY)//play
+		{
+			ShowCursor(false);
+			m_pScene->start = true;
+			m_pScene->pMultiSpriteObjectShader->m_ppObjects[6]->m_ppMaterials[0]->m_pTexture->m_bActive = false;
+			
+
+		}
+		else if (444 <= m_ptOldCursorPos.x - windowX && 511 >= m_ptOldCursorPos.x - windowX
+			&& 395 <= m_ptOldCursorPos.y - windowY && 432 >= m_ptOldCursorPos.y - windowY)//exit
+		{
+			
+			::PostQuitMessage(0);
+		}
+		else if (443 <= m_ptOldCursorPos.x - windowX && 564 >= m_ptOldCursorPos.x - windowX
+			&& 435 <= m_ptOldCursorPos.y - windowY && 472 >= m_ptOldCursorPos.y - windowY) {//settings
+
+			
+		}
+	}
+	else
+	{
+		if (436 <= m_ptOldCursorPos.x - windowX && 505 >= m_ptOldCursorPos.x - windowX
+			&& 324 <= m_ptOldCursorPos.y - windowY && 362 >= m_ptOldCursorPos.y - windowY)
+		{
+			ShowCursor(false);
+			m_pScene->start = true;
+			m_pScene->pMultiSpriteObjectShader->m_ppObjects[6]->m_ppMaterials[0]->m_pTexture->m_bActive = false;
+			
+
+		}
+
+		else if (434 <= m_ptOldCursorPos.x - windowX && 498 >= m_ptOldCursorPos.x - windowX
+			&& 364 <= m_ptOldCursorPos.y - windowY && 399 >= m_ptOldCursorPos.y - windowY)
+		{
+			
+			ChangeSwapChainState();
+
+			::PostQuitMessage(0);
+		}
+
+		else if (435 <= m_ptOldCursorPos.x - windowX && 554 >= m_ptOldCursorPos.x - windowX
+			&& 403 <= m_ptOldCursorPos.y - windowY && 442 >= m_ptOldCursorPos.y - windowY) {
+			
+		}
+	}
+
+	
 
 	ProcessInput();
 

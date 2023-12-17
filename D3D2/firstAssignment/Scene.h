@@ -103,5 +103,7 @@ public:
 	CTextureToViewportShader* m_pShadowMapToViewport{ NULL };
 
 	ID3D12Resource* m_pd3dcbMaterials{ NULL };
+
+	bool start{ false };
 	
 };

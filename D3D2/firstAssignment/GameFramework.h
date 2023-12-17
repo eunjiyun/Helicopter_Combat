@@ -53,7 +53,7 @@ public:
 	
 	void CreateShaderVariables();
 	bool onFullScreen = false;
-
+	HWND	Get_HWND() { return m_hWnd; }
 private:
 	HINSTANCE					m_hInstance;
 	HWND						m_hWnd;

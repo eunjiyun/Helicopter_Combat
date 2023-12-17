@@ -97,6 +97,8 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pMultiSpriteObjectShader->SetActive(false);
 	m_ppShaders[1] = pMultiSpriteObjectShader;
 
+	pMultiSpriteObjectShader->m_ppObjects[6]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
+
 	CBillboardObjectsShader* pBillboardObjectShader = new CBillboardObjectsShader();
 	pBillboardObjectShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	pBillboardObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain);
@@ -602,18 +604,27 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 
 
 	m_ppShaders[2]->Render(pd3dCommandList, pCamera);//Ç®
+
 	pMultiSpriteObjectShader->Render(pd3dCommandList, pCamera);//ºÒ²É
+	
 
 	pObjectsShader->Render(pd3dCommandList, pCamera);//Çï±â
 
-	m_pPlayer->Render(pd3dCommandList, pCamera);
+	if(start)
+		m_pPlayer->Render(pd3dCommandList, pCamera);
+
+	
 
 
 	for (int i{}; i < m_nEnvironmentMappingShaders; ++i) {
 		m_ppEnvironmentMappingShaders[i]->Render(pd3dCommandList, pCamera);
 	}
+
 	
-	if (pCamera->GetPlayer())
+	
+	if (pCamera->GetPlayer() && start)
 		m_pShadowMapToViewport->Render(pd3dCommandList, pCamera, m_pPlayer->HP / 25.f, XMFLOAT2(38, 27));
+
+	
 }
 

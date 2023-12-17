@@ -286,7 +286,7 @@ void CShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, int nP
 	if (m_ppd3dPipelineStates)
 		pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[nPipelineState]);
 
-	if (m_pd3dCbvSrvDescriptorHeap) 
+	if (m_pd3dCbvSrvDescriptorHeap)
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
 
@@ -642,7 +642,7 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 
 	if (2 == m_nObjects)
 		UpdateShaderVariables(pd3dCommandList);
-	
+
 	if (!obj.empty())
 	{
 		for (const auto& o : obj)
@@ -817,9 +817,9 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 	CRawFormatImage* pRawFormatImage = new CRawFormatImage(L"Image/ObjectsMap.raw", 257, 257, true);
 
 	int nGrassObjects = 0, nFlowerObjects = 0, nBlacks = 0, nOthers = 0, nTreeObjects[3] = { 0, 0, 0 };
-	for (int z{ 2 }; z <=254/3; ++z)
+	for (int z{ 2 }; z <= 254 / 3; ++z)
 	{
-		for (int x{ 2 }; x <= 254/3; ++x)
+		for (int x{ 2 }; x <= 254 / 3; ++x)
 		{
 			BYTE nPixel = pRawFormatImage->GetRawImagePixel(x, z);
 			switch (nPixel)
@@ -859,13 +859,13 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 	int nTerrainLength = int(pTerrain->GetLength());
 
 	XMFLOAT3 xmf3Scale = pTerrain->GetScale();
-	
+
 	m_ppObjects = new CGameObject * [m_nObjects];
 
 	CGrassObject* pBillboardObject = NULL;
-	for (int nObjects{}, z{ 2 }; z <= 254/3; ++z)
+	for (int nObjects{}, z{ 2 }; z <= 254 / 3; ++z)
 	{
-		for (int x{ 2 }; x <= 254/3; ++x)
+		for (int x{ 2 }; x <= 254 / 3; ++x)
 		{
 			BYTE nPixel = pRawFormatImage->GetRawImagePixel(x, z);
 
@@ -926,7 +926,7 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 				float xPosition = x * xmf3Scale.x;
 				float zPosition = z * xmf3Scale.z;
 				float fHeight = pTerrain->GetHeight(xPosition, zPosition);
-				pBillboardObject->SetPosition(xPosition, fHeight + fyOffset+330, zPosition);
+				pBillboardObject->SetPosition(xPosition, fHeight + fyOffset + 330, zPosition);
 				pBillboardObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr
 					+ (::gnCbvSrvDescriptorIncrementSize * nObjects));
 
@@ -1094,7 +1094,10 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 	ppSpriteTextures[5] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
 	ppSpriteTextures[5]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/a.dds", RESOURCE_TEXTURE2D, 0);
 
-	CMaterial* ppSpriteMaterials[6];
+	ppSpriteTextures[6] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	ppSpriteTextures[6]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/start.dds", RESOURCE_TEXTURE2D, 0);
+
+	CMaterial* ppSpriteMaterials[7];
 	ppSpriteMaterials[0] = new CMaterial();
 	ppSpriteMaterials[0]->SetTexture(ppSpriteTextures[0]);
 	ppSpriteMaterials[1] = new CMaterial();
@@ -1109,14 +1112,17 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 	ppSpriteMaterials[5] = new CMaterial();
 	ppSpriteMaterials[5]->SetTexture(ppSpriteTextures[5]);
 
+	ppSpriteMaterials[6] = new CMaterial();
+	ppSpriteMaterials[6]->SetTexture(ppSpriteTextures[6]);
+
 
 	CTexturedRectMesh* pSpriteMesh{ NULL };
 
-	m_nObjects = 6;
+	m_nObjects = 7;
 
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, m_nObjects, 6);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, m_nObjects, 7);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateConstantBufferViews(pd3dDevice, m_nObjects, m_pd3dcbGameObjects, ncbElementBytes);
 	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[0], 0, 12);
@@ -1125,6 +1131,7 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[3], 0, 12);
 	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[4], 0, 12);
 	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[5], 0, 12);
+	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[6], 0, 12);
 
 
 	m_ppObjects = new CGameObject * [m_nObjects];
@@ -1137,8 +1144,10 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 
 		if (0 == j || 1 == j)
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		else
+		else if (6 != j)
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 50.0f, 50.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		else//È­¸é
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 130.0f, 10.0f, 0.0f, 0.0f, 45.0f, 0.0f);
 
 		pSpriteObject->SetMesh(0, pSpriteMesh);
 		pSpriteObject->SetMaterial(0, ppSpriteMaterials[j]);
@@ -1152,7 +1161,7 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 			pSpriteObject->m_ppMaterials[0]->m_pTexture->texMat.z = 8;
 		else if (1 == j)
 			pSpriteObject->m_ppMaterials[0]->m_pTexture->texMat.z = 6;
-		else
+		else if (6 != j)
 			pSpriteObject->m_ppMaterials[0]->m_pTexture->texMat.z = 1;
 
 
@@ -1176,11 +1185,11 @@ void CMultiSpriteObjectsShader::ReleaseObjects()
 void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	CPlayer* pPlayer = pCamera->GetPlayer();
-	
+
 	if (m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive)
 	{
 		XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
-		
+
 
 		if (pPlayer) {
 			XMFLOAT3 xmf3PlayerPosition = pPlayer->GetPosition();
@@ -1209,8 +1218,10 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 
 						m_ppObjects[j]->m_ppMaterials[0]->SetTexture(ppSpriteTextures[score]);
 					}
+
 				}
 			}
+
 
 			if (m_ppd3dPipelineStates)
 				pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);
@@ -1227,10 +1238,38 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 					m_ppObjects[j]->Render(pd3dCommandList, pCamera);
 				}
 			}
+
 		}
 	}
-	else if(pPlayer)
+	else if (pPlayer)
 		hit = XMFLOAT3(0, 0, 0);
+
+	if (m_ppObjects[6]->m_ppMaterials[0]->m_pTexture->m_bActive) {
+		XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
+		if (pPlayer) {
+			XMFLOAT3 xmf3PlayerPosition = pPlayer->GetPosition();
+			XMFLOAT3 xmf3PlayerLook = pPlayer->GetLookVector();
+			XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
+
+
+
+			xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 0.0001f * xmf3CameraPosition.x) / 1.0001f;
+			xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 0.0001f * xmf3CameraPosition.y) / 1.0001f;
+			xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 0.0001f * xmf3CameraPosition.z) / 1.0001f;
+
+			m_ppObjects[6]->SetPosition(xmf3PlayerPosition);
+			m_ppObjects[6]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+
+			if (m_ppd3dPipelineStates)
+				pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);
+			pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+
+			CObjectsShader::UpdateShaderVariables(pd3dCommandList);
+
+			m_ppObjects[6]->Render(pd3dCommandList, pCamera);
+
+		}
+	}
 }
 
 
@@ -1510,7 +1549,7 @@ void CDynamicCubeMappingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 
 	d3dDescriptorHeapDesc.NumDescriptors = m_nObjects * 6;
 	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-	HRESULT h =pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_pd3dRtvDescriptorHeap);
+	HRESULT h = pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_pd3dRtvDescriptorHeap);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
@@ -1529,8 +1568,8 @@ void CDynamicCubeMappingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 		float zPosition = xmf2TerrainCenter.y + ((i + 1) * 150.0f) * ((i % 2) ? +1.0f : -1.0f);
 		float fHeight = pTerrain->GetHeight(xPosition, zPosition);
 
-		if(0==i)
-			m_ppObjects[i]->SetPosition(xPosition, fHeight + 150.0f+180, zPosition);
+		if (0 == i)
+			m_ppObjects[i]->SetPosition(xPosition, fHeight + 150.0f + 180, zPosition);
 		else
 			m_ppObjects[i]->SetPosition(xPosition, fHeight + 150.0f + 280, zPosition);
 
@@ -1714,7 +1753,7 @@ void CTerrainTessellationShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12Ro
 	if (d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
-void CTerrainTessellationShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState )
+void CTerrainTessellationShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState)
 {
 	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 	if (m_ppd3dPipelineStates) pd3dCommandList->SetPipelineState((::gbTerrainTessellationWireframe) ? m_ppd3dPipelineStates[1] : m_ppd3dPipelineStates[0]);
