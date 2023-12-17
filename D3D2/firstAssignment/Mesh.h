@@ -201,7 +201,7 @@ protected:
 
 public:
 	CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale);
-	CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength);
+
 	~CHeightMapImage(void);
 
 	XMFLOAT3 GetScale() { return(m_xmf3Scale); }

@@ -926,7 +926,8 @@ void CBillboardObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 				float xPosition = x * xmf3Scale.x;
 				float zPosition = z * xmf3Scale.z;
 				float fHeight = pTerrain->GetHeight(xPosition, zPosition);
-				pBillboardObject->SetPosition(xPosition, fHeight + fyOffset + 330, zPosition);
+				
+				pBillboardObject->SetPosition(xPosition, fHeight + fyOffset/*+665*/ , zPosition);
 				pBillboardObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr
 					+ (::gnCbvSrvDescriptorIncrementSize * nObjects));
 
@@ -1569,9 +1570,9 @@ void CDynamicCubeMappingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 		float fHeight = pTerrain->GetHeight(xPosition, zPosition);
 
 		if (0 == i)
-			m_ppObjects[i]->SetPosition(xPosition, fHeight + 150.0f + 180, zPosition);
+			m_ppObjects[i]->SetPosition(xPosition, fHeight+70.f /*+ 150.0f + 180*/, zPosition);
 		else
-			m_ppObjects[i]->SetPosition(xPosition, fHeight + 150.0f + 280, zPosition);
+			m_ppObjects[i]->SetPosition(xPosition, fHeight +130.f/*+ 150.0f + 280*/, zPosition);
 
 		m_ppObjects[i]->SetCbvGPUDescriptorHandlePtr(d3dCbvGPUDescriptorStartHandle.ptr);
 

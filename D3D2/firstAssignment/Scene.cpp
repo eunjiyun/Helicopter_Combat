@@ -82,14 +82,15 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
-	/*XMFLOAT3 xmf3Scale(18.0f, 6.0f, 18.0f);
-	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);*/
-	XMFLOAT3 xmf3Scale(16.0f, 3.0f, 16.0f);
+	XMFLOAT3 xmf3Scale(18.0f, 6.0f, 18.0f);
+	//XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
+	//XMFLOAT3 xmf3Scale(16.0f, 3.0f, 16.0f);
 	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Image/HeightMap.raw"), 257, 257, 13, 13, xmf3Scale, xmf4Color);
 
 	m_pTerrainWater = new CRippleWater(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 257, 257, 13, 13, xmf3Scale, xmf4Color);
-	m_pTerrainWater->SetPosition(+(257 * 0.5f), 225 /*667*/ /*m_pTerrain->GetHeight(257 * 0.5f, 257 * 0.5f)*/, +(257 * 0.5f));
+	m_pTerrainWater->SetPosition(+(257 * 0.5f), /*225*/ /*607*/ m_pTerrain->GetHeight(257 * 0.5f, 257 * 0.5f)-200, +(257 * 0.5f));
+	
 	//m_pTerrainWater->SetPosition(+(257 * 0.5f), 155.0f, +(257 * 0.5f));
 
 	m_nShaders = 3;

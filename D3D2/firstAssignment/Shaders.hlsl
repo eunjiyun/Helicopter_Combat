@@ -313,7 +313,7 @@ VS_RIPPLE_WATER_OUTPUT VSRippleWater(VS_RIPPLE_WATER_INPUT input)
 	input.position.y += sin(gMaterial.gfCurrentTime * 1.0f + (((input.position.x * input.position.x) + (input.position.z * input.position.z))) * 0.0001f) * 10.0f;
 	//input.position.y += sin(gMaterial.gfCurrentTime * 0.35f + input.position.x * 0.35f) * 2.95f + cos(gMaterial.gfCurrentTime * 0.30f + input.position.z * 0.35f) * 2.05f;
 	output.position = mul(float4(input.position, 1.0f), gmtxGameObject);
-	if (225.0f < output.position.y) output.position.y = 225.0f;
+	if (436.833f < output.position.y) output.position.y = 436.833f;
 	output.position = mul(mul(output.position, gmtxView), gmtxProjection);
 
 	//	output.color = input.color;

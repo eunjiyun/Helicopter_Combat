@@ -1159,7 +1159,7 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 	SetMaterial(0, pTerrainMaterial);*/
 
-	m_pHeightMapImage = new CHeightMapImage(pFileName, nWidth, nLength);
+	m_pHeightMapImage = new CHeightMapImage(pFileName, nWidth, nLength, xmf3Scale);
 
 	int cxQuadsPerBlock = nBlockWidth - 1;
 	int czQuadsPerBlock = nBlockLength - 1;

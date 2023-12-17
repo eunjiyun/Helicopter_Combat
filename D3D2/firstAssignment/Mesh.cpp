@@ -571,9 +571,7 @@ CHeightMapImage::CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength, XMF
 {
 	m_xmf3Scale = xmf3Scale;
 }
-CHeightMapImage::CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength) : CRawFormatImage(pFileName, nWidth, nLength, true)
-{
-}
+
 
 
 CHeightMapImage::~CHeightMapImage()
