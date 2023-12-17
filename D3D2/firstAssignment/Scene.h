@@ -38,6 +38,51 @@ struct LIGHTS
 	UINT					renderMode;
 };
 
+struct WAVEHEADER
+{
+	char chunkId[4];
+	unsigned long chunkSize;
+	char format[4];
+	char subchunk1Id[4];
+	unsigned long subchunk1Size;
+	unsigned short audioFormat;
+	unsigned short numChannels;
+	unsigned long sampleRate;
+	unsigned long byteRate;
+	unsigned short blockAlign;
+	unsigned short bitsPerSample;
+	char subchunk2Id[4];
+	unsigned long subchunk2Size;
+};
+
+class SoundPlayer {
+public:
+	SoundPlayer();
+	~SoundPlayer();
+
+	bool Initialize();
+	void Terminate();
+
+	HRESULT LoadWaveFile(const wchar_t* filename);
+	bool LoadWave(const wchar_t* filename, int type);
+
+	void Play();
+	void Stop();
+
+public:
+	IXAudio2SourceVoice* sourceVoice_;
+
+
+	XAUDIO2_BUFFER buffer_;
+	WAVEFORMATEX waveFormat_;
+	bool attOnce{ false };
+
+private:
+	IXAudio2* xAudio2_;
+	IXAudio2MasteringVoice* masterVoice_;
+	std::vector<BYTE> audioData_;
+};
+
 class CScene
 {
 public:
@@ -105,5 +150,16 @@ public:
 	ID3D12Resource* m_pd3dcbMaterials{ NULL };
 
 	bool start{ false };
+
+	SoundPlayer sound[4];
+	const wchar_t* inGame = _T("Sound/inGame.wav");
+	const wchar_t* opening = _T("Sound/opening.wav");
+	const wchar_t* att = _T("Sound/hit_marker.wav");
+	const wchar_t* win = _T("Sound/win.wav");
+	const wchar_t* monster[4] = { _T("Sound/monsterSummon.wav"),_T("Sound/monsterAttack.wav"),_T("Sound/monsterDeath.wav"),_T("Sound/hit_marker.wav") };
+	const wchar_t* hit_marker = _T("Sound/hit_marker.wav");
+	const wchar_t* door = _T("Sound/door.wav");
+	const wchar_t* jump = _T("Sound/jump.wav");
 	
 };
+

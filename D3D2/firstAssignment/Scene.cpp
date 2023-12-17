@@ -64,6 +64,18 @@ void CScene::BuildDefaultLightsAndMaterials()
 
 void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
+
+	// Initialize SoundPlayer
+	sound[0].Initialize();
+	sound[0].LoadWave(inGame, 0);
+
+
+	sound[1].Initialize();
+	sound[1].LoadWave(opening, 0);
+
+
+	
+
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
 	BuildDefaultLightsAndMaterials();
@@ -580,6 +592,9 @@ void CScene::OnPreRender(ID3D12Device* pd3dDevice, ID3D12CommandQueue* pd3dComma
 
 void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
+	// Play sound
+	sound[1].Play();//??????
+
 	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
@@ -628,3 +643,208 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	
 }
 
+SoundPlayer::SoundPlayer()
+	: xAudio2_(nullptr), masterVoice_(nullptr), sourceVoice_(nullptr)
+{
+	ZeroMemory(&waveFormat_, sizeof(waveFormat_));
+	ZeroMemory(&buffer_, sizeof(buffer_));
+}
+
+SoundPlayer::~SoundPlayer()
+{
+	Terminate();
+}
+
+bool SoundPlayer::Initialize()
+{
+	HRESULT hr;
+
+
+	// XAudio2 객체 생성
+	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
+	if (FAILED(hr)) {
+		return false;
+	}
+
+
+
+	// 마스터 보이스 생성
+	hr = xAudio2_->CreateMasteringVoice(&masterVoice_);
+	if (FAILED(hr)) {
+		return false;
+	}
+
+
+	waveFormat_.wFormatTag = WAVE_FORMAT_PCM;
+	waveFormat_.nChannels = 2;
+	waveFormat_.nSamplesPerSec = 48000;
+	waveFormat_.nAvgBytesPerSec = 48000 * 4;
+	waveFormat_.nBlockAlign = 4;
+	waveFormat_.wBitsPerSample = 16;
+	waveFormat_.cbSize = 0;
+
+
+	// 소스 보이스 생성
+	hr = xAudio2_->CreateSourceVoice(&sourceVoice_, &waveFormat_);
+	if (FAILED(hr)) {
+		return false;
+	}
+
+	return true;
+}
+
+void SoundPlayer::Terminate()
+{
+	if (sourceVoice_ != nullptr) {
+		sourceVoice_->DestroyVoice();
+		sourceVoice_ = nullptr;
+	}
+
+
+	if (masterVoice_ != nullptr) {
+		masterVoice_->DestroyVoice();
+		masterVoice_ = nullptr;
+	}
+
+	if (xAudio2_ != nullptr) {
+		xAudio2_->Release();
+		xAudio2_ = nullptr;
+	}
+}
+
+HRESULT SoundPlayer::LoadWaveFile(const wchar_t* filename)
+{
+	// WAV 파일을 읽기 전용으로 열기
+	FILE* file = nullptr;
+	errno_t err = _wfopen_s(&file, filename, L"rb");
+	if (err != 0)
+	{
+		return HRESULT_FROM_WIN32(err);
+	}
+
+	// WAV 파일 헤더 읽기
+	WAVEHEADER header;
+	size_t bytesRead = fread(&header, 1, sizeof(WAVEHEADER), file);
+	if (bytesRead != sizeof(WAVEHEADER))
+	{
+		fclose(file);
+		return E_FAIL;
+	}
+
+	// WAV 파일 검증
+	if (memcmp(header.chunkId, "RIFF", 4) != 0 ||
+		memcmp(header.format, "WAVE", 4) != 0 ||
+		memcmp(header.subchunk1Id, "fmt ", 4) != 0 ||
+		memcmp(header.subchunk2Id, "data", 4) != 0)
+	{
+		fclose(file);
+		return E_FAIL;
+	}
+
+	// 웨이브 형식 정보 읽기
+	WAVEFORMATEX* pWaveFormat = (WAVEFORMATEX*)malloc(header.subchunk1Size);
+	if (!pWaveFormat)
+	{
+		fclose(file);
+		return E_OUTOFMEMORY;
+	}
+
+	bytesRead = fread(pWaveFormat, 1, header.subchunk1Size, file);
+	if (bytesRead != header.subchunk1Size)
+	{
+		free(pWaveFormat);
+		fclose(file);
+		return E_FAIL;
+	}
+
+	// 버퍼 데이터 읽기
+	BYTE* pData = (BYTE*)malloc(header.subchunk2Size);
+	if (!pData)
+	{
+		free(pWaveFormat);
+		fclose(file);
+		return E_OUTOFMEMORY;
+	}
+
+	bytesRead = fread(pData, 1, header.subchunk2Size, file);
+	if (bytesRead != header.subchunk2Size)
+	{
+		//free(pWaveFormat);
+		//free(pData);
+		//fclose(file);
+		//return E_FAIL;//0506
+	}
+
+	// 반환값 설정
+	waveFormat_ = *pWaveFormat;
+	buffer_.pAudioData = pData;
+	buffer_.AudioBytes = header.subchunk2Size;
+
+	buffer_.Flags = XAUDIO2_END_OF_STREAM; // 스트림의 끝임을 나타냄
+	buffer_.LoopCount = XAUDIO2_LOOP_INFINITE; // 루프 횟수를 무한대로 설정
+
+
+	// 파일 닫기
+	fclose(file);
+
+	return S_OK;
+}
+
+bool SoundPlayer::LoadWave(const wchar_t* filename, int type = 0)
+{
+	HRESULT hr;
+	// WAVE 파일 로드
+	hr = LoadWaveFile(filename);
+
+
+	if (FAILED(hr)) {
+		return false;
+	}
+
+	if (type == 1)
+	{
+		buffer_.Flags = XAUDIO2_END_OF_STREAM;
+		buffer_.LoopCount = 0; // 한 번만 재생하고 멈추기 위해 루프 횟수를 0으로 설정
+	}
+
+	if (nullptr == sourceVoice_)
+	{
+		if (false == Initialize())
+		{
+			// 소스 보이스 생성
+			hr = xAudio2_->CreateSourceVoice(&sourceVoice_, &waveFormat_);
+			if (FAILED(hr)) {
+				cout << "error" << endl;
+				return false;
+			}
+		}
+
+		//Initialize();
+	}
+
+	// 소스 보이스에 버퍼 설정
+	hr = sourceVoice_->SubmitSourceBuffer(&buffer_);
+	if (FAILED(hr)) {
+		return false;
+	}
+
+	return true;
+}
+
+void SoundPlayer::Play()
+{
+	// 소스 보이스 재생
+	if (sourceVoice_)
+		sourceVoice_->Start();
+}
+
+void SoundPlayer::Stop()
+{
+	if (sourceVoice_)
+	{
+		// 소스 보이스 중지
+		sourceVoice_->Stop();
+		sourceVoice_->FlushSourceBuffers();
+	}
+	//Terminate();
+}

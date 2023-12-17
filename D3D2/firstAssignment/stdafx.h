@@ -28,6 +28,9 @@
 using namespace std;
 
 
+//sound
+#include <xaudio2.h>
+#pragma comment(lib, "xaudio2.lib")
 
 
 

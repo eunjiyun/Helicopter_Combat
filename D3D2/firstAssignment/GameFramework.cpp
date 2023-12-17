@@ -316,6 +316,14 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		m_pScene->pMultiSpriteObjectShader->score = dist(gen);
 		cout << m_pScene->pMultiSpriteObjectShader->score << endl;
 
+		if (!m_pScene->sound[2].attOnce) {
+			m_pScene->sound[2].Initialize();
+			m_pScene->sound[2].LoadWave(m_pScene->att, 0);
+			m_pScene->sound[2].Play();//?????
+
+			m_pScene->sound[2].attOnce = true;
+		}
+		
 		break;
 
 	case WM_LBUTTONUP:
@@ -324,6 +332,8 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	case WM_RBUTTONUP:
 		m_pPlayer->attack = false;
 		
+		m_pScene->sound[2].Stop();//?????
+		m_pScene->sound[2].attOnce = false;
 		break;
 	case WM_MOUSEMOVE:
 		break;
@@ -446,6 +456,8 @@ void CGameFramework::OnDestroy()
 
 void CGameFramework::BuildObjects()
 {
+
+	
 	float a = XMConvertToDegrees(atan(0.5));
 
 
@@ -568,6 +580,8 @@ void CGameFramework::FrameAdvance()
 {
 	m_GameTimer.Tick(0.0f);
 
+	
+	
 	// hWnd?? ???? a?? ?????? ???????.
 	RECT rcWindow;
 	GetWindowRect(Get_HWND(), &rcWindow);
@@ -585,7 +599,8 @@ void CGameFramework::FrameAdvance()
 			ShowCursor(false);
 			m_pScene->start = true;
 			m_pScene->pMultiSpriteObjectShader->m_ppObjects[6]->m_ppMaterials[0]->m_pTexture->m_bActive = false;
-			
+			m_pScene->sound[1].Stop();//??????
+			m_pScene->sound[0].Play();//?????
 
 		}
 		else if (444 <= m_ptOldCursorPos.x - windowX && 511 >= m_ptOldCursorPos.x - windowX
@@ -608,7 +623,8 @@ void CGameFramework::FrameAdvance()
 			ShowCursor(false);
 			m_pScene->start = true;
 			m_pScene->pMultiSpriteObjectShader->m_ppObjects[6]->m_ppMaterials[0]->m_pTexture->m_bActive = false;
-			
+			m_pScene->sound[1].Stop();//??????
+			m_pScene->sound[0].Play();//?????
 
 		}
 
