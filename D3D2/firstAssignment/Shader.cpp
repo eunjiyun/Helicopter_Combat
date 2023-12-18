@@ -1276,9 +1276,9 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 					xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 0.0001f * xmf3CameraPosition.z) / 1.0001f;
 				}
 				else {
-					xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 0.1f * xmf3CameraPosition.x) / 1.1f;
-					xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 0.1f * xmf3CameraPosition.y) / 1.1f;
-					xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 0.1f * xmf3CameraPosition.z) / 1.1f;
+					xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 1.f * xmf3CameraPosition.x) / 2.f;
+					xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 1.f * xmf3CameraPosition.y) / 2.f;
+					xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 1.f * xmf3CameraPosition.z) / 2.f;
 				}
 
 				m_ppObjects[i]->SetPosition(xmf3PlayerPosition);

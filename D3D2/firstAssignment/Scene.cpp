@@ -597,9 +597,6 @@ void CScene::AnimateObjects(float fTimeElapsed)
 			}
 		}
 
-		/*XMFLOAT3 distanceVector = Vector3::Subtract(targetPlayer->GetPosition(), Pos);
-		MagicPos = Vector3::Add(GetPosition(), XMFLOAT3(0, 10, 0));
-		MagicLook = Vector3::Normalize(distanceVector);*/
 	}
 
 	for (int i{}; i < m_nEnvironmentMappingShaders; ++i)
@@ -607,23 +604,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 
 }
 
-void CScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	//pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
-	//UpdateShaderVariables(pd3dCommandList);
-
-	//if (m_pd3dcbLights)
-	//{
-	//	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
-	//	pd3dCommandList->SetGraphicsRootConstantBufferView(4, d3dcbLightsGpuVirtualAddress); //Lights
-	//}
-	//if (m_pd3dcbMaterials)
-	//{
-	//	D3D12_GPU_VIRTUAL_ADDRESS d3dcbMaterialsGpuVirtualAddress = m_pd3dcbMaterials->GetGPUVirtualAddress();
-	//	pd3dCommandList->SetGraphicsRootConstantBufferView(3, d3dcbMaterialsGpuVirtualAddress); //Materials
-	//}
-}
 
 void CScene::OnPreRender(ID3D12Device* pd3dDevice, ID3D12CommandQueue* pd3dCommandQueue, ID3D12Fence* pd3dFence, HANDLE hFenceEvent)
 {
@@ -679,8 +660,8 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	if (start) {
 
 		if (0 < m_pPlayer->HP) {
-			//m_pPlayer->HP -= 1.5314f;
-			m_pPlayer->HP -= 0.09259f;
+			m_pPlayer->HP -= 1.5314f;
+			//m_pPlayer->HP -= 0.09259f;
 
 			m_pPlayer->Render(pd3dCommandList, pCamera);
 		}
