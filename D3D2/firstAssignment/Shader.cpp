@@ -1261,37 +1261,38 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 	else if (pPlayer)
 		hit = XMFLOAT3(0, 0, 0);
 
-	for(int i{6};i<9;++i)
-	if (m_ppObjects[i]->m_ppMaterials[0]->m_pTexture->m_bActive) {
-		XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
-		if (pPlayer) {
-			XMFLOAT3 xmf3PlayerPosition = pPlayer->GetPosition();
-			XMFLOAT3 xmf3PlayerLook = pPlayer->GetLookVector();
-			XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
+	for (int i{ 6 }; i < 9; ++i) {
+		if (m_ppObjects[i]->m_ppMaterials[0]->m_pTexture->m_bActive) {
+			XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
+			if (pPlayer) {
+				XMFLOAT3 xmf3PlayerPosition = pPlayer->GetPosition();
+				XMFLOAT3 xmf3PlayerLook = pPlayer->GetLookVector();
+				XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
 
 
-			if (6 == i) {
-				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 0.0001f * xmf3CameraPosition.x) / 1.0001f;
-				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 0.0001f * xmf3CameraPosition.y) / 1.0001f;
-				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 0.0001f * xmf3CameraPosition.z) / 1.0001f;
+				if (6 == i) {
+					xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 0.0001f * xmf3CameraPosition.x) / 1.0001f;
+					xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 0.0001f * xmf3CameraPosition.y) / 1.0001f;
+					xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 0.0001f * xmf3CameraPosition.z) / 1.0001f;
+				}
+				else {
+					xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 0.1f * xmf3CameraPosition.x) / 1.1f;
+					xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 0.1f * xmf3CameraPosition.y) / 1.1f;
+					xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 0.1f * xmf3CameraPosition.z) / 1.1f;
+				}
+
+				m_ppObjects[i]->SetPosition(xmf3PlayerPosition);
+				m_ppObjects[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+
+				if (m_ppd3dPipelineStates)
+					pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);
+				pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+
+				CObjectsShader::UpdateShaderVariables(pd3dCommandList);
+
+				m_ppObjects[i]->Render(pd3dCommandList, pCamera);
+
 			}
-			else {
-				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 0.1f * xmf3CameraPosition.x) / 1.1f;
-				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 0.1f * xmf3CameraPosition.y) / 1.1f;
-				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 0.1f * xmf3CameraPosition.z) / 1.1f;
-			}
-
-			m_ppObjects[i]->SetPosition(xmf3PlayerPosition);
-			m_ppObjects[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
-
-			if (m_ppd3dPipelineStates)
-				pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);
-			pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
-
-			CObjectsShader::UpdateShaderVariables(pd3dCommandList);
-
-			m_ppObjects[i]->Render(pd3dCommandList, pCamera);
-
 		}
 	}
 }

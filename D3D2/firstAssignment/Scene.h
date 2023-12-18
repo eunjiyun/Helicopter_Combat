@@ -152,15 +152,13 @@ public:
 	bool start{ false };
 	int crashCnt{};
 
-	SoundPlayer sound[5];
+	SoundPlayer sound[6];
 	const wchar_t* inGame = _T("Sound/inGame.wav");
 	const wchar_t* opening = _T("Sound/opening.wav");
-	const wchar_t* att = _T("Sound/hit_marker.wav");
+	const wchar_t* att = _T("Sound/gun.wav");
 	const wchar_t* win = _T("Sound/win.wav");
-	const wchar_t* monster[4] = { _T("Sound/monsterSummon.wav"),_T("Sound/monsterAttack.wav"),_T("Sound/monsterDeath.wav"),_T("Sound/hit_marker.wav") };
-	const wchar_t* hit_marker = _T("Sound/hit_marker.wav");
-	const wchar_t* door = _T("Sound/door.wav");
-	const wchar_t* jump = _T("Sound/jump.wav");
+	
+	const wchar_t* monster = _T("Sound/hit.wav");
 	const wchar_t* close = _T("Sound/closing.wav");
 };
 

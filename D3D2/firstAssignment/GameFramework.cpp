@@ -324,6 +324,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 			m_pScene->sound[2].attOnce = true;
 		}
 		
+		
 		break;
 
 	case WM_LBUTTONUP:
@@ -334,6 +335,9 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		
 		m_pScene->sound[2].Stop();//?????
 		m_pScene->sound[2].attOnce = false;
+
+		m_pScene->sound[5].Stop();
+		m_pScene->sound[5].attOnce = false;
 		break;
 	case WM_MOUSEMOVE:
 		break;
