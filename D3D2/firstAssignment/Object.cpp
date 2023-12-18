@@ -1104,60 +1104,7 @@ void CMi24Object::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
 //
 CHeightMapTerrain::CHeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength, int nBlockWidth, int nBlockLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color) : CGameObject(0,1)
 {
-	/*m_nWidth = nWidth;
-	m_nLength = nLength;
-
-	int cxQuadsPerBlock = nBlockWidth - 1;
-	int czQuadsPerBlock = nBlockLength - 1;
-
-	m_xmf3Scale = xmf3Scale;
-
-	m_pHeightMapImage = new CHeightMapImage(pFileName, nWidth, nLength, xmf3Scale);
-
-	long cxBlocks = (m_nWidth - 1) / cxQuadsPerBlock;
-	long czBlocks = (m_nLength - 1) / czQuadsPerBlock;
-
-	m_nMeshes = cxBlocks * czBlocks;
-	m_ppMeshes = new CMesh * [m_nMeshes];
-	for (int i{}; i < m_nMeshes; ++i)	m_ppMeshes[i] = NULL;
-
-	CHeightMapGridMesh* pHeightMapGridMesh{ NULL };
-	for (int z{}, zStart{}; z < czBlocks; ++z)
-	{
-		for (int x{}, xStart{}; x < cxBlocks; ++x)
-		{
-			xStart = x * (nBlockWidth - 1);
-			zStart = z * (nBlockLength - 1);
-			pHeightMapGridMesh = new CHeightMapGridMesh(pd3dDevice, pd3dCommandList,
-				xStart, zStart, nBlockWidth, nBlockLength, xmf3Scale, xmf4Color, m_pHeightMapImage);
-			SetMesh(x + (z * cxBlocks), pHeightMapGridMesh);
-		}
-	}
-
-	CTexture* pTerrainTexture = new CTexture(3, RESOURCE_TEXTURE2D, 0, 1);
-
-	pTerrainTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Base_Texture.dds", RESOURCE_TEXTURE2D, 0);
-	pTerrainTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/Detail_Texture_7.dds", RESOURCE_TEXTURE2D, 1);
-	pTerrainTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/HeightMap(Alpha).dds", RESOURCE_TEXTURE2D, 2);
-
-	CTerrainShader* pTerrainShader = new CTerrainShader();
-	pTerrainShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
-
-	pTerrainShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 3);
-	pTerrainShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-
-	pTerrainShader->CreateShaderResourceViews(pd3dDevice, pTerrainTexture, 0, 11);
-
-	CMaterial* pTerrainMaterial = new CMaterial();
-	pTerrainMaterial->SetTexture(pTerrainTexture);
-
-	SetCbvGPUDescriptorHandle(pTerrainShader->GetGPUCbvDescriptorStartHandle());
-
-
-	pTerrainMaterial->SetShader(pTerrainShader);
-
-	SetMaterial(0, pTerrainMaterial);*/
+	
 
 	m_pHeightMapImage = new CHeightMapImage(pFileName, nWidth, nLength, xmf3Scale);
 

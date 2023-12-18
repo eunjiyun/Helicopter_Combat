@@ -13,22 +13,6 @@ CMesh::~CMesh()
 {
 	if (m_pd3dVertexBuffer)
 		m_pd3dVertexBuffer->Release();
-
-	/*if (m_nSubMeshes > 0)
-	{
-		for (int i = 0; i < m_nSubMeshes; i++)
-		{
-			if (m_ppd3dSubSetIndexBuffers[i]) m_ppd3dSubSetIndexBuffers[i]->Release();
-			if (m_ppnSubSetIndices[i]) delete[] m_ppnSubSetIndices[i];
-		}
-		if (m_ppd3dSubSetIndexBuffers) delete[] m_ppd3dSubSetIndexBuffers;
-		if (m_pd3dSubSetIndexBufferViews) delete[] m_pd3dSubSetIndexBufferViews;
-
-		if (m_pnSubSetIndices) delete[] m_pnSubSetIndices;
-		if (m_ppnSubSetIndices) delete[] m_ppnSubSetIndices;
-	}
-
-	if (m_pxmf3Positions) delete[] m_pxmf3Positions;*/
 }
 
 void CMesh::ReleaseUploadBuffers()
@@ -713,25 +697,9 @@ CHeightMapGridMesh::CHeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 	int cxHeightMap = pHeightMapImage->GetRawImageWidth();
 	int czHeightMap = pHeightMapImage->GetRawImageLength();
 
-	/*m_pxmf3Positions = new XMFLOAT3[m_nVertices];
-	m_pxmf4Colors = new XMFLOAT4[m_nVertices];
-	m_pxmf2TextureCoords0 = new XMFLOAT2[m_nVertices];
-	m_pxmf2TextureCoords1 = new XMFLOAT2[m_nVertices];*/
 
 	float fHeight = 0.0f, fMinHeight = +FLT_MAX, fMaxHeight = -FLT_MAX;
-	/*for (int i{}, z = zStart; z < (zStart + nLength); ++z)
-	{
-		for (int x{ xStart }; x < (xStart + nWidth); ++x, ++i)
-		{
-			fHeight = OnGetHeight(x, z, pContext);
-			m_pxmf3Positions[i] = XMFLOAT3((x * m_xmf3Scale.x), fHeight, (z * m_xmf3Scale.z));
-			m_pxmf4Colors[i] = Vector4::Add(OnGetColor(x, z, pContext), xmf4Color);
-			m_pxmf2TextureCoords0[i] = XMFLOAT2(float(x) / float(cxHeightMap - 1), float(czHeightMap - 1 - z) / float(czHeightMap - 1));
-			m_pxmf2TextureCoords1[i] = XMFLOAT2(float(x) / float(m_xmf3Scale.x * 0.5f), float(z) / float(m_xmf3Scale.z * 0.5f));
-			if (fHeight < fMinHeight) fMinHeight = fHeight;
-			if (fHeight > fMaxHeight) fMaxHeight = fHeight;
-		}
-	}*/
+	
 #ifdef _WITH_TERRAIN_TESSELATION
 #ifdef _WITH_TERRAIN_PARTITION
 	int nIncrease = 3; //(Block Size == 9) ? 2, (Block Size == 13) ? 3
@@ -829,78 +797,16 @@ CHeightMapGridMesh::CHeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 #endif
 
 
-	//m_pd3dVertexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Positions, sizeof(XMFLOAT3) * m_nVertices,
-		//D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
-
+	
 	m_pd3dVertexBuffer = CreateBufferResource(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices,
 		D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
 
-	/*m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
-	m_d3dVertexBufferView.StrideInBytes = sizeof(XMFLOAT3);
-	m_d3dVertexBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;*/
+	
 	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
 	m_d3dVertexBufferView.StrideInBytes = m_nStride;
 	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
 
 	delete[] pVertices;
-
-
-	
-
-	/*m_pd3dColorBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf4Colors, sizeof(XMFLOAT4) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dColorUploadBuffer);
-	m_d3dColorBufferView.BufferLocation = m_pd3dColorBuffer->GetGPUVirtualAddress();
-	m_d3dColorBufferView.StrideInBytes = sizeof(XMFLOAT4);
-	m_d3dColorBufferView.SizeInBytes = sizeof(XMFLOAT4) * m_nVertices;
-
-	m_pd3dTextureCoord0Buffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords0, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord0UploadBuffer);
-	m_d3dTextureCoord0BufferView.BufferLocation = m_pd3dTextureCoord0Buffer->GetGPUVirtualAddress();
-	m_d3dTextureCoord0BufferView.StrideInBytes = sizeof(XMFLOAT2);
-	m_d3dTextureCoord0BufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
-
-	m_pd3dTextureCoord1Buffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords1, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord1UploadBuffer);
-	m_d3dTextureCoord1BufferView.BufferLocation = m_pd3dTextureCoord1Buffer->GetGPUVirtualAddress();
-	m_d3dTextureCoord1BufferView.StrideInBytes = sizeof(XMFLOAT2);
-	m_d3dTextureCoord1BufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
-
-	m_nSubMeshes = 0;
-	m_pnSubSetIndices = new int[1];
-	m_ppnSubSetIndices = new UINT * [1];
-
-	m_ppd3dSubSetIndexBuffers = new ID3D12Resource * [1];
-	m_ppd3dSubSetIndexUploadBuffers = new ID3D12Resource * [1];
-	m_pd3dSubSetIndexBufferViews = new D3D12_INDEX_BUFFER_VIEW[1];
-
-	m_pnSubSetIndices[0] = ((nWidth * 2) * (nLength - 1)) + ((nLength - 1) - 1);
-	m_ppnSubSetIndices[0] = new UINT[m_pnSubSetIndices[0]];
-
-	for (int j{}, z{}; z < nLength - 1; ++z)
-	{
-		if (0==(z % 2) )
-		{
-			for (int x{}; x < nWidth; ++x)
-			{
-				if ((0==x ) && (z > 0)) m_ppnSubSetIndices[0][j++] = (UINT)(x + (z * nWidth));
-				m_ppnSubSetIndices[0][j++] = (UINT)(x + (z * nWidth));
-				m_ppnSubSetIndices[0][j++] = (UINT)((x + (z * nWidth)) + nWidth);
-			}
-		}
-		else
-		{
-			for (int x{ nWidth - 1 }; x >= 0; --x)
-			{
-				if ( (nWidth - 1) == x ) m_ppnSubSetIndices[0][j++] = (UINT)(x + (z * nWidth));
-				m_ppnSubSetIndices[0][j++] = (UINT)(x + (z * nWidth));
-				m_ppnSubSetIndices[0][j++] = (UINT)((x + (z * nWidth)) + nWidth);
-			}
-		}
-	}
-
-	m_ppd3dSubSetIndexBuffers[0] = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_ppnSubSetIndices[0],
-		sizeof(UINT) * m_pnSubSetIndices[0], D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_ppd3dSubSetIndexUploadBuffers[0]);
-
-	m_pd3dSubSetIndexBufferViews[0].BufferLocation = m_ppd3dSubSetIndexBuffers[0]->GetGPUVirtualAddress();
-	m_pd3dSubSetIndexBufferViews[0].Format = DXGI_FORMAT_R32_UINT;
-	m_pd3dSubSetIndexBufferViews[0].SizeInBytes = sizeof(UINT) * m_pnSubSetIndices[0];*/
 }
 
 CHeightMapGridMesh::~CHeightMapGridMesh()
@@ -954,24 +860,7 @@ XMFLOAT4 CHeightMapGridMesh::OnGetColor(int x, int z, void* pContext)
 	return(xmf4Color);
 }
 
-//void CHeightMapGridMesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet)
-//{
-//	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
-//
-//	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[4] = { m_d3dVertexBufferView, m_d3dColorBufferView, m_d3dTextureCoord0BufferView, m_d3dTextureCoord1BufferView };
-//
-//	pd3dCommandList->IASetVertexBuffers(m_nSlot, 4, pVertexBufferViews);
-//
-//	if ((m_nSubMeshes > 0) && (nSubSet < m_nSubMeshes))
-//	{
-//		pd3dCommandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
-//		pd3dCommandList->DrawIndexedInstanced(m_pnSubSetIndices[nSubSet], 1, 0, 0, 0);
-//	}
-//	else
-//	{
-//		pd3dCommandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
-//	}
-//}
+
 
 //===============================================================================================
 
@@ -1262,21 +1151,14 @@ CSphereMeshIlluminated::CSphereMeshIlluminated(ID3D12Device* pd3dDevice, ID3D12G
 	m_pnSubSetIndices[0] = m_nIndices;// ((nWidth * 2) * (nLength - 1)) + ((nLength - 1) - 1);
 	m_ppnSubSetIndices[0] = new UINT[m_pnSubSetIndices[0]];
 
-	/*m_ppd3dSubSetIndexBuffers[0] = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_ppnSubSetIndices[0],
-		sizeof(UINT) * m_pnSubSetIndices[0], D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_ppd3dSubSetIndexUploadBuffers[0]);
-
-	m_pd3dSubSetIndexBufferViews[0].BufferLocation = m_ppd3dSubSetIndexBuffers[0]->GetGPUVirtualAddress();
-	m_pd3dSubSetIndexBufferViews[0].Format = DXGI_FORMAT_R32_UINT;
-	m_pd3dSubSetIndexBufferViews[0].SizeInBytes = sizeof(UINT) * m_pnSubSetIndices[0];*/
+	
 
 	m_ppnSubSetIndices[0] = pnIndices;
 
-	//m_pd3dIndexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, pnIndices, sizeof(UINT) * m_nIndices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_pd3dIndexUploadBuffer);
+	
 	m_ppd3dSubSetIndexBuffers[0] = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_ppnSubSetIndices[0], sizeof(UINT) * m_nIndices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_ppd3dSubSetIndexUploadBuffers[0]);
 	
-	/*m_d3dIndexBufferView.BufferLocation = m_pd3dIndexBuffer->GetGPUVirtualAddress();
-	m_d3dIndexBufferView.Format = DXGI_FORMAT_R32_UINT;
-	m_d3dIndexBufferView.SizeInBytes = sizeof(UINT) * m_nIndices;*/
+	
 	m_pd3dSubSetIndexBufferViews[0].BufferLocation = m_ppd3dSubSetIndexBuffers[0]->GetGPUVirtualAddress();
 	m_pd3dSubSetIndexBufferViews[0].Format = DXGI_FORMAT_R32_UINT;
 	m_pd3dSubSetIndexBufferViews[0].SizeInBytes = sizeof(UINT) * m_pnSubSetIndices[0];

@@ -460,8 +460,6 @@ void CGameFramework::OnDestroy()
 
 void CGameFramework::BuildObjects()
 {
-
-	
 	float a = XMConvertToDegrees(atan(0.5));
 
 
@@ -595,11 +593,9 @@ void CGameFramework::FrameAdvance()
 	int windowY = rcWindow.top;
 
 
-	if (false == onFullScreen)
-	{
+	if (false == onFullScreen){
 		if (446 <= m_ptOldCursorPos.x - windowX && 513 >= m_ptOldCursorPos.x - windowX
-			&& 359 <= m_ptOldCursorPos.y - windowY && 393 >= m_ptOldCursorPos.y - windowY)//play
-		{
+			&& 359 <= m_ptOldCursorPos.y - windowY && 393 >= m_ptOldCursorPos.y - windowY){//play
 			ShowCursor(false);
 			m_pScene->start = true;
 			m_pScene->pMultiSpriteObjectShader->m_ppObjects[6]->m_ppMaterials[0]->m_pTexture->m_bActive = false;
@@ -609,35 +605,27 @@ void CGameFramework::FrameAdvance()
 		}
 		else if (444 <= m_ptOldCursorPos.x - windowX && 511 >= m_ptOldCursorPos.x - windowX
 			&& 395 <= m_ptOldCursorPos.y - windowY && 432 >= m_ptOldCursorPos.y - windowY)//exit
-		{
-			
 			::PostQuitMessage(0);
-		}
+
 		else if (443 <= m_ptOldCursorPos.x - windowX && 564 >= m_ptOldCursorPos.x - windowX
 			&& 435 <= m_ptOldCursorPos.y - windowY && 472 >= m_ptOldCursorPos.y - windowY) {//settings
 
-			
 		}
 	}
-	else
-	{
+	else{
 		if (436 <= m_ptOldCursorPos.x - windowX && 505 >= m_ptOldCursorPos.x - windowX
-			&& 324 <= m_ptOldCursorPos.y - windowY && 362 >= m_ptOldCursorPos.y - windowY)
-		{
+			&& 324 <= m_ptOldCursorPos.y - windowY && 362 >= m_ptOldCursorPos.y - windowY){
 			ShowCursor(false);
 			m_pScene->start = true;
 			m_pScene->pMultiSpriteObjectShader->m_ppObjects[6]->m_ppMaterials[0]->m_pTexture->m_bActive = false;
 			m_pScene->sound[1].Stop();//??????
-			m_pScene->sound[0].Play();//?????
-
+			m_pScene->sound[0].Play();//????
 		}
 
 		else if (434 <= m_ptOldCursorPos.x - windowX && 498 >= m_ptOldCursorPos.x - windowX
-			&& 364 <= m_ptOldCursorPos.y - windowY && 399 >= m_ptOldCursorPos.y - windowY)
-		{
+			&& 364 <= m_ptOldCursorPos.y - windowY && 399 >= m_ptOldCursorPos.y - windowY){
 			
 			ChangeSwapChainState();
-
 			::PostQuitMessage(0);
 		}
 
@@ -692,8 +680,7 @@ void CGameFramework::FrameAdvance()
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
-	//if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, m_pCamera);
-
+	
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
@@ -724,7 +711,7 @@ void CGameFramework::FrameAdvance()
 	//	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 	MoveToNextFrame();
 
-	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
+	m_GameTimer.GetFrameRate(m_pszFrameRate , 37);
 	size_t nLength = _tcslen(m_pszFrameRate);
 	XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
 	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);

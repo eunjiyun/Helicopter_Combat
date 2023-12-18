@@ -41,8 +41,7 @@ public:
 	bool attack{ false };
 	DWORD direction{};
 	float HP{ 5000.f };
-	XMFLOAT3 Aiming_Position;
-	short gun_hit{};
+
 public:
 	CPlayer();
 	virtual ~CPlayer();

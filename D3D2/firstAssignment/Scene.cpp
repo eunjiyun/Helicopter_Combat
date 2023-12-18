@@ -665,7 +665,7 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 		if (0 < m_pPlayer->HP) {
 			//m_pPlayer->HP -= 1.5314f;
 			m_pPlayer->HP -= 0.09259f;
-
+			//m_pPlayer->HP -= 0.00009259f;
 			m_pPlayer->Render(pd3dCommandList, pCamera);
 		}
 		else {

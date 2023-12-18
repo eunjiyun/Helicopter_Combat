@@ -10,7 +10,6 @@
 struct CB_FRAMEWORK_INFO
 {
 	float					m_fCurrentTime;
-	//float					m_fElapsedTime;
 	UINT					m_nRenderMode;
 };
 
