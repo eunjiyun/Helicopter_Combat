@@ -75,6 +75,9 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	sound[3].Initialize();
 	sound[3].LoadWave(close, 0);
+
+	sound[4].Initialize();
+	sound[4].LoadWave(win, 0);
 	
 
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
@@ -532,6 +535,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	mt19937 gen(rd());
 	uniform_int_distribution<> dist(1, 6);
 
+	if (!pObjectsShader->obj.empty())
 	for (const auto& o : pObjectsShader->obj)
 	{
 		if (1 == dist(gen))
@@ -556,22 +560,28 @@ void CScene::AnimateObjects(float fTimeElapsed)
 		XMVECTOR Bullet_Origin = XMLoadFloat3(&Cur_Pos);
 		XMVECTOR Bullet_Direction = XMLoadFloat3(&Cur_LookVector);
 
-		for (int i{}; i < pObjectsShader->m_nObjects; ++i)
+		for (int i{}; i < pObjectsShader->obj.size(); ++i)
 		{
 			float bullet_monster_distance = Vector3::Length(Vector3::Subtract(pObjectsShader->obj[i]->aabb.Center, Cur_Pos));
+			if(!pObjectsShader->obj.empty())
 			if (pObjectsShader->obj[i]->aabb.Intersects(Bullet_Origin, Bullet_Direction, bullet_monster_distance))
 			{
 
 				cout << i << "¸íÁß" << endl;
 				pMultiSpriteObjectShader->hit = pObjectsShader->obj[i]->GetPosition();
 				pObjectsShader->obj.erase(pObjectsShader->obj.begin() + i);
-
+				cout << "obj.size : " << pObjectsShader->obj.size() << endl;
+				cout << "obj.i : " << i << endl;
 				m_pPlayer->attack = false;
 				++crashCnt;
 
 				if (crashCnt == pObjectsShader->m_nObjects) {
 					sound[0].Stop();//??????
-					sound[3].Play();//?????
+					sound[2].Stop();
+					sound[4].Play();//?????
+
+					pMultiSpriteObjectShader->m_ppObjects[7]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
+					start = false;
 				}
 			}
 		}
@@ -643,29 +653,53 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 
 	m_ppShaders[2]->Render(pd3dCommandList, pCamera);//Ç®
 
-	pMultiSpriteObjectShader->Render(pd3dCommandList, pCamera);//ºÒ²É
-	
-
 	pObjectsShader->Render(pd3dCommandList, pCamera);//Çï±â
-
-	if(start)
-		m_pPlayer->Render(pd3dCommandList, pCamera);
-
-	
-
 
 	for (int i{}; i < m_nEnvironmentMappingShaders; ++i) {
 		m_ppEnvironmentMappingShaders[i]->Render(pd3dCommandList, pCamera);
 	}
 
-	
-	
 	if (pCamera->GetPlayer() && start) {
 		m_pShadowMapToViewport[1]->Render(pd3dCommandList, pCamera, 5400 / 25.f, XMFLOAT2(30, 21));
 		m_pShadowMapToViewport[0]->Render(pd3dCommandList, pCamera, m_pPlayer->HP / 25.f, XMFLOAT2(38, 27));
-		if(0< m_pPlayer->HP)
-			m_pPlayer->HP -= 1.3888f;
+
 	}
+	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
+	if (start) {
+
+		if (0 < m_pPlayer->HP) {
+			//m_pPlayer->HP -= 0.5314f;
+			m_pPlayer->HP -= 0.09259f;
+			//m_pPlayer->HP -= 0.009259f;
+			m_pPlayer->Render(pd3dCommandList, pCamera);
+		}
+		else {
+			pMultiSpriteObjectShader->m_ppObjects[8]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
+			//start = false;
+			sound[0].Stop();//??????
+			sound[3].Play();//?????
+		}
+		
+	}
+
+
+
+
+	
+
+
+	
+
+	
+
+	pMultiSpriteObjectShader->Render(pd3dCommandList, pCamera);//ºÒ²É
+	
+
+	
+
+	
+	
+	
 	
 	
 }

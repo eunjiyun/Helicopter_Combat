@@ -152,7 +152,7 @@ public:
 	bool start{ false };
 	int crashCnt{};
 
-	SoundPlayer sound[4];
+	SoundPlayer sound[5];
 	const wchar_t* inGame = _T("Sound/inGame.wav");
 	const wchar_t* opening = _T("Sound/opening.wav");
 	const wchar_t* att = _T("Sound/hit_marker.wav");

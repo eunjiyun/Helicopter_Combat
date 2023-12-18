@@ -536,7 +536,7 @@ CObjectsShader::~CObjectsShader()
 void CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
 	ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
 {
-	m_nObjects = 120;
+	m_nObjects = 24;
 	m_ppObjects = new CGameObject * [m_nObjects];
 
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 17 + 50); //SuperCobra(17), Gunship(2)
@@ -544,7 +544,7 @@ void CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	CGameObject* pSuperCobraModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/SuperCobra.bin", this);
 	CGameObject* pGunshipModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Gunship.bin", this);
 
-	int nColumnSpace = 5, nColumnSize = 30;
+	int nColumnSpace = 1.f, nColumnSize = 6;
 	int nFirstPassColumnSize = (m_nObjects % nColumnSize) > 0 ? (nColumnSize - 1) : nColumnSize;
 
 	int nObjects = 0;
@@ -570,6 +570,7 @@ void CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 			m_ppObjects[nObjects]->Rotate(0.0f, 90.0f, 0.0f);
 			obj.push_back(m_ppObjects[nObjects]);
 			m_ppObjects[nObjects++]->PrepareAnimate();
+
 
 
 		}
@@ -631,7 +632,7 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 {
 
 
-	if (120 == m_nObjects || 2 == m_nObjects)
+	if (24 == m_nObjects || 2 == m_nObjects)
 	{
 		if (CStandardShader::m_ppd3dPipelineStates)
 			pd3dCommandList->SetPipelineState(CStandardShader::m_ppd3dPipelineStates[0]);
@@ -659,7 +660,7 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 		{
 			if (m_ppObjects[j])
 			{
-				if (120 == m_nObjects)
+				if (24== m_nObjects)
 				{
 					m_ppObjects[j]->Animate(0.16f);
 					m_ppObjects[j]->UpdateTransform(NULL);
@@ -1098,7 +1099,13 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 	ppSpriteTextures[6] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
 	ppSpriteTextures[6]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/start.dds", RESOURCE_TEXTURE2D, 0);
 
-	CMaterial* ppSpriteMaterials[7];
+	ppSpriteTextures[7] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	ppSpriteTextures[7]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/win.dds", RESOURCE_TEXTURE2D, 0);
+
+	ppSpriteTextures[8] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	ppSpriteTextures[8]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Image/over.dds", RESOURCE_TEXTURE2D, 0);
+
+	CMaterial* ppSpriteMaterials[9];
 	ppSpriteMaterials[0] = new CMaterial();
 	ppSpriteMaterials[0]->SetTexture(ppSpriteTextures[0]);
 	ppSpriteMaterials[1] = new CMaterial();
@@ -1116,14 +1123,20 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 	ppSpriteMaterials[6] = new CMaterial();
 	ppSpriteMaterials[6]->SetTexture(ppSpriteTextures[6]);
 
+	ppSpriteMaterials[7] = new CMaterial();
+	ppSpriteMaterials[7]->SetTexture(ppSpriteTextures[7]);
+
+	ppSpriteMaterials[8] = new CMaterial();
+	ppSpriteMaterials[8]->SetTexture(ppSpriteTextures[8]);
+
 
 	CTexturedRectMesh* pSpriteMesh{ NULL };
 
-	m_nObjects = 7;
+	m_nObjects = 9;
 
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, m_nObjects, 7);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, m_nObjects, 9);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateConstantBufferViews(pd3dDevice, m_nObjects, m_pd3dcbGameObjects, ncbElementBytes);
 	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[0], 0, 12);
@@ -1133,6 +1146,9 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[4], 0, 12);
 	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[5], 0, 12);
 	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[6], 0, 12);
+
+	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[7], 0, 12);
+	CreateShaderResourceViews(pd3dDevice, ppSpriteTextures[8], 0, 12);
 
 
 	m_ppObjects = new CGameObject * [m_nObjects];
@@ -1245,7 +1261,8 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 	else if (pPlayer)
 		hit = XMFLOAT3(0, 0, 0);
 
-	if (m_ppObjects[6]->m_ppMaterials[0]->m_pTexture->m_bActive) {
+	for(int i{6};i<9;++i)
+	if (m_ppObjects[i]->m_ppMaterials[0]->m_pTexture->m_bActive) {
 		XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
 		if (pPlayer) {
 			XMFLOAT3 xmf3PlayerPosition = pPlayer->GetPosition();
@@ -1253,13 +1270,19 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
 
 
+			if (6 == i) {
+				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 0.0001f * xmf3CameraPosition.x) / 1.0001f;
+				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 0.0001f * xmf3CameraPosition.y) / 1.0001f;
+				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 0.0001f * xmf3CameraPosition.z) / 1.0001f;
+			}
+			else {
+				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 0.1f * xmf3CameraPosition.x) / 1.1f;
+				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 0.1f * xmf3CameraPosition.y) / 1.1f;
+				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 0.1f * xmf3CameraPosition.z) / 1.1f;
+			}
 
-			xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 0.0001f * xmf3CameraPosition.x) / 1.0001f;
-			xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 0.0001f * xmf3CameraPosition.y) / 1.0001f;
-			xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 0.0001f * xmf3CameraPosition.z) / 1.0001f;
-
-			m_ppObjects[6]->SetPosition(xmf3PlayerPosition);
-			m_ppObjects[6]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+			m_ppObjects[i]->SetPosition(xmf3PlayerPosition);
+			m_ppObjects[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 			if (m_ppd3dPipelineStates)
 				pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);
@@ -1267,7 +1290,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 
 			CObjectsShader::UpdateShaderVariables(pd3dCommandList);
 
-			m_ppObjects[6]->Render(pd3dCommandList, pCamera);
+			m_ppObjects[i]->Render(pd3dCommandList, pCamera);
 
 		}
 	}

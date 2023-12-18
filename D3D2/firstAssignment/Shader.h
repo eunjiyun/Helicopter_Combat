@@ -247,7 +247,7 @@ public:
 public:
 	XMFLOAT3 hit;
 	int score{};
-	CTexture* ppSpriteTextures[7];
+	CTexture* ppSpriteTextures[9];
 };
 //---------------------------------------------------------------------------------------
 
