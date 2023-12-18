@@ -116,6 +116,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	pMultiSpriteObjectShader->m_ppObjects[6]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
 
+
 	CBillboardObjectsShader* pBillboardObjectShader = new CBillboardObjectsShader();
 	pBillboardObjectShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	pBillboardObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain);
@@ -591,6 +592,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 						sound[4].Play();//?????
 
 						pMultiSpriteObjectShader->m_ppObjects[7]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
+						pMultiSpriteObjectShader->m_ppObjects[9]->m_ppMaterials[0]->m_pTexture->m_bActive = false;
 						start = false;
 					}
 				}
@@ -653,6 +655,7 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	if (pCamera->GetPlayer() && start) {
 		m_pShadowMapToViewport[1]->Render(pd3dCommandList, pCamera, 5400 / 25.f, XMFLOAT2(30, 21));
 		m_pShadowMapToViewport[0]->Render(pd3dCommandList, pCamera, m_pPlayer->HP / 25.f, XMFLOAT2(38, 27));
+		pMultiSpriteObjectShader->m_ppObjects[9]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
 	}
 
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
@@ -660,13 +663,14 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	if (start) {
 
 		if (0 < m_pPlayer->HP) {
-			m_pPlayer->HP -= 1.5314f;
-			//m_pPlayer->HP -= 0.09259f;
+			//m_pPlayer->HP -= 1.5314f;
+			m_pPlayer->HP -= 0.09259f;
 
 			m_pPlayer->Render(pd3dCommandList, pCamera);
 		}
 		else {
 			pMultiSpriteObjectShader->m_ppObjects[8]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
+			pMultiSpriteObjectShader->m_ppObjects[9]->m_ppMaterials[0]->m_pTexture->m_bActive = false;
 			sound[0].Stop();//??????
 			sound[3].Play();//?????
 		}

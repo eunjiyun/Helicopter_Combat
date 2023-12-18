@@ -227,6 +227,9 @@ float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtTexture.Sample(gssWrap, input.uv);
 
+	if (gMaterial.texMat.z == 2 && cColor.x < 0.4f) 
+		discard;
+
 	return(cColor);
 }
 
