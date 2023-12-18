@@ -150,6 +150,7 @@ public:
 	ID3D12Resource* m_pd3dcbMaterials{ NULL };
 
 	bool start{ false };
+	int crashCnt{};
 
 	SoundPlayer sound[4];
 	const wchar_t* inGame = _T("Sound/inGame.wav");
@@ -160,6 +161,6 @@ public:
 	const wchar_t* hit_marker = _T("Sound/hit_marker.wav");
 	const wchar_t* door = _T("Sound/door.wav");
 	const wchar_t* jump = _T("Sound/jump.wav");
-	
+	const wchar_t* close = _T("Sound/closing.wav");
 };
 

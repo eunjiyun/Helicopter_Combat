@@ -73,7 +73,8 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	sound[1].Initialize();
 	sound[1].LoadWave(opening, 0);
 
-
+	sound[3].Initialize();
+	sound[3].LoadWave(close, 0);
 	
 
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
@@ -566,7 +567,12 @@ void CScene::AnimateObjects(float fTimeElapsed)
 				pObjectsShader->obj.erase(pObjectsShader->obj.begin() + i);
 
 				m_pPlayer->attack = false;
+				++crashCnt;
 
+				if (crashCnt == pObjectsShader->m_nObjects) {
+					sound[0].Stop();//??????
+					sound[3].Play();//?????
+				}
 			}
 		}
 
@@ -628,6 +634,7 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 
 
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, cuT, 28);
+	//cout << "elT : " << *elT << endl;
 		
 	m_pTerrainWater->m_nMaterials = 1;
 	if (m_pTerrainWater)
@@ -656,9 +663,10 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	if (pCamera->GetPlayer() && start) {
 		m_pShadowMapToViewport[1]->Render(pd3dCommandList, pCamera, 5400 / 25.f, XMFLOAT2(30, 21));
 		m_pShadowMapToViewport[0]->Render(pd3dCommandList, pCamera, m_pPlayer->HP / 25.f, XMFLOAT2(38, 27));
-		
+		if(0< m_pPlayer->HP)
+			m_pPlayer->HP -= 1.3888f;
 	}
-
+	
 	
 }
 

@@ -653,6 +653,9 @@ void CGameFramework::FrameAdvance()
 	m_pcbMappedFrameworkInfo->m_fCurrentTime = m_GameTimer.GetTotalTime();
 	m_pScene->cuT = &m_pcbMappedFrameworkInfo->m_fCurrentTime;
 
+	float f{ m_GameTimer.GetTimeElapsed() };
+	m_pScene->elT = &f;
+
 	m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandQueue, m_pd3dFence, m_hFenceEvent);
 
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
