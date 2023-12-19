@@ -562,7 +562,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 		XMVECTOR Bullet_Origin = XMLoadFloat3(&Cur_Pos);
 		XMVECTOR Bullet_Direction = XMLoadFloat3(&Cur_LookVector);
 
-		if (!pObjectsShader->obj.empty()) {
+		if (!pObjectsShader->obj.empty() && start) {
 			for (int i{}; i < pObjectsShader->obj.size(); ++i)
 			{
 				float bullet_monster_distance = Vector3::Length(Vector3::Subtract(pObjectsShader->obj[i]->aabb.Center, Cur_Pos));
@@ -577,7 +577,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 					cout << "obj.i : " << i << endl;
 					m_pPlayer->attack = false;
 					++crashCnt;
-					if (!sound[5].attOnce) {
+					if (!sound[5].attOnce ) {
 						sound[5].Initialize();
 						sound[5].LoadWave(monster, 0);
 						sound[5].Play();
@@ -589,6 +589,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 					if (crashCnt == pObjectsShader->m_nObjects) {
 						sound[0].Stop();//??????
 						sound[2].Stop();
+						sound[5].Stop();
 						sound[4].Play();//?????
 
 						pMultiSpriteObjectShader->m_ppObjects[7]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
@@ -671,6 +672,7 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 		else {
 			pMultiSpriteObjectShader->m_ppObjects[8]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
 			pMultiSpriteObjectShader->m_ppObjects[9]->m_ppMaterials[0]->m_pTexture->m_bActive = false;
+			start = false;
 			sound[0].Stop();//??????
 			sound[3].Play();//?????
 		}

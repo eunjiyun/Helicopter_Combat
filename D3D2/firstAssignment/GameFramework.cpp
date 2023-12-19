@@ -310,18 +310,20 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		break;
 	case WM_RBUTTONDOWN:
 
-		m_pScene->pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
-		m_pPlayer->attack = true;
+		if (m_pScene->start) {
+			m_pScene->pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
+			m_pPlayer->attack = true;
 
-		m_pScene->pMultiSpriteObjectShader->score = dist(gen);
-		cout << m_pScene->pMultiSpriteObjectShader->score << endl;
+			m_pScene->pMultiSpriteObjectShader->score = dist(gen);
+			cout << m_pScene->pMultiSpriteObjectShader->score << endl;
 
-		if (!m_pScene->sound[2].attOnce) {
-			m_pScene->sound[2].Initialize();
-			m_pScene->sound[2].LoadWave(m_pScene->att, 0);
-			m_pScene->sound[2].Play();//?????
+			if (!m_pScene->sound[2].attOnce) {
+				m_pScene->sound[2].Initialize();
+				m_pScene->sound[2].LoadWave(m_pScene->att, 0);
+				m_pScene->sound[2].Play();//?????
 
-			m_pScene->sound[2].attOnce = true;
+				m_pScene->sound[2].attOnce = true;
+			}
 		}
 		
 		
@@ -331,13 +333,15 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		::ReleaseCapture();
 		break;
 	case WM_RBUTTONUP:
-		m_pPlayer->attack = false;
-		
-		m_pScene->sound[2].Stop();//?????
-		m_pScene->sound[2].attOnce = false;
+		if (m_pScene->start) {
+			m_pPlayer->attack = false;
 
-		m_pScene->sound[5].Stop();
-		m_pScene->sound[5].attOnce = false;
+			m_pScene->sound[2].Stop();//?????
+			m_pScene->sound[2].attOnce = false;
+
+			m_pScene->sound[5].Stop();
+			m_pScene->sound[5].attOnce = false;
+		}
 		break;
 	case WM_MOUSEMOVE:
 		break;
@@ -421,6 +425,7 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 		break;
 	case WM_KEYDOWN:
 	case WM_KEYUP:
+		
 		OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 		break;
 	}
@@ -525,7 +530,7 @@ void CGameFramework::ProcessInput()
 			SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
 		}
 
-		if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
+		if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f) )
 		{
 			if (cxDelta || cyDelta)
 			{
