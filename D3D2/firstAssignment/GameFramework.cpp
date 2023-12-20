@@ -655,8 +655,13 @@ void CGameFramework::FrameAdvance()
 
 	float f{ m_GameTimer.GetTimeElapsed() };
 	m_pScene->elT = &f;
-
+	
 	m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandQueue, m_pd3dFence, m_hFenceEvent);
+
+	/*if (m_pScene->m_pDepthRenderShader->m_ppd3dPipelineStates[0])
+		m_pd3dCommandList->SetPipelineState(m_pScene->m_pDepthRenderShader->m_ppd3dPipelineStates[0]);*/
+
+	m_pScene->OnPreRenderSh(m_pd3dCommandList, m_pCamera, m_pPlayer);
 
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
@@ -681,7 +686,7 @@ void CGameFramework::FrameAdvance()
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
-
+	
 	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
 	
 

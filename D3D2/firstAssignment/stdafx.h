@@ -5,6 +5,15 @@
 
 #pragma once
 
+#define MAX_LIGHTS				16 
+#define MAX_SHADOW_LIGHTS				4 
+#define MAX_DEPTH_TEXTURES		MAX_SHADOW_LIGHTS
+#define _DEPTH_BUFFER_WIDTH		(FRAME_BUFFER_WIDTH * 4)
+#define _DEPTH_BUFFER_HEIGHT	(FRAME_BUFFER_HEIGHT * 4)
+
+#define _PLANE_WIDTH			4307
+#define _PLANE_HEIGHT			474
+
 #define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용은 Windows 헤더에서 제외합니다.
 // Windows 헤더 파일:
 #include <windows.h>
@@ -25,6 +34,7 @@
 
 #include<iostream>
 #include<random>
+#include <comdef.h>
 using namespace std;
 
 

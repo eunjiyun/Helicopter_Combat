@@ -191,6 +191,7 @@ public:
 	float							m_fMetallic{ 0.0f };
 	float							m_fGlossyReflection{ 0.0f };
 	UINT							m_nReflection{};
+
 };
 
 
@@ -292,7 +293,7 @@ public:
 	int								m_nMaterials{};
 	CMaterial** m_ppMaterials{};
 
-
+	bool shadow{};
 	ID3D12Resource* m_pd3dcbGameObject{ NULL };
 
 
@@ -396,6 +397,8 @@ private:
 	int							m_nLength;
 
 	XMFLOAT3					m_xmf3Scale;
+public:
+	int m_nObjects{ 1 };
 
 public:
 	float GetHeight(float x, float z, bool bReverseQuad = false) { return(m_pHeightMapImage->GetHeight(x, z, bReverseQuad) * m_xmf3Scale.y); } //World
@@ -433,10 +436,12 @@ private:
 
 	XMFLOAT3						m_xmf3Scale;
 
+
 public:
 	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
 	float GetWidth() { return(m_nWidth * m_xmf3Scale.x); }
 	float GetLength() { return(m_nLength * m_xmf3Scale.z); }
+
 };
 
 //=====================================================================

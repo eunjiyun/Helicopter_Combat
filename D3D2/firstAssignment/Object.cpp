@@ -465,7 +465,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 
 	if ((m_nMaterials == 1) && (m_ppMaterials[0]))
 	{
-		if (m_ppMaterials[0]->m_pShader) m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_ppMaterials[0]->m_pShader && !shadow) m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
 		m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
 	}
 
@@ -503,7 +503,7 @@ void CGameObject::Render2(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* p
 
 	if ((m_nMaterials == 1) && (m_ppMaterials[0]))
 	{
-		if (m_ppMaterials[0]->m_pShader) m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_ppMaterials[0]->m_pShader ) m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
 		m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
 	}
 
@@ -1111,6 +1111,7 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	int cxQuadsPerBlock = nBlockWidth - 1;
 	int czQuadsPerBlock = nBlockLength - 1;
 
+
 	long cxBlocks = (nWidth - 1) / cxQuadsPerBlock;
 	long czBlocks = (nLength - 1) / czQuadsPerBlock;
 
@@ -1170,7 +1171,7 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 	SetCbvGPUDescriptorHandle(pTerrainShader->GetGPUCbvDescriptorStartHandle());
 
-	SetShader(0,pTerrainShader);
+	//SetShader(0,pTerrainShader);
 }
 
 CHeightMapTerrain::~CHeightMapTerrain(void)

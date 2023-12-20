@@ -13,6 +13,7 @@
 #define SPOT_LIGHT			2
 #define DIRECTIONAL_LIGHT	3
 
+
 struct LIGHT
 {
 	XMFLOAT4				m_xmf4Ambient;
@@ -107,6 +108,7 @@ public:
 	void AnimateObjects(float fTimeElapsed);
 
 	void OnPreRender(ID3D12Device* pd3dDevice, ID3D12CommandQueue* pd3dCommandQueue, ID3D12Fence* pd3dFence, HANDLE hFenceEvent);
+	void OnPreRenderSh(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,CPlayer*);
 	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
 
 	void ReleaseUploadBuffers();
@@ -146,6 +148,10 @@ public:
 	int							m_nEnvironmentMappingShaders{};
 	CDynamicCubeMappingShader** m_ppEnvironmentMappingShaders{ NULL };
 	CTextureToViewportShader** m_pShadowMapToViewport{ NULL };
+
+	CDepthRenderShader* m_pDepthRenderShader{ NULL };
+
+	CShadowMapShader* m_pShadowShader{ NULL };
 
 	ID3D12Resource* m_pd3dcbMaterials{ NULL };
 

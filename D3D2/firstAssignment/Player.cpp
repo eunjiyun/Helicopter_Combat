@@ -252,7 +252,7 @@ void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamer
 	{
 	
 
-		if (m_pShader) m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_pShader ) m_pShader->Render(pd3dCommandList, pCamera);
 
 	
 		CGameObject::Render2(pd3dCommandList, pCamera);

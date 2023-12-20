@@ -34,9 +34,26 @@ cbuffer cbGameObjectInfo : register(b2)
 	
 };
 
+//=======================================
+
+
+
 
 
 #include "Light.hlsl"
+
+
+struct CB_TO_LIGHT_SPACE
+{
+	matrix				mtxToTextureSpace;
+	float4				f4Position;
+};
+
+cbuffer cbToLightSpace : register(b3)
+{
+	CB_TO_LIGHT_SPACE	gcbToLightSpaces[MAX_SHADOW_LIGHTS];
+};
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -605,4 +622,97 @@ float4 PSTextureToViewport(VS_TEXTURED_OUTPUT input) : SV_Target
 		return float4(1.f,0.f,0.f,0.f);
 	else
 		return float4(0.f,1.f,1.f,0.f);
+}
+
+//=========
+
+
+
+VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input)
+{
+	VS_LIGHTING_OUTPUT output;
+
+	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
+	output.normalW = mul(input.normal, (float3x3)gmtxGameObject).xyz;
+	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+
+	return(output);
+}
+
+
+float4 PSLighting(VS_LIGHTING_OUTPUT input) : SV_TARGET
+{
+	input.normalW = normalize(input.normalW);
+
+	return(float4(input.normalW * 0.5f + 0.5f, 1.0f));
+}
+
+struct PS_DEPTH_OUTPUT
+{
+	float fzPosition : SV_Target;
+	float fDepth : SV_Depth;
+};
+
+PS_DEPTH_OUTPUT PSDepthWriteShader(VS_LIGHTING_OUTPUT input)
+{
+	PS_DEPTH_OUTPUT output;
+
+	output.fzPosition = input.position.z;
+	output.fDepth = input.position.z;
+
+	return(output);
+}
+//================================
+struct VS_SHADOW_MAP_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float3 positionW : POSITION;
+	float3 normalW : NORMAL;
+
+	//float4 shadowMapUVs[MAX_LIGHTS] : TEXCOORD0;
+	float4 uvs[MAX_SHADOW_LIGHTS] : TEXCOORD0;
+};
+
+VS_SHADOW_MAP_OUTPUT VSShadowMapShadow(VS_LIGHTING_INPUT input)
+{
+	VS_SHADOW_MAP_OUTPUT output = (VS_SHADOW_MAP_OUTPUT)0;
+
+	float4 positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
+	output.positionW = positionW.xyz;
+	output.position = mul(mul(positionW, gmtxView), gmtxProjection);
+	output.normalW = mul(float4(input.normal, 0.0f), gmtxGameObject).xyz;
+
+	for (int i = 0; i < MAX_SHADOW_LIGHTS; i++)
+	{
+		if (gcbToLightSpaces[i].f4Position.w != 0.0f) output.uvs[i] = mul(positionW, gcbToLightSpaces[i].mtxToTextureSpace);
+	}
+
+	return(output);
+}
+
+float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
+{
+	//float4 cIllumination = Lighting(input.positionW, normalize(input.normalW), true, input.shadowMapUVs);
+	float4 cIllumination = shadowLighting(input.positionW, normalize(input.normalW), true, input.uvs);
+
+	//return(cIllumination);
+	
+	return (float4(1, 0, 0, 0));
+
+	/*float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gMaterial.gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uvs[0].xy);
+	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gMaterial.gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uvs[0].xy);
+	float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gMaterial.gnTexturesMask & MATERIAL_NORMAL_MAP) cNormalColor = gtxtNormalTexture.Sample(gssWrap, input.uvs[0].xy);
+	float4 cMetallicColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gMaterial.gnTexturesMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtMetallicTexture.Sample(gssWrap, input.uvs[0].xy);
+	float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gMaterial.gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uvs[0].xy);
+
+	float4 cColor = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
+
+	float4 cIllumination = shadowLighting(input.positionW, normalize(input.normalW), true, input.uvs);
+
+	return(lerp(cColor, cIllumination, 0.5f));*/
 }
