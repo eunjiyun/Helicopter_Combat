@@ -162,7 +162,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	temp->m_ppObjects[0] = new CGameObject(1); //Plane
 	temp->m_ppObjects[0]->SetMesh(0, pPlaneMesh);
 	temp->m_ppObjects[0]->SetMaterial(0,pPlaneMaterial);
-	temp->m_ppObjects[0]->SetPosition(0.0f, 0.0f, 0.0f);
+	temp->m_ppObjects[0]->SetPosition(920.0f, 745.0f, 1270.0f);
 
 	CAirPlaneMeshIlluminated* pAirPlaneMesh = new CAirPlaneMeshIlluminated(pd3dDevice, pd3dCommandList, 40.0f, 40.0f, 4.0f);
 
@@ -189,15 +189,15 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	
 
-	m_pDepthRenderShader = new CDepthRenderShader(temp,m_pTerrain, m_pTerrainWater, m_pLights);
+	m_pDepthRenderShader = new CDepthRenderShader(temp,NULL, m_pTerrainWater, m_pLights);
 	DXGI_FORMAT pdxgiRtvFormats[1] = { DXGI_FORMAT_R32_FLOAT };
 	m_pDepthRenderShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature/*, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 1, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT*/);
 	m_pDepthRenderShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
 
-	m_pShadowShader = new CShadowMapShader(temp,m_pTerrain, m_pTerrainWater);
+	m_pShadowShader = new CShadowMapShader(temp, NULL, m_pTerrainWater);
 	m_pShadowShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature/*, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT*/);
 	m_pShadowShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pDepthRenderShader->GetDepthTexture());
-	m_pTerrain->SetShader(0, m_pShadowShader);
+	//m_pTerrain->SetShader(0, m_pShadowShader);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }

@@ -293,7 +293,7 @@ public:
 	int								m_nMaterials{};
 	CMaterial** m_ppMaterials{};
 
-	bool shadow{};
+	
 	ID3D12Resource* m_pd3dcbGameObject{ NULL };
 
 
