@@ -146,14 +146,55 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppEnvironmentMappingShaders[0]->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	m_ppEnvironmentMappingShaders[0]->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain);
 
+
+	temp = new CObjectsShader();
+	temp->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	//pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, NULL);
+	temp->m_nObjects = 1;
+	temp->m_ppObjects = new CGameObject * [temp->m_nObjects];
+
+
+	CPlaneMeshIlluminated* pPlaneMesh = new CPlaneMeshIlluminated(pd3dDevice, pd3dCommandList, _PLANE_WIDTH, 0.0f, _PLANE_HEIGHT, 0.0f, 0.0f, 0.0f);
+
+	CMaterial* pPlaneMaterial = new CMaterial();
+	//pPlaneMaterial->SetReflection(1);
+
+	temp->m_ppObjects[0] = new CGameObject(1); //Plane
+	temp->m_ppObjects[0]->SetMesh(0, pPlaneMesh);
+	temp->m_ppObjects[0]->SetMaterial(0,pPlaneMaterial);
+	temp->m_ppObjects[0]->SetPosition(0.0f, 0.0f, 0.0f);
+
+	CAirPlaneMeshIlluminated* pAirPlaneMesh = new CAirPlaneMeshIlluminated(pd3dDevice, pd3dCommandList, 40.0f, 40.0f, 4.0f);
+
+	CMaterial* pMaterial = new CMaterial();
+	//pMaterial->SetReflection(2);
+
+	CRotatingObject* pRoatingAirPlane = new CRotatingObject(1);
+	pRoatingAirPlane->SetMesh(0, pAirPlaneMesh);
+	pRoatingAirPlane->SetMaterial(0,pMaterial);
+	pRoatingAirPlane->SetPosition(100.0f, 50.0f, 120.0f);
+	pRoatingAirPlane->Rotate(90.0f, 0.0f, 0.0f);
+	pRoatingAirPlane->SetRotationAxis(XMFLOAT3(0.0f, 0.0f, 1.0f));
+	pRoatingAirPlane->SetRotationSpeed(0.0f);
+	//temp->m_ppObjects[1] = pRoatingAirPlane;
+
 	
 
-	m_pDepthRenderShader = new CDepthRenderShader(m_pTerrain, m_pTerrainWater, m_pLights);
+	temp->m_pDirectionalLight = new CGameObject(1);
+	temp->m_pDirectionalLight->SetMesh(0, pAirPlaneMesh);
+	temp->m_pDirectionalLight->SetMaterial(0,pMaterial);
+	//temp->m_pDirectionalLight->Rotate(180.0f, 0.0f, 0.0f);
+	//temp->m_pDirectionalLight->Rotate(0.0f, 0.0f, 45.0f);
+	temp->m_pDirectionalLight->SetPosition(XMFLOAT3(_PLANE_WIDTH * 0.25f, 450.0f, 0));
+
+	
+
+	m_pDepthRenderShader = new CDepthRenderShader(temp,m_pTerrain, m_pTerrainWater, m_pLights);
 	DXGI_FORMAT pdxgiRtvFormats[1] = { DXGI_FORMAT_R32_FLOAT };
 	m_pDepthRenderShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature/*, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 1, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT*/);
 	m_pDepthRenderShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
 
-	m_pShadowShader = new CShadowMapShader(m_pTerrain, m_pTerrainWater);
+	m_pShadowShader = new CShadowMapShader(temp,m_pTerrain, m_pTerrainWater);
 	m_pShadowShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature/*, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT*/);
 	m_pShadowShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pDepthRenderShader->GetDepthTexture());
 	m_pTerrain->SetShader(0, m_pShadowShader);

@@ -124,6 +124,7 @@ public:
 	int									m_nShaders{};
 	CShader** m_ppShaders{ NULL };
 	CObjectsShader* pObjectsShader{ NULL };
+	CObjectsShader* temp{ NULL };
 	CMultiSpriteObjectsShader* pMultiSpriteObjectShader{ NULL };
 
 	CSkyBox* m_pSkyBox{ NULL };

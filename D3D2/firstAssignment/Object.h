@@ -460,3 +460,22 @@ public:
 	ID3D12Resource* m_pd3dDepthStencilBuffer = NULL;
 	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dDsvCPUDescriptorHandle;
 };
+
+//=====================================================================
+class CRotatingObject : public CGameObject
+{
+public:
+	CRotatingObject(int nMeshes = 1);
+	virtual ~CRotatingObject();
+
+private:
+	XMFLOAT3					m_xmf3RotationAxis;
+	float						m_fRotationSpeed;
+
+public:
+	void SetRotationSpeed(float fRotationSpeed) { m_fRotationSpeed = fRotationSpeed; }
+	void SetRotationAxis(XMFLOAT3 xmf3RotationAxis) { m_xmf3RotationAxis = xmf3RotationAxis; }
+
+	virtual void Animate(float fTimeElapsed);
+};
+

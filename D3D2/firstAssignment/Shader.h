@@ -197,6 +197,8 @@ public:
 	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects{ NULL };
 	CB_GRASSOBJECT_INFO* grassMappedObj{ NULL };
 	vector<CGameObject*>obj;
+
+	CGameObject* m_pDirectionalLight{ NULL };
 };
 
 class CBillboardObjectsShader : public CObjectsShader
@@ -408,7 +410,7 @@ public:
 class CDepthRenderShader : public CIlluminatedShader
 {
 public:
-	CDepthRenderShader(CHeightMapTerrain* pObjectsShader, CRippleWater* w, LIGHT* pLights);
+	CDepthRenderShader(CObjectsShader* t,CHeightMapTerrain* pObjectsShader, CRippleWater* w, LIGHT* pLights);
 	virtual ~CDepthRenderShader();
 
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
@@ -446,7 +448,7 @@ public:
 	ID3D12Resource* GetDepthTextureResource(UINT nIndex) { return(m_pDepthFromLightTexture->GetResource(nIndex)); }
 
 public:
-	CHeightMapTerrain* m_pObjectsShader = NULL;
+	CObjectsShader* m_pObjectsShader = NULL;
 	CRippleWater* water{ NULL };
 
 
@@ -462,7 +464,7 @@ protected:
 class CShadowMapShader : public CIlluminatedShader
 {
 public:
-	CShadowMapShader(CHeightMapTerrain* pObjectsShader, CRippleWater* w);
+	CShadowMapShader(CObjectsShader* t, CHeightMapTerrain* pObjectsShader, CRippleWater* w);
 	virtual ~CShadowMapShader();
 
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
@@ -483,7 +485,7 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 
 public:
-	CHeightMapTerrain* m_pObjectsShader = NULL;
+	CObjectsShader* m_pObjectsShader{ NULL };
 
 	CTexture* m_pDepthFromLightTexture = NULL;
 };

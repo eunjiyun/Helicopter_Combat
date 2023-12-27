@@ -643,7 +643,7 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 {
 
 
-	if (24 == m_nObjects || 2 == m_nObjects)
+	if (24 == m_nObjects || 2 == m_nObjects )
 	{
 		if (CStandardShader::m_ppd3dPipelineStates)
 			pd3dCommandList->SetPipelineState(CStandardShader::m_ppd3dPipelineStates[0]);
@@ -652,7 +652,7 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 			pd3dCommandList->SetDescriptorHeaps(1, &(CStandardShader::m_pd3dCbvSrvDescriptorHeap));
 	}
 
-	if (2 == m_nObjects)
+	if (2 == m_nObjects)//
 		UpdateShaderVariables(pd3dCommandList);
 
 	if (!obj.empty())
@@ -671,7 +671,7 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 		{
 			if (m_ppObjects[j])
 			{
-				if (24== m_nObjects)
+				if (24== m_nObjects || 1== m_nObjects)
 				{
 					m_ppObjects[j]->Animate(0.16f);
 					m_ppObjects[j]->UpdateTransform(NULL);
@@ -715,7 +715,7 @@ void CObjectsShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dComman
 	for (int j{}; j < m_nObjects; ++j)
 	{
 		CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)((UINT8*)m_pcbMappedGameObjects + (j * ncbElementBytes));
-		XMStoreFloat4x4(&pbMappedcbGameObject->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[j]->m_xmf4x4World)));
+		XMStoreFloat4x4(&pbMappedcbGameObject->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[j]->m_xmf4x4World)));//
 		CB_GRASSOBJECT_INFO* pbMappedcbGameObject2 = (CB_GRASSOBJECT_INFO*)((UINT8*)grassMappedObj + (j * ncbElementBytes2));
 		if (m_ppObjects[j]->m_ppMaterials[0] && m_ppObjects[j]->m_ppMaterials[0]->m_pTexture)
 		{
@@ -1998,9 +1998,9 @@ void CIlluminatedShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 
 
 //==============
-CDepthRenderShader::CDepthRenderShader(CHeightMapTerrain* pObjectsShader, CRippleWater* w,LIGHT* pLights)
+CDepthRenderShader::CDepthRenderShader(CObjectsShader* t, CHeightMapTerrain* pObjectsShader, CRippleWater* w,LIGHT* pLights)
 {
-	m_pObjectsShader = pObjectsShader;
+	m_pObjectsShader = t;
 	water = w;
 	m_pLights = pLights;
 	m_pToLightSpaces = new TOLIGHTSPACEINFO;
@@ -2282,7 +2282,7 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 	{
 		if (m_pObjectsShader)
 		{
-			m_pObjectsShader->UpdateShaderVariables(pd3dCommandList);
+			//m_pObjectsShader->UpdateShaderVariables(pd3dCommandList);
 			m_pObjectsShader->Render(pd3dCommandList, pCamera);
 		}
 	}
@@ -2293,9 +2293,9 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 
 //======================
 
-CShadowMapShader::CShadowMapShader(CHeightMapTerrain* pObjectsShader, CRippleWater* w)
+CShadowMapShader::CShadowMapShader(CObjectsShader* t, CHeightMapTerrain* pObjectsShader, CRippleWater* w)
 {
-	m_pObjectsShader = pObjectsShader;
+	m_pObjectsShader = t;
 }
 
 CShadowMapShader::~CShadowMapShader()
@@ -2374,8 +2374,8 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 	{
 		if (m_pObjectsShader)
 		{
-			m_pObjectsShader->UpdateShaderVariables(pd3dCommandList);
-			m_pObjectsShader->shadow = 1;
+			//m_pObjectsShader->UpdateShaderVariables(pd3dCommandList);
+			//m_pObjectsShader->shadow = 1;
 			m_pObjectsShader->Render(pd3dCommandList, pCamera);
 		}
 	}
