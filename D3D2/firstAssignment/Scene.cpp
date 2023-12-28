@@ -30,7 +30,7 @@ void CScene::BuildDefaultLightsAndMaterials()
 	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.8f, 0.0f, 0.0f, 1.0f);
 	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 0.0f);
 	//m_pLights[0].m_xmf3Position = XMFLOAT3(30.0f, 30.0f, 30.0f);//920 745 1270
-	m_pLights[0].m_xmf3Position = XMFLOAT3(920.0f, 1500.0f, 1270.0f);//920 745 1270
+	m_pLights[0].m_xmf3Position = XMFLOAT3(920.0f, 845.0f, 1270.0f);//920 745 1270
 	m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_pLights[0].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.001f, 0.0001f);
 	m_pLights[1].m_bEnable = true;
@@ -51,8 +51,8 @@ void CScene::BuildDefaultLightsAndMaterials()
 	m_pLights[2].m_xmf4Diffuse = XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f);
 	m_pLights[2].m_xmf4Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 0.0f);
 	//m_pLights[1].m_xmf3Position = XMFLOAT3(-50.0f, 20.0f, -5.0f);//
-	m_pLights[0].m_xmf3Position = XMFLOAT3(920.0f, 1500.0f, 1270.0f);//920 745 1270
-	m_pLights[2].m_xmf3Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	m_pLights[0].m_xmf3Position = XMFLOAT3(920.0f, 845.0f, 1270.0f);//920 745 1270
+	m_pLights[2].m_xmf3Direction = XMFLOAT3(-1.0f, -1.0f, 0.0f);
 	m_pLights[3].m_bEnable = true;
 	m_pLights[3].m_nType = SPOT_LIGHT;
 	m_pLights[3].m_fRange = 600.0f;
@@ -150,7 +150,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	temp = new CObjectsShader();
 	temp->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	//pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, NULL);
-	temp->m_nObjects = 4;
+	temp->m_nObjects = 3;
 	temp->m_ppObjects = new CGameObject * [temp->m_nObjects];
 
 
@@ -192,19 +192,19 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pRoatingAirPlane2->SetRotationSpeed(0.0f);
 	temp->m_ppObjects[2] = pRoatingAirPlane2;
 
-	CAirPlaneMeshIlluminated* pAirPlaneMesh3 = new CAirPlaneMeshIlluminated(pd3dDevice, pd3dCommandList, 40.0f, 40.0f, 4.0f);
+	//CAirPlaneMeshIlluminated* pAirPlaneMesh3 = new CAirPlaneMeshIlluminated(pd3dDevice, pd3dCommandList, 40.0f, 40.0f, 4.0f);
 
-	CMaterial* pMaterial3 = new CMaterial();
-	//pMaterial->SetReflection(2);
+	//CMaterial* pMaterial3 = new CMaterial();
+	////pMaterial->SetReflection(2);
 
-	CRotatingObject* pRoatingAirPlane3 = new CRotatingObject(1);
-	pRoatingAirPlane3->SetMesh(0, pAirPlaneMesh3);
-	pRoatingAirPlane3->SetMaterial(0, pMaterial3);
-	pRoatingAirPlane3->SetPosition(100.0f, 50.0f, 120.0f);
-	pRoatingAirPlane3->Rotate(90.0f, 0.0f, 0.0f);
-	pRoatingAirPlane3->SetRotationAxis(XMFLOAT3(0.0f, 0.0f, 1.0f));
-	pRoatingAirPlane3->SetRotationSpeed(0.0f);
-	temp->m_ppObjects[3] = pRoatingAirPlane3;
+	//CRotatingObject* pRoatingAirPlane3 = new CRotatingObject(1);
+	//pRoatingAirPlane3->SetMesh(0, pAirPlaneMesh3);
+	//pRoatingAirPlane3->SetMaterial(0, pMaterial3);
+	//pRoatingAirPlane3->SetPosition(100.0f, 50.0f, 120.0f);
+	//pRoatingAirPlane3->Rotate(90.0f, 0.0f, 0.0f);
+	//pRoatingAirPlane3->SetRotationAxis(XMFLOAT3(0.0f, 0.0f, 1.0f));
+	//pRoatingAirPlane3->SetRotationSpeed(0.0f);
+	//temp->m_ppObjects[3] = pRoatingAirPlane3;
 
 	
 
@@ -642,13 +642,13 @@ bool CScene::ProcessInput(UCHAR* pKeysBuffer)
 void CScene::AnimateObjects(float fTimeElapsed)
 {
 
-	for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Animate(fTimeElapsed, NULL);
-	for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->UpdateTransform(NULL);
+	//for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Animate(fTimeElapsed, NULL);
+	//for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->UpdateTransform(NULL);
 
 
 
-	m_ppShaders[0]->AnimateObjects(fTimeElapsed);
-	m_ppShaders[2]->AnimateObjects(fTimeElapsed);
+	//m_ppShaders[0]->AnimateObjects(fTimeElapsed);
+	//m_ppShaders[2]->AnimateObjects(fTimeElapsed);
 
 	if (pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0]->m_pTexture->m_bActive) {
 		pMultiSpriteObjectShader->AnimateObjects(fTimeElapsed);
@@ -662,27 +662,27 @@ void CScene::AnimateObjects(float fTimeElapsed)
 
 
 
-	random_device rd;
-	mt19937 gen(rd());
-	uniform_int_distribution<> dist(1, 6);
+	//random_device rd;
+	//mt19937 gen(rd());
+	//uniform_int_distribution<> dist(1, 6);
 
-	if (!pObjectsShader->obj.empty()) {
-		for (const auto& o : pObjectsShader->obj)
-		{
-			if (1 == dist(gen))
-				o->MoveForward(+1.0f);//forward
-			else if (2 == dist(gen))
-				o->MoveForward(-1.0f);//back
-			else if (3 == dist(gen))
-				o->MoveStrafe(-1.0f);//left
-			else if (4 == dist(gen))
-				o->MoveStrafe(+1.0f);//right
-			else if (5 == dist(gen))
-				o->MoveUp(+1.0f);//up
-			else if (6 == dist(gen))
-				o->MoveUp(-1.0f);//down
-		}
-	}
+	//if (!pObjectsShader->obj.empty()) {
+	//	for (const auto& o : pObjectsShader->obj)
+	//	{
+	//		if (1 == dist(gen))
+	//			o->MoveForward(+1.0f);//forward
+	//		else if (2 == dist(gen))
+	//			o->MoveForward(-1.0f);//back
+	//		else if (3 == dist(gen))
+	//			o->MoveStrafe(-1.0f);//left
+	//		else if (4 == dist(gen))
+	//			o->MoveStrafe(+1.0f);//right
+	//		else if (5 == dist(gen))
+	//			o->MoveUp(+1.0f);//up
+	//		else if (6 == dist(gen))
+	//			o->MoveUp(-1.0f);//down
+	//	}
+	//}
 
 	if (m_pPlayer->attack)
 	{
@@ -775,8 +775,7 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	/*if (m_pShadowShader->m_ppd3dPipelineStates[0])
 		pd3dCommandList->SetPipelineState(m_pShadowShader->m_ppd3dPipelineStates[0]);*/
 
-	if (/*pCamera->GetPlayer() &&*/ m_pShadowShader && start)
-		m_pShadowShader->Render(pd3dCommandList, pCamera);
+	
 
 
 	//if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
@@ -814,17 +813,24 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 			//m_pPlayer->HP -= 0.00009259f;
 			m_pPlayer->Render(pd3dCommandList, pCamera);
 		}
-		else {
-			pMultiSpriteObjectShader->m_ppObjects[8]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
-			pMultiSpriteObjectShader->m_ppObjects[9]->m_ppMaterials[0]->m_pTexture->m_bActive = false;
-			start = false;
-			sound[0].Stop();//??????
-			sound[3].Play();//?????
-		}
+		//else {
+		//	pMultiSpriteObjectShader->m_ppObjects[8]->m_ppMaterials[0]->m_pTexture->m_bActive = true;
+		//	pMultiSpriteObjectShader->m_ppObjects[9]->m_ppMaterials[0]->m_pTexture->m_bActive = false;
+		//	start = false;
+		//	sound[0].Stop();//??????
+		//	sound[3].Play();//?????
+		//}
 
 	}
 
+	
+
 	pMultiSpriteObjectShader->Render(pd3dCommandList, pCamera);//ºÒ²É
+
+	if (pCamera->GetPlayer() && m_pShadowShader && start)
+		m_pShadowShader->Render(pd3dCommandList, pCamera);
+
+	
 }
 
 SoundPlayer::SoundPlayer()
