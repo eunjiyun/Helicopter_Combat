@@ -695,9 +695,9 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
 	//float4 cIllumination = Lighting(input.positionW, normalize(input.normalW), true, input.shadowMapUVs);
 	float4 cIllumination = shadowLighting(input.positionW, normalize(input.normalW), true, input.uvs);
 
-	//return(cIllumination);
+	return(cIllumination);
 	
-	return (float4(1, 0, 0, 0));
+	//return (float4(1, 0, 0, 0));
 
 	/*float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gMaterial.gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uvs[0].xy);

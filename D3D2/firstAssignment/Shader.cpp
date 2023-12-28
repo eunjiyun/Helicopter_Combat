@@ -2368,7 +2368,15 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 {
 	//CShader::Render(pd3dCommandList, pCamera);
 
+	if (m_ppd3dPipelineStates)
+		pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);
+
+	if (m_pd3dCbvSrvDescriptorHeap)
+		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+
 	UpdateShaderVariables(pd3dCommandList);
+
+
 
 	for (int i = 0; i < m_pObjectsShader->m_nObjects; i++)
 	{

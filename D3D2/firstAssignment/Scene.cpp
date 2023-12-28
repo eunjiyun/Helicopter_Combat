@@ -150,7 +150,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	temp = new CObjectsShader();
 	temp->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	//pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, NULL);
-	temp->m_nObjects = 1;
+	temp->m_nObjects = 4;
 	temp->m_ppObjects = new CGameObject * [temp->m_nObjects];
 
 
@@ -172,11 +172,39 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	CRotatingObject* pRoatingAirPlane = new CRotatingObject(1);
 	pRoatingAirPlane->SetMesh(0, pAirPlaneMesh);
 	pRoatingAirPlane->SetMaterial(0,pMaterial);
-	pRoatingAirPlane->SetPosition(100.0f, 50.0f, 120.0f);
+	pRoatingAirPlane->SetPosition(920.0f, 745.0f, 1270.0f);
 	pRoatingAirPlane->Rotate(90.0f, 0.0f, 0.0f);
 	pRoatingAirPlane->SetRotationAxis(XMFLOAT3(0.0f, 0.0f, 1.0f));
 	pRoatingAirPlane->SetRotationSpeed(0.0f);
-	//temp->m_ppObjects[1] = pRoatingAirPlane;
+	temp->m_ppObjects[1] = pRoatingAirPlane;
+
+	CAirPlaneMeshIlluminated* pAirPlaneMesh2 = new CAirPlaneMeshIlluminated(pd3dDevice, pd3dCommandList, 40.0f, 40.0f, 4.0f);
+
+	CMaterial* pMaterial2 = new CMaterial();
+	//pMaterial->SetReflection(2);
+
+	CRotatingObject* pRoatingAirPlane2 = new CRotatingObject(1);
+	pRoatingAirPlane2->SetMesh(0, pAirPlaneMesh2);
+	pRoatingAirPlane2->SetMaterial(0, pMaterial2);
+	pRoatingAirPlane2->SetPosition(100.0f, 50.0f, 120.0f);
+	pRoatingAirPlane2->Rotate(90.0f, 0.0f, 0.0f);
+	pRoatingAirPlane2->SetRotationAxis(XMFLOAT3(0.0f, 0.0f, 1.0f));
+	pRoatingAirPlane2->SetRotationSpeed(0.0f);
+	temp->m_ppObjects[2] = pRoatingAirPlane2;
+
+	CAirPlaneMeshIlluminated* pAirPlaneMesh3 = new CAirPlaneMeshIlluminated(pd3dDevice, pd3dCommandList, 40.0f, 40.0f, 4.0f);
+
+	CMaterial* pMaterial3 = new CMaterial();
+	//pMaterial->SetReflection(2);
+
+	CRotatingObject* pRoatingAirPlane3 = new CRotatingObject(1);
+	pRoatingAirPlane3->SetMesh(0, pAirPlaneMesh3);
+	pRoatingAirPlane3->SetMaterial(0, pMaterial3);
+	pRoatingAirPlane3->SetPosition(100.0f, 50.0f, 120.0f);
+	pRoatingAirPlane3->Rotate(90.0f, 0.0f, 0.0f);
+	pRoatingAirPlane3->SetRotationAxis(XMFLOAT3(0.0f, 0.0f, 1.0f));
+	pRoatingAirPlane3->SetRotationSpeed(0.0f);
+	temp->m_ppObjects[3] = pRoatingAirPlane3;
 
 	
 
@@ -747,27 +775,27 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	/*if (m_pShadowShader->m_ppd3dPipelineStates[0])
 		pd3dCommandList->SetPipelineState(m_pShadowShader->m_ppd3dPipelineStates[0]);*/
 
-	if (/*pCamera->GetPlayer() &&*/ m_pShadowShader)
+	if (/*pCamera->GetPlayer() &&*/ m_pShadowShader && start)
 		m_pShadowShader->Render(pd3dCommandList, pCamera);
 
 
-	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
-	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
+	//if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
+	//if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
 
 
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, cuT, 28);
 
 	m_pTerrainWater->m_nMaterials = 1;
-	if (m_pTerrainWater)
-		m_pTerrainWater->Render(pd3dCommandList, pCamera);
+	//if (m_pTerrainWater)
+		//m_pTerrainWater->Render(pd3dCommandList, pCamera);
 
 
-	m_ppShaders[2]->Render(pd3dCommandList, pCamera);//Ç®
+	//m_ppShaders[2]->Render(pd3dCommandList, pCamera);//Ç®
 
-	pObjectsShader->Render(pd3dCommandList, pCamera);//Çï±â
+	//pObjectsShader->Render(pd3dCommandList, pCamera);//Çï±â
 
-	for (int i{}; i < m_nEnvironmentMappingShaders; ++i)
-		m_ppEnvironmentMappingShaders[i]->Render(pd3dCommandList, pCamera);
+	//for (int i{}; i < m_nEnvironmentMappingShaders; ++i)
+		//m_ppEnvironmentMappingShaders[i]->Render(pd3dCommandList, pCamera);
 
 
 	if (pCamera->GetPlayer() && start) {

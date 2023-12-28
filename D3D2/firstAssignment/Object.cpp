@@ -469,7 +469,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 		m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
 	}
 
-	if (m_ppMaterials)
+	if (m_ppMaterials && m_ppMaterials[0]->m_pTexture)
 	{
 		if (!(m_ppMaterials[0]->m_pShader) && m_ppMaterials[0]->m_pTexture
 			|| 3 == m_ppMaterials[0]->m_pTexture->m_nTextures)
