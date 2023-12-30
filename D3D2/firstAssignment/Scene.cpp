@@ -23,7 +23,7 @@ void CScene::BuildDefaultLightsAndMaterials()
 
 	m_xmf4GlobalAmbient = XMFLOAT4(0.15f, 0.15f, 0.15f, 1.0f);
 
-	m_pLights[0].m_bEnable = true;
+	m_pLights[0].m_bEnable = false;
 	m_pLights[0].m_nType = POINT_LIGHT;
 	m_pLights[0].m_fRange = 1000.0f;
 	m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.1f, 0.0f, 0.0f, 1.0f);
@@ -33,7 +33,7 @@ void CScene::BuildDefaultLightsAndMaterials()
 	m_pLights[0].m_xmf3Position = XMFLOAT3(920.0f, 845.0f, 1270.0f);//920 745 1270
 	m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_pLights[0].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.001f, 0.0001f);
-	m_pLights[1].m_bEnable = true;
+	m_pLights[1].m_bEnable =false;
 	m_pLights[1].m_nType = SPOT_LIGHT;
 	m_pLights[1].m_fRange = 500.0f;
 	m_pLights[1].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
@@ -45,16 +45,19 @@ void CScene::BuildDefaultLightsAndMaterials()
 	m_pLights[1].m_fFalloff = 8.0f;
 	m_pLights[1].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
 	m_pLights[1].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
+
 	m_pLights[2].m_bEnable = true;
 	m_pLights[2].m_nType = DIRECTIONAL_LIGHT;
+	m_pLights[2].m_fRange = 2000.0f;
 	m_pLights[2].m_xmf4Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
 	m_pLights[2].m_xmf4Diffuse = XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f);
 	m_pLights[2].m_xmf4Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 0.0f);
 	//m_pLights[1].m_xmf3Position = XMFLOAT3(-50.0f, 20.0f, -5.0f);//
-	m_pLights[0].m_xmf3Position = XMFLOAT3(920.0f, 845.0f, 1270.0f);//920 745 1270
+	m_pLights[2].m_xmf3Position = XMFLOAT3(920.0f, 945.0f, 1270.0f);//920 745 1270
 	m_pLights[2].m_xmf3Direction = XMFLOAT3(-1.0f, -1.0f, 0.0f);
-	m_pLights[3].m_bEnable = true;
-	m_pLights[3].m_nType = SPOT_LIGHT;
+
+	m_pLights[3].m_bEnable = false;
+	m_pLights[3].m_nType = SPOT_LIGHT;//
 	m_pLights[3].m_fRange = 600.0f;
 	m_pLights[3].m_xmf4Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
 	m_pLights[3].m_xmf4Diffuse = XMFLOAT4(0.3f, 0.7f, 0.0f, 1.0f);
@@ -178,19 +181,20 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pRoatingAirPlane->SetRotationSpeed(0.0f);
 	temp->m_ppObjects[1] = pRoatingAirPlane;
 
-	CAirPlaneMeshIlluminated* pAirPlaneMesh2 = new CAirPlaneMeshIlluminated(pd3dDevice, pd3dCommandList, 40.0f, 40.0f, 4.0f);
+	//CAirPlaneMeshIlluminated* pAirPlaneMesh2 = new CAirPlaneMeshIlluminated(pd3dDevice, pd3dCommandList, 40.0f, 40.0f, 4.0f);
 
-	CMaterial* pMaterial2 = new CMaterial();
-	//pMaterial->SetReflection(2);
+	//CMaterial* pMaterial2 = new CMaterial();
+	////pMaterial->SetReflection(2);
 
-	CRotatingObject* pRoatingAirPlane2 = new CRotatingObject(1);
-	pRoatingAirPlane2->SetMesh(0, pAirPlaneMesh2);
-	pRoatingAirPlane2->SetMaterial(0, pMaterial2);
-	pRoatingAirPlane2->SetPosition(100.0f, 50.0f, 120.0f);
-	pRoatingAirPlane2->Rotate(90.0f, 0.0f, 0.0f);
-	pRoatingAirPlane2->SetRotationAxis(XMFLOAT3(0.0f, 0.0f, 1.0f));
-	pRoatingAirPlane2->SetRotationSpeed(0.0f);
-	temp->m_ppObjects[2] = pRoatingAirPlane2;
+	//CRotatingObject* pRoatingAirPlane2 = new CRotatingObject(1);
+	//pRoatingAirPlane2->SetMesh(0, pAirPlaneMesh2);
+	//pRoatingAirPlane2->SetMaterial(0, pMaterial2);
+	//pRoatingAirPlane2->SetPosition(100.0f, 50.0f, 120.0f);
+	//pRoatingAirPlane2->Rotate(90.0f, 0.0f, 0.0f);
+	//pRoatingAirPlane2->SetRotationAxis(XMFLOAT3(0.0f, 0.0f, 1.0f));
+	//pRoatingAirPlane2->SetRotationSpeed(0.0f);
+	//temp->m_ppObjects[2] = pRoatingAirPlane2;
+	temp->m_ppObjects[2] = m_pPlayer;
 
 	//CAirPlaneMeshIlluminated* pAirPlaneMesh3 = new CAirPlaneMeshIlluminated(pd3dDevice, pd3dCommandList, 40.0f, 40.0f, 4.0f);
 

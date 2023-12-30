@@ -471,11 +471,15 @@ void CGameFramework::BuildObjects()
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
 	m_pScene = new CScene();
+	
+
 	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
 	CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
 	pAirplanePlayer->SetPosition(XMFLOAT3(920.0f, 745.0f, 1270.0));
 	m_pScene->m_pPlayer = m_pPlayer = pAirplanePlayer;
+
+	
 
 	m_pCamera = m_pPlayer->GetCamera();
 
@@ -660,6 +664,9 @@ void CGameFramework::FrameAdvance()
 
 	/*if (m_pScene->m_pDepthRenderShader->m_ppd3dPipelineStates[0])
 		m_pd3dCommandList->SetPipelineState(m_pScene->m_pDepthRenderShader->m_ppd3dPipelineStates[0]);*/
+
+	//if (m_pd3dGraphicsRootSignature) 
+		//m_pd3dCommandList->SetGraphicsRootSignature(m_pScene->GetGraphicsRootSignature());
 
 	m_pScene->OnPreRenderSh(m_pd3dCommandList, m_pCamera, m_pPlayer);
 

@@ -388,8 +388,8 @@ public:
 
 struct TOLIGHTSPACEINFO
 {
-	XMFLOAT4X4						m_pxmf4x4ToTextures[MAX_LIGHTS]; //Transposed
-	XMFLOAT4						m_pxmf4LightPositions[MAX_LIGHTS];
+	XMFLOAT4X4						m_pxmf4x4ToTextures[MAX_SHADOW_LIGHTS]; //Transposed
+	XMFLOAT4						m_pxmf4LightPositions[MAX_SHADOW_LIGHTS];
 };
 
 class CIlluminatedShader : public CShader
@@ -410,7 +410,7 @@ public:
 class CDepthRenderShader : public CIlluminatedShader
 {
 public:
-	CDepthRenderShader(CObjectsShader* t,CHeightMapTerrain* pObjectsShader, CRippleWater* w, LIGHT* pLights);
+	CDepthRenderShader(CObjectsShader* t, CHeightMapTerrain* pObjectsShader, CRippleWater* w, LIGHT* pLights);
 	virtual ~CDepthRenderShader();
 
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();

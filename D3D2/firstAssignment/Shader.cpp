@@ -678,8 +678,10 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 
 					m_ppObjects[j]->Render2(pd3dCommandList, pCamera);
 				}
-				else
+				else if(2!=j)
 					m_ppObjects[j]->Render(pd3dCommandList, pCamera);
+				else if (2 == j)
+					m_ppObjects[j]->Render2(pd3dCommandList, pCamera);
 			}
 		}
 	}
@@ -1998,7 +2000,7 @@ void CIlluminatedShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 
 
 //==============
-CDepthRenderShader::CDepthRenderShader(CObjectsShader* t, CHeightMapTerrain* pObjectsShader, CRippleWater* w,LIGHT* pLights)
+CDepthRenderShader::CDepthRenderShader(CObjectsShader* t,  CHeightMapTerrain* pObjectsShader, CRippleWater* w,LIGHT* pLights)
 {
 	m_pObjectsShader = t;
 	water = w;
@@ -2286,7 +2288,7 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 			m_pObjectsShader->Render(pd3dCommandList, pCamera);
 		}
 	}
-	pl->Render(pd3dCommandList, pCamera);
+	//pl->Render(pd3dCommandList, pCamera);
 	//water->Render(pd3dCommandList, pCamera);
 }
 
