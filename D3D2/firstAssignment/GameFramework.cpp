@@ -660,18 +660,26 @@ void CGameFramework::FrameAdvance()
 	float f{ m_GameTimer.GetTimeElapsed() };
 	m_pScene->elT = &f;
 	
-	m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandQueue, m_pd3dFence, m_hFenceEvent);
+	
+	
+
+	
+
+	HRESULT hResult = m_pd3dCommandAllocator->Reset();
+	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
+
+
+	
+	
+	//m_pScene->OnPreRender(m_pd3dDevice, m_pd3dCommandQueue, m_pd3dFence, m_hFenceEvent);
+	m_pScene->OnPreRenderSh(m_pd3dCommandList, m_pCamera, m_pPlayer);
+	
 
 	/*if (m_pScene->m_pDepthRenderShader->m_ppd3dPipelineStates[0])
 		m_pd3dCommandList->SetPipelineState(m_pScene->m_pDepthRenderShader->m_ppd3dPipelineStates[0]);*/
 
-	//if (m_pd3dGraphicsRootSignature) 
-		//m_pd3dCommandList->SetGraphicsRootSignature(m_pScene->GetGraphicsRootSignature());
-
-	m_pScene->OnPreRenderSh(m_pd3dCommandList, m_pCamera, m_pPlayer);
-
-	HRESULT hResult = m_pd3dCommandAllocator->Reset();
-	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
+		//if (m_pd3dGraphicsRootSignature) 
+			//m_pd3dCommandList->SetGraphicsRootSignature(m_pScene->GetGraphicsRootSignature());
 
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
 	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));

@@ -21,19 +21,19 @@ void CScene::BuildDefaultLightsAndMaterials()
 	m_pLights = new LIGHT[m_nLights];
 	::ZeroMemory(m_pLights, sizeof(LIGHT) * m_nLights);
 
-	m_xmf4GlobalAmbient = XMFLOAT4(0.15f, 0.15f, 0.15f, 1.0f);
+	m_xmf4GlobalAmbient = /*XMFLOAT4(0.15f, 0.15f, 0.15f, 1.0f);*/XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
 
-	m_pLights[0].m_bEnable = false;
+	m_pLights[0].m_bEnable = true;
 	m_pLights[0].m_nType = POINT_LIGHT;
 	m_pLights[0].m_fRange = 1000.0f;
 	m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.1f, 0.0f, 0.0f, 1.0f);
 	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.8f, 0.0f, 0.0f, 1.0f);
 	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 0.0f);
 	//m_pLights[0].m_xmf3Position = XMFLOAT3(30.0f, 30.0f, 30.0f);//920 745 1270
-	m_pLights[0].m_xmf3Position = XMFLOAT3(920.0f, 845.0f, 1270.0f);//920 745 1270
+	m_pLights[0].m_xmf3Position = XMFLOAT3(920.0f, 945.0f, 1270.0f);//920 745 1270
 	m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_pLights[0].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.001f, 0.0001f);
-	m_pLights[1].m_bEnable =false;
+	m_pLights[1].m_bEnable = false;
 	m_pLights[1].m_nType = SPOT_LIGHT;
 	m_pLights[1].m_fRange = 500.0f;
 	m_pLights[1].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
@@ -48,23 +48,26 @@ void CScene::BuildDefaultLightsAndMaterials()
 
 	m_pLights[2].m_bEnable = true;
 	m_pLights[2].m_nType = DIRECTIONAL_LIGHT;
-	m_pLights[2].m_fRange = 2000.0f;
+	m_pLights[2].m_fRange = 4307.0f;
 	m_pLights[2].m_xmf4Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
 	m_pLights[2].m_xmf4Diffuse = XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f);
 	m_pLights[2].m_xmf4Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 0.0f);
 	//m_pLights[1].m_xmf3Position = XMFLOAT3(-50.0f, 20.0f, -5.0f);//
-	m_pLights[2].m_xmf3Position = XMFLOAT3(920.0f, 945.0f, 1270.0f);//920 745 1270
+	m_pLights[2].m_xmf3Position = XMFLOAT3(920+150, 1545.0f, 1270.0f);//920 745 1270
 	m_pLights[2].m_xmf3Direction = XMFLOAT3(-1.0f, -1.0f, 0.0f);
 
 	m_pLights[3].m_bEnable = false;
 	m_pLights[3].m_nType = SPOT_LIGHT;//
 	m_pLights[3].m_fRange = 600.0f;
+	//m_pLights[3].m_fRange = 2000.0f;
 	m_pLights[3].m_xmf4Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
 	m_pLights[3].m_xmf4Diffuse = XMFLOAT4(0.3f, 0.7f, 0.0f, 1.0f);
 	m_pLights[3].m_xmf4Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.0f);
 	m_pLights[3].m_xmf3Position = XMFLOAT3(50.0f, 30.0f, 30.0f);
 	m_pLights[3].m_xmf3Direction = XMFLOAT3(0.0f, 1.0f, 1.0f);
+	//m_pLights[3].m_xmf3Position = XMFLOAT3(_PLANE_WIDTH * 1.5f, 1145.0f, 1270.0f);//920 745 1270
 	m_pLights[3].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
+	//m_pLights[3].m_xmf3Direction = XMFLOAT3(-1.0f, -1.0f, 0.0f);
 	m_pLights[3].m_fFalloff = 8.0f;
 	m_pLights[3].m_fPhi = (float)cos(XMConvertToRadians(90.0f));
 	m_pLights[3].m_fTheta = (float)cos(XMConvertToRadians(30.0f));
@@ -175,25 +178,25 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	CRotatingObject* pRoatingAirPlane = new CRotatingObject(1);
 	pRoatingAirPlane->SetMesh(0, pAirPlaneMesh);
 	pRoatingAirPlane->SetMaterial(0,pMaterial);
-	pRoatingAirPlane->SetPosition(920.0f, 745.0f, 1270.0f);
+	pRoatingAirPlane->SetPosition(920.0f, 845.0f, 1270.0f);
 	pRoatingAirPlane->Rotate(90.0f, 0.0f, 0.0f);
 	pRoatingAirPlane->SetRotationAxis(XMFLOAT3(0.0f, 0.0f, 1.0f));
 	pRoatingAirPlane->SetRotationSpeed(0.0f);
 	temp->m_ppObjects[1] = pRoatingAirPlane;
 
-	//CAirPlaneMeshIlluminated* pAirPlaneMesh2 = new CAirPlaneMeshIlluminated(pd3dDevice, pd3dCommandList, 40.0f, 40.0f, 4.0f);
+	CAirPlaneMeshIlluminated* pAirPlaneMesh2 = new CAirPlaneMeshIlluminated(pd3dDevice, pd3dCommandList, 40.0f, 40.0f, 4.0f);
 
-	//CMaterial* pMaterial2 = new CMaterial();
-	////pMaterial->SetReflection(2);
+	CMaterial* pMaterial2 = new CMaterial();
+	//pMaterial->SetReflection(2);
 
-	//CRotatingObject* pRoatingAirPlane2 = new CRotatingObject(1);
-	//pRoatingAirPlane2->SetMesh(0, pAirPlaneMesh2);
-	//pRoatingAirPlane2->SetMaterial(0, pMaterial2);
-	//pRoatingAirPlane2->SetPosition(100.0f, 50.0f, 120.0f);
-	//pRoatingAirPlane2->Rotate(90.0f, 0.0f, 0.0f);
-	//pRoatingAirPlane2->SetRotationAxis(XMFLOAT3(0.0f, 0.0f, 1.0f));
-	//pRoatingAirPlane2->SetRotationSpeed(0.0f);
-	//temp->m_ppObjects[2] = pRoatingAirPlane2;
+	CRotatingObject* pRoatingAirPlane2 = new CRotatingObject(1);
+	pRoatingAirPlane2->SetMesh(0, pAirPlaneMesh2);
+	pRoatingAirPlane2->SetMaterial(0, pMaterial2);
+	pRoatingAirPlane2->SetPosition(100.0f, 50.0f, 120.0f);
+	pRoatingAirPlane2->Rotate(90.0f, 0.0f, 0.0f);
+	pRoatingAirPlane2->SetRotationAxis(XMFLOAT3(0.0f, 0.0f, 1.0f));
+	pRoatingAirPlane2->SetRotationSpeed(0.0f);
+	temp->m_ppObjects[2] = pRoatingAirPlane2;
 	//temp->m_ppObjects[2] = m_pPlayer;
 
 	//CAirPlaneMeshIlluminated* pAirPlaneMesh3 = new CAirPlaneMeshIlluminated(pd3dDevice, pd3dCommandList, 40.0f, 40.0f, 4.0f);
@@ -217,7 +220,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	temp->m_pDirectionalLight->SetMaterial(0,pMaterial);
 	//temp->m_pDirectionalLight->Rotate(180.0f, 0.0f, 0.0f);
 	//temp->m_pDirectionalLight->Rotate(0.0f, 0.0f, 45.0f);
-	temp->m_pDirectionalLight->SetPosition(XMFLOAT3(_PLANE_WIDTH * 0.25f, 450.0f, 0));
+	//temp->m_pDirectionalLight->SetPosition(XMFLOAT3(_PLANE_WIDTH * 0.25f, 450.0f, 0));
 
 	
 
@@ -752,6 +755,13 @@ void CScene::OnPreRender(ID3D12Device* pd3dDevice, ID3D12CommandQueue* pd3dComma
 }
 void CScene::OnPreRenderSh(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,CPlayer* pl)
 {
+	if (m_pd3dGraphicsRootSignature) 
+		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+	UpdateShaderVariables(pd3dCommandList);
+
+	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
+	pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
+
 	m_pDepthRenderShader->PrepareShadowMap(pd3dCommandList, pCamera,pl);
 }
 
@@ -760,18 +770,19 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	// Play sound
 	sound[1].Play();//??????
 
-	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
-
+	//if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+	//if (pCamera->GetPlayer())
+		m_pDepthRenderShader->UpdateShaderVariables(pd3dCommandList);
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 	pCamera->UpdateShaderVariables(pd3dCommandList);
 
-	UpdateShaderVariables(pd3dCommandList);
+	//UpdateShaderVariables(pd3dCommandList);
 
-	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
-	pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
+	//D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
+	//pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
 
-	temp->m_ppObjects[2] = m_pPlayer;
-	m_pDepthRenderShader->UpdateShaderVariables(pd3dCommandList);
+	//temp->m_ppObjects[2] = m_pPlayer;
+	
 
 	//pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 	//pCamera->UpdateShaderVariables(pd3dCommandList);

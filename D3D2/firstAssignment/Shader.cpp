@@ -2205,7 +2205,8 @@ void CDepthRenderShader::PrepareShadowMap(ID3D12GraphicsCommandList* pd3dCommand
 			XMFLOAT3 xmf3Look = m_pLights[j].m_xmf3Direction;
 			XMFLOAT3 xmf3Up = XMFLOAT3(0.0f, +1.0f, 0.0f);
 
-			xmf3Look = XMFLOAT3(-1, -1, 0);
+			if(0== xmf3Look.x)
+				xmf3Look = XMFLOAT3(-1, -1, 0);
 
 			//XMMATRIX xmmtxLightView = XMMatrixLookToLH(XMLoadFloat3(&xmf3Position), XMLoadFloat3(&xmf3Look), XMLoadFloat3(&xmf3Up));
 			XMMATRIX xmmtxView = DirectX::XMMatrixLookToLH(XMLoadFloat3(&xmf3Position), XMLoadFloat3(&xmf3Look), XMLoadFloat3(&xmf3Up));//assertion failed
@@ -2248,6 +2249,7 @@ void CDepthRenderShader::PrepareShadowMap(ID3D12GraphicsCommandList* pd3dCommand
 			XMMATRIX xmmtxToTexture = XMMatrixTranspose(xmmtxView * xmmtxProjection * m_xmProjectionToTexture);
 			XMStoreFloat4x4(&m_pToLightSpaces->m_pxmf4x4ToTextures[j], xmmtxToTexture);
 			m_pToLightSpaces->m_pxmf4LightPositions[j] = XMFLOAT4(xmf3Position.x, xmf3Position.y, xmf3Position.z, 1.0f);
+			//m_pToLightSpaces->m_pxmf4LightPositions[j] = XMFLOAT4(-100, 880, 0, 1.0f);
 
 			::SynchronizeResourceTransition(pd3dCommandList, m_pDepthFromLightTexture->GetResource(j), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
@@ -2288,7 +2290,7 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 			m_pObjectsShader->Render(pd3dCommandList, pCamera);
 		}
 	}
-	//pl->Render(pd3dCommandList, pCamera);
+	pl->Render(pd3dCommandList, pCamera);
 	//water->Render(pd3dCommandList, pCamera);
 }
 

@@ -35,7 +35,7 @@ struct LIGHT
 
 cbuffer cbLights : register(b4)
 {
-	LIGHT					gLights[MAX_LIGHTS];
+	LIGHT					gLights[MAX_SHADOW_LIGHTS];
 	float4					gcGlobalAmbientLight;
 	int						gnLights;
 	uint gnRenderMode;
@@ -145,7 +145,7 @@ float4 Lighting(float3 vPosition, float3 vNormal)
 	float3 vToCamera = normalize(vCameraPosition - vPosition);
 
 	float4 cColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
-	[unroll(MAX_LIGHTS)] for (int i = 0; i < gnLights; i++)
+	[unroll(MAX_SHADOW_LIGHTS)] for (int i = 0; i < gnLights; i++)
 	{
 		if (gLights[i].m_bEnable)
 		{
