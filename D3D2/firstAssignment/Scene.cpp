@@ -194,7 +194,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	//pRoatingAirPlane2->SetRotationAxis(XMFLOAT3(0.0f, 0.0f, 1.0f));
 	//pRoatingAirPlane2->SetRotationSpeed(0.0f);
 	//temp->m_ppObjects[2] = pRoatingAirPlane2;
-	temp->m_ppObjects[2] = m_pPlayer;
+	//temp->m_ppObjects[2] = m_pPlayer;
 
 	//CAirPlaneMeshIlluminated* pAirPlaneMesh3 = new CAirPlaneMeshIlluminated(pd3dDevice, pd3dCommandList, 40.0f, 40.0f, 4.0f);
 
@@ -770,7 +770,7 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
 
-
+	temp->m_ppObjects[2] = m_pPlayer;
 	m_pDepthRenderShader->UpdateShaderVariables(pd3dCommandList);
 
 	//pCamera->SetViewportsAndScissorRects(pd3dCommandList);
