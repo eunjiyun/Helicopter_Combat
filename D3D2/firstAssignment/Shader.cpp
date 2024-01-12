@@ -685,8 +685,6 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 			}
 		}
 	}
-
-
 }
 
 
@@ -2253,7 +2251,7 @@ void CDepthRenderShader::PrepareShadowMap(ID3D12GraphicsCommandList* pd3dCommand
 
 			::SynchronizeResourceTransition(pd3dCommandList, m_pDepthFromLightTexture->GetResource(j), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-			float pfClearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+			float pfClearColor[4] = { 0.15f, 0.15f, 0.15f, 0.15f };
 			pd3dCommandList->ClearRenderTargetView(m_pd3dRtvCPUDescriptorHandles[j], pfClearColor, 0, NULL);
 			pd3dCommandList->ClearDepthStencilView(m_d3dDsvDescriptorCPUHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, NULL);
 			pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvCPUDescriptorHandles[j], TRUE, &m_d3dDsvDescriptorCPUHandle);
@@ -2269,7 +2267,7 @@ void CDepthRenderShader::PrepareShadowMap(ID3D12GraphicsCommandList* pd3dCommand
 	}
 }
 
-void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,CPlayer* pl)
+void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,CPlayer* pl)//0112
 {
 	CShader::Render(pd3dCommandList, pCamera);
 
@@ -2291,6 +2289,7 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 		}
 	}
 	pl->Render(pd3dCommandList, pCamera);
+
 	//water->Render(pd3dCommandList, pCamera);
 }
 
